@@ -1,38 +1,56 @@
 "use client";
 
-import { vibeGradient } from "@/lib/color";
 import type { Category, ClothingItem, Outfit } from "@/lib/types";
 import { GarmentGlyph, ModelFigure } from "./GarmentGlyph";
+import { SceneBackdrop } from "./SceneBackdrop";
+
+/** Resolve an outfit's item ids into items, sorted into render layers. */
+export function outfitPieces(
+  outfit: Outfit,
+  items: ClothingItem[]
+): ClothingItem[] {
+  return outfit.itemIds
+    .map((id) => items.find((item) => item.id === id))
+    .filter((item): item is ClothingItem => item !== undefined)
+    .sort((a, b) => LAYER_ORDER[a.category] - LAYER_ORDER[b.category]);
+}
 
 /**
  * An outfit rendered on the model figure. On hover the figure fades and
  * the garments spread into an exploded view so each piece reads on its own —
- * a mock of the eventual AI-rendered outfit imagery.
+ * a mock of the eventual AI-rendered outfit imagery. Clicking the card opens
+ * the outfit detail view; clicking an individual garment opens that piece.
  */
 export function OutfitCard({
   outfit,
   items,
+  onSelect,
   onSelectItem,
 }: {
   outfit: Outfit;
   items: ClothingItem[];
+  onSelect: (id: string) => void;
   onSelectItem: (id: string) => void;
 }) {
-  const pieces = outfit.itemIds
-    .map((id) => items.find((item) => item.id === id))
-    .filter((item): item is ClothingItem => item !== undefined)
-    .sort((a, b) => LAYER_ORDER[a.category] - LAYER_ORDER[b.category]);
-
-  const heroColor =
-    pieces.find((p) => p.category === "tops")?.primaryColorHex ??
-    pieces[0]?.primaryColorHex ??
-    "#D9CDB8";
+  const pieces = outfitPieces(outfit, items);
 
   return (
-    <div className="group relative aspect-[3/4] overflow-hidden border border-line transition-colors duration-300 hover:border-ink">
-      <div
-        className="absolute inset-0 transition-opacity duration-500 group-hover:opacity-40"
-        style={{ background: vibeGradient(heroColor) }}
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label={`${outfit.name}, ${pieces.length} pieces`}
+      onClick={() => onSelect(outfit.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(outfit.id);
+        }
+      }}
+      className="group relative aspect-[3/4] cursor-pointer overflow-hidden border border-line transition-colors duration-300 hover:border-ink focus-visible:border-ink focus-visible:outline-none"
+    >
+      <SceneBackdrop
+        vibe={outfit.vibe}
+        className="transition-opacity duration-500 group-hover:opacity-40"
       />
       <ModelFigure className="absolute inset-x-0 top-[4%] mx-auto h-[92%] text-ink-soft/60 transition-opacity duration-500 group-hover:opacity-15" />
 
@@ -40,7 +58,10 @@ export function OutfitCard({
         <button
           key={piece.id}
           type="button"
-          onClick={() => onSelectItem(piece.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelectItem(piece.id);
+          }}
           title={piece.name}
           aria-label={piece.name}
           className={`absolute -translate-x-1/2 transition-all duration-500 ease-out ${SLOT_CLASSES[piece.category]}`}

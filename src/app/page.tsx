@@ -15,7 +15,7 @@ export default async function Home() {
   return (
     <WardrobeView
       initialItems={items}
-      outfits={outfits}
+      initialOutfits={outfits}
       suggestion={suggestion}
     />
   );

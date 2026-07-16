@@ -12,22 +12,29 @@ import { CategoryTabs } from "./CategoryTabs";
 import { DailySuggestionCard } from "./DailySuggestionCard";
 import { ItemDetailPanel } from "./ItemDetailPanel";
 import { ItemGrid } from "./ItemGrid";
+import { OutfitDetailPanel } from "./OutfitDetailPanel";
 import { OutfitGrid } from "./OutfitGrid";
 
 export function WardrobeView({
   initialItems,
-  outfits,
+  initialOutfits,
   suggestion,
 }: {
   initialItems: ClothingItem[];
-  outfits: Outfit[];
+  initialOutfits: Outfit[];
   suggestion: DailySuggestion;
 }) {
   const [items, setItems] = useState(initialItems);
+  const [outfits, setOutfits] = useState(initialOutfits);
   const [filter, setFilter] = useState<CategoryFilter>("all");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedOutfitId, setSelectedOutfitId] = useState<string | null>(
+    null
+  );
 
-  const selectedItem = items.find((item) => item.id === selectedId) ?? null;
+  const selectedItem = items.find((item) => item.id === selectedItemId) ?? null;
+  const selectedOutfit =
+    outfits.find((outfit) => outfit.id === selectedOutfitId) ?? null;
 
   const visibleItems = useMemo(
     () =>
@@ -41,6 +48,25 @@ export function WardrobeView({
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
     );
+  }
+
+  function updateOutfit(id: string, patch: Partial<Outfit>) {
+    setOutfits((prev) =>
+      prev.map((outfit) =>
+        outfit.id === id ? { ...outfit, ...patch } : outfit
+      )
+    );
+  }
+
+  /** The two detail panels are mutually exclusive. */
+  function openItem(id: string) {
+    setSelectedOutfitId(null);
+    setSelectedItemId(id);
+  }
+
+  function openOutfit(id: string) {
+    setSelectedItemId(null);
+    setSelectedOutfitId(id);
   }
 
   return (
@@ -63,7 +89,7 @@ export function WardrobeView({
         <DailySuggestionCard
           suggestion={suggestion}
           items={items}
-          onSelectItem={setSelectedId}
+          onSelectItem={openItem}
         />
       </div>
 
@@ -78,18 +104,26 @@ export function WardrobeView({
           <OutfitGrid
             outfits={outfits}
             items={items}
-            onSelectItem={setSelectedId}
+            onSelect={openOutfit}
+            onSelectItem={openItem}
           />
         ) : (
-          <ItemGrid items={visibleItems} onSelect={setSelectedId} />
+          <ItemGrid items={visibleItems} onSelect={openItem} />
         )}
       </div>
 
-      {/* Detail panel overlay */}
+      {/* Detail panel overlays */}
       <ItemDetailPanel
         item={selectedItem}
-        onClose={() => setSelectedId(null)}
+        onClose={() => setSelectedItemId(null)}
         onUpdate={updateItem}
+      />
+      <OutfitDetailPanel
+        outfit={selectedOutfit}
+        items={items}
+        onClose={() => setSelectedOutfitId(null)}
+        onSelectItem={openItem}
+        onUpdate={updateOutfit}
       />
     </main>
   );

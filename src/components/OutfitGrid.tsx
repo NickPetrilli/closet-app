@@ -6,10 +6,12 @@ import { OutfitCard } from "./OutfitCard";
 export function OutfitGrid({
   outfits,
   items,
+  onSelect,
   onSelectItem,
 }: {
   outfits: Outfit[];
   items: ClothingItem[];
+  onSelect: (id: string) => void;
   onSelectItem: (id: string) => void;
 }) {
   if (outfits.length === 0) {
@@ -32,6 +34,7 @@ export function OutfitGrid({
           key={outfit.id}
           outfit={outfit}
           items={items}
+          onSelect={onSelect}
           onSelectItem={onSelectItem}
         />
       ))}
