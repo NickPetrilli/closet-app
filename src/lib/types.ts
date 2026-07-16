@@ -21,9 +21,22 @@ export interface ClothingItem {
   sourcePhotoUrls: string[];
 }
 
+/**
+ * The mood of an outfit — drives which scene backdrop it is rendered
+ * against. Later, AI-generated scenes are keyed off the same value.
+ */
+export type OutfitVibe =
+  | "office"
+  | "evening"
+  | "weekend"
+  | "summer"
+  | "autumn"
+  | "street";
+
 export interface Outfit {
   id: string;
   name: string;
+  vibe: OutfitVibe;
   /** References into the clothing items list. */
   itemIds: string[];
 }

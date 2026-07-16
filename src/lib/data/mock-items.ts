@@ -182,31 +182,37 @@ export const MOCK_OUTFITS: Outfit[] = [
   {
     id: "out-01",
     name: "Weekend Classic",
+    vibe: "weekend",
     itemIds: ["top-04", "btm-01", "sho-01"],
   },
   {
     id: "out-02",
     name: "Office Standard",
+    vibe: "office",
     itemIds: ["top-01", "jkt-01", "btm-02", "sho-02"],
   },
   {
     id: "out-03",
     name: "Evening Out",
+    vibe: "evening",
     itemIds: ["top-02", "jkt-03", "btm-01", "sho-03"],
   },
   {
     id: "out-04",
     name: "Summer Stroll",
+    vibe: "summer",
     itemIds: ["top-03", "btm-03", "sho-01"],
   },
   {
     id: "out-05",
     name: "Autumn Layers",
+    vibe: "autumn",
     itemIds: ["top-05", "jkt-02", "btm-04", "sho-02", "acc-02"],
   },
   {
     id: "out-06",
     name: "Market Run",
+    vibe: "street",
     itemIds: ["top-02", "btm-04", "sho-01", "acc-03"],
   },
 ];
