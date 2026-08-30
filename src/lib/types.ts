@@ -9,10 +9,55 @@ export type Category =
 /** "all" is a UI-only filter value; items themselves always have a concrete Category. */
 export type CategoryFilter = Category | "all";
 
+/**
+ * Specific garment shape used to pick a placeholder silhouette, so a tank,
+ * cami, blazer, skirt, heel, tote, etc. each render differently instead of
+ * one generic shape per category. Optional — falls back to a category glyph.
+ * Retired once real item photos replace the silhouettes.
+ */
+export type Silhouette =
+  // tops
+  | "tee"
+  | "tank"
+  | "cami"
+  | "shirt"
+  | "cardigan"
+  | "corset"
+  | "offshoulder"
+  // jackets
+  | "denim-jacket"
+  | "blazer"
+  | "moto"
+  | "trench"
+  | "puffer"
+  // bottoms
+  | "jeans"
+  | "wide-trousers"
+  | "leggings"
+  | "shorts"
+  | "mini-skirt"
+  | "midi-skirt"
+  // accessories
+  | "shoulder-bag"
+  | "tote"
+  | "earrings"
+  | "necklace"
+  | "cap"
+  | "sunglasses"
+  // shoes
+  | "sneaker"
+  | "loafer"
+  | "tall-boot"
+  | "ankle-boot"
+  | "flat"
+  | "sandal";
+
 export interface ClothingItem {
   id: string;
   name: string;
   category: Category;
+  /** Specific shape for the placeholder glyph; falls back to category. */
+  silhouette?: Silhouette;
   primaryColorHex: string;
   secondaryColorHex: string | null;
   /** Placeholder path for now; becomes a real CDN/storage URL later. */
