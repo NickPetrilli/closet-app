@@ -78,6 +78,7 @@ export function OutfitDetailPanel({
                   <GarmentGlyph
                     key={piece.id}
                     category={piece.category}
+                    silhouette={piece.silhouette}
                     colorHex={piece.primaryColorHex}
                     className={`absolute -translate-x-1/2 drop-shadow-sm ${HERO_SLOTS[piece.category]}`}
                   />
@@ -138,6 +139,7 @@ export function OutfitDetailPanel({
                       >
                         <GarmentGlyph
                           category={piece.category}
+                          silhouette={piece.silhouette}
                           colorHex={piece.primaryColorHex}
                           className="w-10"
                         />

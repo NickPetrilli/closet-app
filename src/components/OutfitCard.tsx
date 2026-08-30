@@ -68,6 +68,7 @@ export function OutfitCard({
         >
           <GarmentGlyph
             category={piece.category}
+            silhouette={piece.silhouette}
             colorHex={piece.primaryColorHex}
             className="w-full drop-shadow-sm"
           />

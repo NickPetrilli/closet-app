@@ -79,6 +79,7 @@ export function ItemDetailPanel({
               <ModelFigure className="absolute left-1/2 top-[6%] h-[88%] -translate-x-1/2 text-ink/40" />
               <GarmentGlyph
                 category={shown.category}
+                silhouette={shown.silhouette}
                 colorHex={shown.primaryColorHex}
                 className="absolute left-1/2 top-[24%] w-[19%] -translate-x-1/2 drop-shadow-sm"
               />
@@ -115,6 +116,7 @@ export function ItemDetailPanel({
               {/* Isolated cutout, floating bottom-right */}
               <GarmentGlyph
                 category={shown.category}
+                silhouette={shown.silhouette}
                 colorHex={shown.primaryColorHex}
                 className="absolute right-6 bottom-6 w-28 drop-shadow-md"
               />
@@ -143,6 +145,7 @@ export function ItemDetailPanel({
                     >
                       <GarmentGlyph
                         category={shown.category}
+                        silhouette={shown.silhouette}
                         colorHex={mixHex(shown.primaryColorHex, "#57503F", 0.2)}
                         className="w-7"
                       />
