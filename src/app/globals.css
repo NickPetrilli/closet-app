@@ -1,31 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm editorial palette */
-  --color-ground: #e7e2d9; /* page background — warm taupe */
-  --color-ground-deep: #ddd6ca;
-  --color-cream: #f4f1ea; /* panels */
-  --color-card: #efebe2; /* item tiles */
-  --color-ink: #262019; /* warm near-black */
-  --color-ink-soft: #57503f;
-  --color-muted: #8d8478;
-  --color-line: #d3ccbe; /* hairline borders */
-  --color-line-dark: #b1a894;
+  /* Soft blue editorial palette — feminine, blue-forward with blush accents */
+  --color-ground: #eaf1f8; /* page background — airy pale blue */
+  --color-ground-deep: #dde8f3;
+  --color-cream: #f9fbfe; /* panels / surfaces */
+  --color-card: #e7eff8; /* item tiles */
+  --color-ink: #24384b; /* deep serene slate-blue (soft near-black) */
+  --color-ink-soft: #4e6379;
+  --color-muted: #66798e;
+  --color-line: #d8e2ec; /* hairline borders */
+  --color-line-dark: #bccbdb;
+  --color-accent: #6c9bd2; /* serene blue accent */
+  --color-accent-soft: #a8c6e6;
+  --color-blush: #f0cbd5; /* light pink accent */
+  --color-blush-deep: #e0a6b6;
 }
 
 @theme inline {
-  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
 }
 
 body {
   background-color: var(--color-ground);
   color: var(--color-ink);
-  background-image: radial-gradient(
-    ellipse 90% 60% at 50% -10%,
-    rgba(255, 252, 244, 0.55),
-    transparent
-  );
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 50% -10%,
+      rgba(178, 206, 235, 0.5),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 55% 40% at 100% 0%,
+      rgba(240, 203, 213, 0.22),
+      transparent
+    );
 }
 
 /* Fine film grain over everything, including the detail panel */
@@ -35,7 +45,7 @@ body::after {
   inset: 0;
   z-index: 90;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 

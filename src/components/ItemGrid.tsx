@@ -12,7 +12,7 @@ export function ItemGrid({
 }) {
   if (items.length === 0) {
     return (
-      <div className="border border-line py-24 text-center">
+      <div className="rounded-2xl border border-line bg-cream/40 py-24 text-center">
         <p className="font-serif text-2xl italic text-ink-soft">
           Nothing here yet.
         </p>

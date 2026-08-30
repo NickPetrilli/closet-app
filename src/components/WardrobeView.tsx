@@ -72,14 +72,14 @@ export function WardrobeView({
   return (
     <main className="mx-auto max-w-6xl px-6 pt-12 pb-24 lg:px-10">
       {/* Header */}
-      <header className="flex items-end justify-between border-b border-line-dark pb-7">
+      <header className="flex items-end justify-between border-b border-line pb-7">
         <div>
-          <p className="eyebrow text-muted">{APP_TAGLINE}</p>
-          <h1 className="mt-1 font-serif text-5xl tracking-tight">
+          <p className="eyebrow text-accent">{APP_TAGLINE}</p>
+          <h1 className="mt-1.5 font-serif text-5xl tracking-tight sm:text-6xl">
             {APP_NAME}
           </h1>
         </div>
-        <p className="eyebrow pb-1 text-ink-soft">
+        <p className="eyebrow mb-1 rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
           {items.length} Pieces
         </p>
       </header>

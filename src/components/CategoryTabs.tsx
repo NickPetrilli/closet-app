@@ -22,10 +22,10 @@ export function CategoryTabs({
             type="button"
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}
-            className={`eyebrow shrink-0 border px-5 py-2.5 transition-colors duration-200 ${
+            className={`eyebrow shrink-0 cursor-pointer rounded-full border px-5 py-2.5 transition-all duration-200 ${
               isActive
-                ? "border-ink bg-ink text-cream"
-                : "border-line-dark text-ink-soft hover:border-ink hover:text-ink"
+                ? "border-ink bg-ink text-cream shadow-sm"
+                : "border-line-dark bg-cream/50 text-ink-soft hover:border-accent hover:bg-cream hover:text-ink"
             }`}
           >
             {option.label}
