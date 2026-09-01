@@ -51,6 +51,20 @@ insert into storage.buckets (id, name, public)
 values ('item-images', 'item-images', true)
 on conflict (id) do nothing;
 
--- Storage grants for the same no-auth reason as above.
+-- Storage grants for the same no-auth reason as above. A grant alone isn't
+-- enough for storage.objects — unlike the app's own tables, it ships with
+-- RLS on and no permissive policy, which silently blocks anon/service_role
+-- writes (reads still work, because the bucket's own "public" flag serves
+-- reads independently of RLS). Unlike items/outfits, this table is owned
+-- by Supabase, not you, so RLS can't just be switched off here — an
+-- explicit policy is the supported way in instead.
 grant all on storage.objects to anon, authenticated, service_role;
 grant all on storage.buckets to anon, authenticated, service_role;
+
+drop policy if exists "item-images full access" on storage.objects;
+create policy "item-images full access"
+  on storage.objects
+  for all
+  to anon, authenticated, service_role
+  using (bucket_id = 'item-images')
+  with check (bucket_id = 'item-images');

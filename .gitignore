@@ -37,6 +37,9 @@ yarn-error.log*
 # scratch data from seed scripts (pre-fetched images, etc.)
 /scratchpad-images
 
+# working files for in-flight uploads (add-item background removal)
+/.tmp-uploads
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
