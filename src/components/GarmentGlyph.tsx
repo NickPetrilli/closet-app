@@ -144,6 +144,66 @@ const SILHOUETTES: Record<Silhouette, React.ReactNode> = {
       />
     </g>
   ),
+  hoodie: (
+    <g>
+      <path
+        fill="currentColor"
+        d="M31 24 L42 20 Q50 30 58 20 L69 24 L80 36 L72 45 L72 80 L28 80 L28 45 L20 36 Z"
+      />
+      <path
+        fill="currentColor"
+        d="M37 22 Q50 12 63 22 Q58 26 50 26 Q42 26 37 22 Z"
+      />
+      <path
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.4"
+        d="M42 20 Q50 30 58 20"
+      />
+      <path
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.3"
+        d="M36 56 Q50 50 64 56 L64 66 Q50 60 36 66 Z"
+      />
+    </g>
+  ),
+  sweatshirt: (
+    <g>
+      <path
+        fill="currentColor"
+        d="M33 22 L44 19 Q50 28 56 19 L67 22 L79 35 L71 43 L71 80 L29 80 L29 43 L21 35 Z"
+      />
+      <path
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.4"
+        d="M44 19 Q50 28 56 19 M29 26 L29 43 M71 26 L71 43"
+      />
+    </g>
+  ),
+  sweater: (
+    <g>
+      <path
+        fill="currentColor"
+        d="M34 23 L44 20 Q50 27 56 20 L66 23 L76 35 L69 42 L69 80 L31 80 L31 42 L24 35 Z"
+      />
+      <path
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.4"
+        d="M44 20 Q50 27 56 20 M31 71 L69 71"
+      />
+      <g fill={DETAIL}>
+        <circle cx="42" cy="48" r="1.3" />
+        <circle cx="50" cy="48" r="1.3" />
+        <circle cx="58" cy="48" r="1.3" />
+        <circle cx="42" cy="58" r="1.3" />
+        <circle cx="50" cy="58" r="1.3" />
+        <circle cx="58" cy="58" r="1.3" />
+      </g>
+    </g>
+  ),
 
   // ── Jackets ─────────────────────────────────────────────
   "denim-jacket": (
@@ -373,6 +433,49 @@ const SILHOUETTES: Record<Silhouette, React.ReactNode> = {
         stroke="currentColor"
         strokeWidth="3"
         d="M46 45 Q50 43 54 45 M18 45 L13 43 M82 45 L87 43"
+      />
+    </g>
+  ),
+  belt: (
+    <g>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="7"
+        strokeLinecap="round"
+        d="M14 50 Q50 40 86 50"
+      />
+      <rect
+        x="41"
+        y="42"
+        width="18"
+        height="16"
+        rx="2.5"
+        fill="currentColor"
+      />
+      <rect
+        x="45"
+        y="46"
+        width="10"
+        height="8"
+        rx="1.5"
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.4"
+      />
+    </g>
+  ),
+  scarf: (
+    <g>
+      <path
+        fill="currentColor"
+        d="M20 30 Q50 20 80 30 Q78 40 66 42 Q60 44 62 52 L58 74 L50 74 L52 48 Q52 42 44 40 Q26 38 20 30 Z"
+      />
+      <path
+        fill="none"
+        stroke={DETAIL}
+        strokeWidth="1.3"
+        d="M30 31 Q50 26 70 31"
       />
     </g>
   ),

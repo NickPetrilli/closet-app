@@ -1,8 +1,9 @@
 import type { ClothingItem, DailySuggestion, Outfit } from "@/lib/types";
 
 /**
- * In-memory mock wardrobe. Replaced by a real database later —
- * nothing outside src/lib/data should import this file directly.
+ * Retired now that wardrobe-repository.ts reads from Supabase — no longer
+ * imported anywhere. Kept as a reference/demo dataset (e.g. to reseed a
+ * fresh dev project) rather than deleted.
  *
  * Sample set: trendy women's pieces (placeholder for Jenna's real
  * uploads). Skirts live under "bottoms" for now — a dedicated

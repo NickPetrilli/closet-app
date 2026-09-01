@@ -24,6 +24,9 @@ export type Silhouette =
   | "cardigan"
   | "corset"
   | "offshoulder"
+  | "hoodie"
+  | "sweatshirt"
+  | "sweater"
   // jackets
   | "denim-jacket"
   | "blazer"
@@ -44,6 +47,8 @@ export type Silhouette =
   | "necklace"
   | "cap"
   | "sunglasses"
+  | "belt"
+  | "scarf"
   // shoes
   | "sneaker"
   | "loafer"
@@ -60,10 +65,14 @@ export interface ClothingItem {
   silhouette?: Silhouette;
   primaryColorHex: string;
   secondaryColorHex: string | null;
-  /** Placeholder path for now; becomes a real CDN/storage URL later. */
+  /** Storage/CDN URL for the item's photo. */
   imageUrl: string;
+  /** Background-removed, isolated-garment version of imageUrl, if generated. */
+  cutoutImageUrl?: string | null;
   /** Original photos the item was captured from (1–2 mock entries for now). */
   sourcePhotoUrls: string[];
+  /** Retailer listing URL (e.g. the Aritzia product page), for reordering. */
+  productUrl?: string | null;
 }
 
 /**
@@ -111,4 +120,9 @@ export const FILTER_OPTIONS: { value: CategoryFilter; label: string }[] = [
 
 export function categoryLabel(category: Category): string {
   return CATEGORY_OPTIONS.find((c) => c.value === category)?.label ?? category;
+}
+
+/** True once an item has a real photo (vs. a placeholder-only entry). */
+export function hasPhoto(imageUrl: string): boolean {
+  return imageUrl.startsWith("http");
 }
