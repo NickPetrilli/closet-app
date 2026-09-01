@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import type {
   CategoryFilter,
@@ -8,6 +8,7 @@ import type {
   DailySuggestion,
   Outfit,
 } from "@/lib/types";
+import { AddItemButton } from "./AddItemButton";
 import { CategoryTabs } from "./CategoryTabs";
 import { DailySuggestionCard } from "./DailySuggestionCard";
 import { ItemDetailPanel } from "./ItemDetailPanel";
@@ -26,6 +27,12 @@ export function WardrobeView({
 }) {
   const [items, setItems] = useState(initialItems);
   const [outfits, setOutfits] = useState(initialOutfits);
+
+  // Re-sync when the server sends fresh data (e.g. router.refresh() after
+  // adding an item) — useState's initial value only applies on first mount.
+  useEffect(() => setItems(initialItems), [initialItems]);
+  useEffect(() => setOutfits(initialOutfits), [initialOutfits]);
+
   const [filter, setFilter] = useState<CategoryFilter>("all");
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedOutfitId, setSelectedOutfitId] = useState<string | null>(
@@ -94,8 +101,9 @@ export function WardrobeView({
       </div>
 
       {/* Filter tabs */}
-      <div className="mt-10">
+      <div className="mt-10 flex items-center justify-between gap-4">
         <CategoryTabs active={filter} onChange={setFilter} />
+        <AddItemButton />
       </div>
 
       {/* Grid */}
