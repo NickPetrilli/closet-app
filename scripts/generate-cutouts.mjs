@@ -1,13 +1,20 @@
+// HISTORICAL — already ran once to seed the 20 demo items and can't run
+// again as-is: step 3 depended on scripts/remove-bg-worker.mjs, which was
+// deleted when the app switched from a local ONNX model to the remove.bg
+// API (see src/lib/server/remove-bg-api.ts) — the local model's bundled
+// weights were ~380MB, about 8x Vercel's function size limit. Kept here to
+// document how the seed data was produced.
+//
 // One-time fixup + cutout generation for the 20 seeded demo items:
 //   1. Replace each item's on-model photo with the flat/ghost-mannequin
 //      "off_a" shot (pre-fetched through the browser into scratchpad-images/
 //      off-batch*.json — Aritzia's CDN blocks direct server-side fetches).
 //   2. Recompute primary_color_hex from the flat photo (the on-model shot's
 //      average leaned gray from the studio background).
-//   3. Run local background removal on the flat photo (via a child process —
-//      see remove-bg-worker.mjs; sharp and @imgly/background-removal-node
-//      segfault when loaded in the same Node process on this Windows setup).
-// Run with:
+//   3. Run local background removal on the flat photo (via a child process,
+//      since sharp and @imgly/background-removal-node segfaulted when
+//      loaded in the same Node process on this Windows setup).
+// Originally run with:
 //   node --env-file=.env scripts/generate-cutouts.mjs
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";

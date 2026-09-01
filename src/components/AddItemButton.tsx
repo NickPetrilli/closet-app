@@ -11,7 +11,7 @@ type Mode = "photo" | "link";
 
 const initialState: AddItemResult = {};
 
-export function AddItemButton() {
+export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("photo");
@@ -111,27 +111,30 @@ export function AddItemButton() {
             </button>
           </div>
 
-          {/* Mode switch */}
-          <div className="mt-5 flex gap-1 rounded-full border border-line-dark bg-card/40 p-1">
-            <button
-              type="button"
-              onClick={() => switchMode("photo")}
-              className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                mode === "photo" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              Upload a Photo
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode("link")}
-              className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                mode === "link" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              Paste a Link
-            </button>
-          </div>
+          {/* Mode switch — link-fetch needs a local browser (Puppeteer),
+              which can't run on the deployed site, so it's hidden there. */}
+          {canFetchFromLink && (
+            <div className="mt-5 flex gap-1 rounded-full border border-line-dark bg-card/40 p-1">
+              <button
+                type="button"
+                onClick={() => switchMode("photo")}
+                className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
+                  mode === "photo" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                Upload a Photo
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode("link")}
+                className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
+                  mode === "link" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                Paste a Link
+              </button>
+            </div>
+          )}
 
           <form
             ref={formRef}

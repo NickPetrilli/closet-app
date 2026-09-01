@@ -1,17 +1,9 @@
-import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
+import { removeBackgroundViaApi } from "@/lib/server/remove-bg-api";
 import { supabase } from "@/lib/supabase/client";
 import type { Category } from "@/lib/types";
-
-// Relative to the project root (the server process's cwd) — background
-// removal segfaults on Windows given an absolute path or file:// URL, so
-// this can't use os.tmpdir(). See scripts/remove-bg-worker.mjs.
-const TEMP_DIR = ".tmp-uploads";
-const WORKER_SCRIPT = join("scripts", "remove-bg-worker.mjs");
 
 function toHex(n: number) {
   return n.toString(16).padStart(2, "0");
@@ -68,35 +60,18 @@ export async function processAndInsertItem({
   contentType,
   productUrl,
 }: ProcessItemInput): Promise<ProcessItemResult> {
-  const id = randomUUID();
-  const slug = slugify(name) || id;
-  const ext = contentType === "image/png" ? "png" : "jpg";
-
-  mkdirSync(TEMP_DIR, { recursive: true });
-  const tempInPath = join(TEMP_DIR, `${id}-in.${ext}`);
-  const tempOutPath = join(TEMP_DIR, `${id}-out.png`);
+  const removed = await removeBackgroundViaApi(buffer, contentType);
+  if (!removed.buffer) return { error: removed.error ?? "Something went wrong." };
 
   try {
-    writeFileSync(tempInPath, buffer);
-
-    // Background removal runs in a separate process — see
-    // remove-bg-worker.mjs. sharp and @imgly/background-removal-node
-    // segfault when loaded in the same Node process on this setup.
-    try {
-      execFileSync("node", [WORKER_SCRIPT, tempInPath, tempOutPath], {
-        stdio: "pipe",
-      });
-    } catch {
-      return {
-        error:
-          "Couldn't process that photo's background. Try a clearer photo of just the item.",
-      };
-    }
-
-    const cutoutBuffer = await sharp(readFileSync(tempOutPath))
+    const cutoutBuffer = await sharp(removed.buffer)
       .trim({ threshold: 10 })
       .toBuffer();
     const primaryColorHex = await averageOpaqueColorHex(cutoutBuffer);
+
+    const id = randomUUID();
+    const slug = slugify(name) || id;
+    const ext = contentType === "image/png" ? "png" : "jpg";
 
     const photoPath = `${id}-${slug}.${ext}`;
     const { error: uploadError } = await supabase.storage
@@ -139,8 +114,5 @@ export async function processAndInsertItem({
     return {
       error: err instanceof Error ? err.message : "Something went wrong.",
     };
-  } finally {
-    rmSync(tempInPath, { force: true });
-    rmSync(tempOutPath, { force: true });
   }
 }

@@ -7,20 +7,16 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "15mb",
     },
   },
-  // Puppeteer and the local background-removal model (@imgly + its
-  // onnxruntime-node engine) are local-dev only — see canAddItems in
-  // src/app/page.tsx. Left untouched, Next's file tracing pulls all three
-  // into the deployed function anyway (~380MB, mostly bundled ONNX model
-  // weights), about 8x over Vercel's function size limit. Excluding them
-  // keeps the deployed bundle small; local `next dev` is unaffected since
-  // tracing only runs for `next build`.
+  // Puppeteer (the Aritzia link-fetch mode) can't run on Vercel regardless
+  // of size — no display for a real browser, and a headless one would just
+  // hit the same bot detection a real browser avoids. Background removal no
+  // longer needs a local model (see src/lib/server/remove-bg-api.ts), so
+  // Puppeteer is the only thing still excluded from the deployed bundle;
+  // the link-fetch tab is hidden accordingly (see canFetchFromLink in
+  // src/app/page.tsx). Local `next dev` is unaffected — tracing only runs
+  // for `next build`.
   outputFileTracingExcludes: {
-    "/": [
-      "./node_modules/@imgly/**",
-      "./node_modules/onnxruntime-node/**",
-      "./node_modules/puppeteer/**",
-      "./node_modules/puppeteer-core/**",
-    ],
+    "/": ["./node_modules/puppeteer/**", "./node_modules/puppeteer-core/**"],
   },
 };
 
