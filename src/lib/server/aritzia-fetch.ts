@@ -1,5 +1,10 @@
-import puppeteer from "puppeteer";
 import type { Category } from "@/lib/types";
+
+// Imported lazily inside fetchAritziaProduct(), not at module scope: this
+// package is deliberately excluded from the deployed Vercel bundle (see
+// next.config.ts), and a top-level import would throw the moment this
+// file loads — breaking the sibling photo-upload action too, since both
+// are exported from the same "use server" file.
 
 // Aritzia's product image filenames encode a category code, e.g.
 // s26_a01_115849_4425_on_a — verified across the categories this app uses.
@@ -70,6 +75,7 @@ export async function fetchAritziaProduct(url: string): Promise<FetchedProduct> 
     throw new Error("Only aritzia.com product links are supported right now.");
   }
 
+  const { default: puppeteer } = await import("puppeteer");
   const browser = await puppeteer.launch({
     headless: false,
     args: ["--window-position=2400,2400", "--window-size=1280,900"],

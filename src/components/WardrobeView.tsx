@@ -20,10 +20,12 @@ export function WardrobeView({
   initialItems,
   initialOutfits,
   suggestion,
+  canAddItems,
 }: {
   initialItems: ClothingItem[];
   initialOutfits: Outfit[];
   suggestion: DailySuggestion;
+  canAddItems: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
   const [outfits, setOutfits] = useState(initialOutfits);
@@ -103,7 +105,7 @@ export function WardrobeView({
       {/* Filter tabs */}
       <div className="mt-10 flex items-center justify-between gap-4">
         <CategoryTabs active={filter} onChange={setFilter} />
-        <AddItemButton />
+        {canAddItems && <AddItemButton />}
       </div>
 
       {/* Grid */}
