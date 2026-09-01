@@ -115,8 +115,10 @@ export function WardrobeView({
       {/* Detail panel overlays */}
       <ItemDetailPanel
         item={selectedItem}
+        outfits={outfits}
         onClose={() => setSelectedItemId(null)}
         onUpdate={updateItem}
+        onSelectOutfit={openOutfit}
       />
       <OutfitDetailPanel
         outfit={selectedOutfit}

@@ -1,23 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { mixHex, suggestionSwatches, vibeGradient } from "@/lib/color";
+import { useEffect, useRef, useState } from "react";
+import { mixHex, vibeGradient } from "@/lib/color";
 import {
-  CATEGORY_OPTIONS,
-  type Category,
+  categoryLabel,
+  hasPhoto,
   type ClothingItem,
+  type Outfit,
 } from "@/lib/types";
 import { GarmentGlyph, ModelFigure } from "./GarmentGlyph";
+import { vibeLabel } from "./SceneBackdrop";
 
 export function ItemDetailPanel({
   item,
+  outfits,
   onClose,
   onUpdate,
+  onSelectOutfit,
 }: {
   /** null when closed; the panel stays mounted so it can slide out. */
   item: ClothingItem | null;
+  outfits: Outfit[];
   onClose: () => void;
   onUpdate: (id: string, patch: Partial<ClothingItem>) => void;
+  /** Opens the outfit detail view for one of this item's outfits. */
+  onSelectOutfit: (id: string) => void;
 }) {
   const open = item !== null;
 
@@ -25,6 +32,10 @@ export function ItemDetailPanel({
   const lastItemRef = useRef<ClothingItem | null>(null);
   if (item) lastItemRef.current = item;
   const shown = item ?? lastItemRef.current;
+
+  const outfitsWithItem = shown
+    ? outfits.filter((outfit) => outfit.itemIds.includes(shown.id))
+    : [];
 
   const [activeSourceIndex, setActiveSourceIndex] = useState(0);
   useEffect(() => {
@@ -39,13 +50,6 @@ export function ItemDetailPanel({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
-
-  // Suggestion swatches stay stable per item, regardless of edits.
-  const suggestions = useMemo(
-    () => (shown ? suggestionSwatches(shown.primaryColorHex) : []),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [shown?.id]
-  );
 
   return (
     <div
@@ -76,13 +80,24 @@ export function ItemDetailPanel({
               className="relative h-[420px] shrink-0 overflow-hidden transition-[background] duration-500"
               style={{ background: vibeGradient(shown.primaryColorHex) }}
             >
-              <ModelFigure className="absolute left-1/2 top-[6%] h-[88%] -translate-x-1/2 text-ink/40" />
-              <GarmentGlyph
-                category={shown.category}
-                silhouette={shown.silhouette}
-                colorHex={shown.primaryColorHex}
-                className="absolute left-1/2 top-[24%] w-[19%] -translate-x-1/2 drop-shadow-sm"
-              />
+              {hasPhoto(shown.imageUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={shown.imageUrl}
+                  alt={shown.name}
+                  className="absolute inset-0 h-full w-full object-contain p-12"
+                />
+              ) : (
+                <>
+                  <ModelFigure className="absolute left-1/2 top-[6%] h-[88%] -translate-x-1/2 text-ink/40" />
+                  <GarmentGlyph
+                    category={shown.category}
+                    silhouette={shown.silhouette}
+                    colorHex={shown.primaryColorHex}
+                    className="absolute left-1/2 top-[24%] w-[19%] -translate-x-1/2 drop-shadow-sm"
+                  />
+                </>
+              )}
 
               {/* Editable name chip */}
               <div className="absolute top-5 left-5 border border-line-dark bg-cream px-4 py-2.5">
@@ -113,15 +128,18 @@ export function ItemDetailPanel({
                 </svg>
               </button>
 
-              {/* Isolated cutout, floating bottom-right */}
-              <GarmentGlyph
-                category={shown.category}
-                silhouette={shown.silhouette}
-                colorHex={shown.primaryColorHex}
-                className="absolute right-6 bottom-6 w-28 drop-shadow-md"
-              />
+              {/* Isolated cutout, floating bottom-right — redundant once the hero already shows the real photo */}
+              {!hasPhoto(shown.imageUrl) && (
+                <GarmentGlyph
+                  category={shown.category}
+                  silhouette={shown.silhouette}
+                  colorHex={shown.primaryColorHex}
+                  className="absolute right-6 bottom-6 w-28 drop-shadow-md"
+                />
+              )}
 
               {/* Source photo thumbnails */}
+              {shown.sourcePhotoUrls.length > 0 && (
               <div className="absolute bottom-6 left-6 flex gap-1.5 border border-line bg-cream/95 p-1.5">
                 {shown.sourcePhotoUrls.map((url, index) => {
                   const isActive = index === activeSourceIndex;
@@ -153,6 +171,7 @@ export function ItemDetailPanel({
                   );
                 })}
               </div>
+              )}
             </div>
 
             {/* Form */}
@@ -171,33 +190,9 @@ export function ItemDetailPanel({
                 </div>
                 <div>
                   <p className="eyebrow text-muted">Category</p>
-                  <div className="relative mt-2.5">
-                    <select
-                      value={shown.category}
-                      onChange={(e) =>
-                        onUpdate(shown.id, {
-                          category: e.target.value as Category,
-                        })
-                      }
-                      className="w-full appearance-none border border-line-dark bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
-                    >
-                      {CATEGORY_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      viewBox="0 0 12 8"
-                      className="pointer-events-none absolute top-1/2 right-3.5 h-2 w-3 -translate-y-1/2 text-ink-soft"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.25"
-                      aria-hidden="true"
-                    >
-                      <path d="M1 1.5l5 5 5-5" />
-                    </svg>
-                  </div>
+                  <p className="mt-2.5 border border-line bg-card/50 px-3.5 py-2.5 text-sm text-ink-soft">
+                    {categoryLabel(shown.category)}
+                  </p>
                 </div>
               </div>
 
@@ -214,47 +209,12 @@ export function ItemDetailPanel({
                         style={{ backgroundColor: shown.primaryColorHex }}
                       />
                       <div>
-                        <p className="eyebrow text-muted">Selected</p>
+                        <p className="eyebrow text-muted">Detected</p>
                         <p className="mt-0.5 text-sm font-medium tracking-[0.06em] uppercase">
                           {shown.primaryColorHex}
                         </p>
                       </div>
                     </div>
-
-                    <div className="mt-7 flex items-baseline justify-between">
-                      <p className="text-xs text-ink-soft">Image suggestions</p>
-                      <p className="text-[10px] text-muted">Click to apply</p>
-                    </div>
-                    <div className="mt-2.5 flex gap-2">
-                      {suggestions.map((hex) => (
-                        <button
-                          key={hex}
-                          type="button"
-                          title={hex}
-                          aria-label={`Apply ${hex} as primary color`}
-                          onClick={() =>
-                            onUpdate(shown.id, { primaryColorHex: hex })
-                          }
-                          className={`h-9 w-9 border transition-transform hover:-translate-y-0.5 ${
-                            hex === shown.primaryColorHex
-                              ? "border-ink ring-1 ring-ink ring-offset-2 ring-offset-cream"
-                              : "border-line-dark"
-                          }`}
-                          style={{ backgroundColor: hex }}
-                        />
-                      ))}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Stub — real eyedropper-on-image flow comes with the
-                        // image pipeline in a later pass.
-                      }}
-                      className="eyebrow mt-7 w-full border border-line-dark px-4 py-3 text-ink-soft transition-colors hover:border-ink hover:bg-ink hover:text-cream"
-                    >
-                      Pick primary color from image
-                    </button>
                   </div>
 
                   {/* Secondary */}
@@ -266,61 +226,73 @@ export function ItemDetailPanel({
                       </span>
                     </p>
                     {shown.secondaryColorHex ? (
-                      <div className="mt-4">
-                        <div className="flex items-center gap-4">
-                          <span
-                            className="h-12 w-12 shrink-0 border border-line-dark"
-                            style={{
-                              backgroundColor: shown.secondaryColorHex,
-                            }}
-                          />
-                          <div>
-                            <p className="eyebrow text-muted">Selected</p>
-                            <p className="mt-0.5 text-sm font-medium tracking-[0.06em] uppercase">
-                              {shown.secondaryColorHex}
-                            </p>
-                          </div>
+                      <div className="mt-4 flex items-center gap-4">
+                        <span
+                          className="h-12 w-12 shrink-0 border border-line-dark"
+                          style={{
+                            backgroundColor: shown.secondaryColorHex,
+                          }}
+                        />
+                        <div>
+                          <p className="eyebrow text-muted">Detected</p>
+                          <p className="mt-0.5 text-sm font-medium tracking-[0.06em] uppercase">
+                            {shown.secondaryColorHex}
+                          </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onUpdate(shown.id, { secondaryColorHex: null })
-                          }
-                          className="eyebrow mt-5 text-muted transition-colors hover:text-ink"
-                        >
-                          Remove
-                        </button>
                       </div>
                     ) : (
-                      <div className="mt-4">
-                        <p className="text-sm text-muted">
-                          No distinct secondary color detected.
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            onUpdate(shown.id, {
-                              secondaryColorHex: mixHex(
-                                shown.primaryColorHex,
-                                "#F4F1EA",
-                                0.55
-                              ),
-                            })
-                          }
-                          className="eyebrow mt-5 border border-line-dark px-4 py-3 text-ink-soft transition-colors hover:border-ink hover:bg-ink hover:text-cream"
-                        >
-                          Add secondary color
-                        </button>
-                      </div>
+                      <p className="mt-4 text-sm text-muted">
+                        No distinct secondary color detected.
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
 
+              {/* Appears in these outfits */}
+              <div className="border-t border-line pt-6">
+                <p className="eyebrow text-muted">Appears in these outfits</p>
+                {outfitsWithItem.length > 0 ? (
+                  <div className="mt-4 flex flex-col gap-2.5">
+                    {outfitsWithItem.map((outfit) => (
+                      <button
+                        key={outfit.id}
+                        type="button"
+                        onClick={() => onSelectOutfit(outfit.id)}
+                        className="group flex items-center justify-between border border-line px-4 py-3 text-left transition-colors hover:border-ink"
+                      >
+                        <span>
+                          <span className="block font-serif text-base leading-snug">
+                            {outfit.name}
+                          </span>
+                          <span className="eyebrow mt-0.5 block text-muted">
+                            {vibeLabel(outfit.vibe)}
+                          </span>
+                        </span>
+                        <svg
+                          viewBox="0 0 8 12"
+                          className="h-3 w-2 shrink-0 text-ink-soft transition-transform group-hover:translate-x-0.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.4"
+                          aria-hidden="true"
+                        >
+                          <path d="M1 1l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted">
+                    Not part of any outfit yet.
+                  </p>
+                )}
+              </div>
+
               {/* Helper text */}
               <p className="mt-auto border-t border-line pt-5 text-xs leading-relaxed text-muted">
-                Primary colors come from the image. A secondary is suggested
-                only when a distinct color has meaningful coverage.
+                Category and colors are detected automatically from the
+                item&rsquo;s photo.
               </p>
             </div>
           </div>
