@@ -34,6 +34,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# scratch data from seed scripts (pre-fetched images, etc.)
+/scratchpad-images
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
