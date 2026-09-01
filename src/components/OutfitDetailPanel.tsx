@@ -4,11 +4,12 @@ import { useEffect, useRef } from "react";
 import { vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
+  hasPhoto,
   type Category,
   type ClothingItem,
   type Outfit,
 } from "@/lib/types";
-import { GarmentGlyph, ModelFigure } from "./GarmentGlyph";
+import { GarmentGlyph } from "./GarmentGlyph";
 import { outfitPieces } from "./OutfitCard";
 import { SceneBackdrop, vibeLabel } from "./SceneBackdrop";
 
@@ -73,16 +74,27 @@ export function OutfitDetailPanel({
             <div className="relative h-[440px] shrink-0 overflow-hidden">
               <SceneBackdrop vibe={shown.vibe} />
               <div className="absolute inset-x-0 top-[6%] mx-auto aspect-[120/200] h-[88%]">
-                <ModelFigure className="absolute inset-0 h-full w-full text-ink/40" />
-                {pieces.map((piece) => (
-                  <GarmentGlyph
-                    key={piece.id}
-                    category={piece.category}
-                    silhouette={piece.silhouette}
-                    colorHex={piece.primaryColorHex}
-                    className={`absolute -translate-x-1/2 drop-shadow-sm ${HERO_SLOTS[piece.category]}`}
-                  />
-                ))}
+                {pieces.map((piece) => {
+                  const photoUrl =
+                    piece.cutoutImageUrl ?? (hasPhoto(piece.imageUrl) ? piece.imageUrl : null);
+                  return photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={piece.id}
+                      src={photoUrl}
+                      alt={piece.name}
+                      className={`absolute h-auto -translate-x-1/2 object-contain drop-shadow-[0_10px_16px_rgba(36,56,75,0.3)] ${HERO_SLOTS[piece.category]}`}
+                    />
+                  ) : (
+                    <GarmentGlyph
+                      key={piece.id}
+                      category={piece.category}
+                      silhouette={piece.silhouette}
+                      colorHex={piece.primaryColorHex}
+                      className={`absolute -translate-x-1/2 drop-shadow-sm ${HERO_SLOTS[piece.category]}`}
+                    />
+                  );
+                })}
               </div>
 
               {/* Editable name chip */}
@@ -132,17 +144,26 @@ export function OutfitDetailPanel({
                       className="group flex items-center gap-5 border border-line p-3 text-left transition-colors hover:border-ink"
                     >
                       <span
-                        className="flex h-16 w-16 shrink-0 items-center justify-center border border-line"
+                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-line"
                         style={{
                           background: vibeGradient(piece.primaryColorHex),
                         }}
                       >
-                        <GarmentGlyph
-                          category={piece.category}
-                          silhouette={piece.silhouette}
-                          colorHex={piece.primaryColorHex}
-                          className="w-10"
-                        />
+                        {hasPhoto(piece.imageUrl) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={piece.imageUrl}
+                            alt={piece.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <GarmentGlyph
+                            category={piece.category}
+                            silhouette={piece.silhouette}
+                            colorHex={piece.primaryColorHex}
+                            className="w-10"
+                          />
+                        )}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-serif text-lg leading-snug">
@@ -168,8 +189,7 @@ export function OutfitDetailPanel({
 
               {/* Helper text */}
               <p className="mt-auto border-t border-line pt-5 text-xs leading-relaxed text-muted">
-                Select a piece to view and edit its details. Outfit imagery is
-                rendered from your own photos once uploads are connected.
+                Select a piece to view and edit its details.
               </p>
             </div>
           </div>

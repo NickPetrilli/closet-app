@@ -1,7 +1,7 @@
 "use client";
 
-import type { Category, ClothingItem, Outfit } from "@/lib/types";
-import { GarmentGlyph, ModelFigure } from "./GarmentGlyph";
+import { hasPhoto, type Category, type ClothingItem, type Outfit } from "@/lib/types";
+import { GarmentGlyph } from "./GarmentGlyph";
 import { SceneBackdrop } from "./SceneBackdrop";
 
 /** Resolve an outfit's item ids into items, sorted into render layers. */
@@ -50,30 +50,42 @@ export function OutfitCard({
     >
       <SceneBackdrop
         vibe={outfit.vibe}
-        className="transition-opacity duration-500 group-hover:opacity-40"
+        className="transition-opacity duration-500 group-hover:opacity-60"
       />
-      <ModelFigure className="absolute inset-x-0 top-[4%] mx-auto h-[92%] text-ink-soft/60 transition-opacity duration-500 group-hover:opacity-15" />
 
-      {pieces.map((piece) => (
-        <button
-          key={piece.id}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelectItem(piece.id);
-          }}
-          title={piece.name}
-          aria-label={piece.name}
-          className={`absolute -translate-x-1/2 transition-all duration-500 ease-out ${SLOT_CLASSES[piece.category]}`}
-        >
-          <GarmentGlyph
-            category={piece.category}
-            silhouette={piece.silhouette}
-            colorHex={piece.primaryColorHex}
-            className="w-full drop-shadow-sm"
-          />
-        </button>
-      ))}
+      {pieces.map((piece) => {
+        const photoUrl =
+          piece.cutoutImageUrl ?? (hasPhoto(piece.imageUrl) ? piece.imageUrl : null);
+        return (
+          <button
+            key={piece.id}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectItem(piece.id);
+            }}
+            title={piece.name}
+            aria-label={piece.name}
+            className={`absolute -translate-x-1/2 transition-all duration-500 ease-out ${SLOT_CLASSES[piece.category]}`}
+          >
+            {photoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoUrl}
+                alt={piece.name}
+                className="h-auto w-full object-contain drop-shadow-[0_6px_10px_rgba(36,56,75,0.25)]"
+              />
+            ) : (
+              <GarmentGlyph
+                category={piece.category}
+                silhouette={piece.silhouette}
+                colorHex={piece.primaryColorHex}
+                className="w-full drop-shadow-sm"
+              />
+            )}
+          </button>
+        );
+      })}
 
       <span className="eyebrow pointer-events-none absolute bottom-3 left-3 border border-line bg-cream/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
         {outfit.name} · {pieces.length} pieces
