@@ -1,7 +1,7 @@
 "use client";
 
 import { vibeGradient } from "@/lib/color";
-import type { ClothingItem } from "@/lib/types";
+import { hasPhoto, type ClothingItem } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
 
 export function ItemCard({
@@ -22,14 +22,23 @@ export function ItemCard({
         className="absolute inset-0"
         style={{ background: vibeGradient(item.primaryColorHex) }}
       />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <GarmentGlyph
-          category={item.category}
-          silhouette={item.silhouette}
-          colorHex={item.primaryColorHex}
-          className="w-3/5 drop-shadow-sm transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+      {hasPhoto(item.imageUrl) ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.imageUrl}
+          alt={item.name}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
         />
-      </div>
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <GarmentGlyph
+            category={item.category}
+            silhouette={item.silhouette}
+            colorHex={item.primaryColorHex}
+            className="w-3/5 drop-shadow-sm transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+        </div>
+      )}
       <span className="eyebrow absolute bottom-3 left-3 rounded-full border border-line bg-cream/95 px-3 py-1.5 text-ink opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100">
         {item.name}
       </span>

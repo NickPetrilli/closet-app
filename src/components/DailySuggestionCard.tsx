@@ -1,6 +1,6 @@
 "use client";
 
-import type { ClothingItem, DailySuggestion } from "@/lib/types";
+import { hasPhoto, type ClothingItem, type DailySuggestion } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
 
 export function DailySuggestionCard({
@@ -45,14 +45,23 @@ export function DailySuggestionCard({
               type="button"
               onClick={() => onSelectItem(item.id)}
               title={item.name}
-              className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-xl border border-line bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-sm"
+              className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-line bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-sm"
             >
-              <GarmentGlyph
-                category={item.category}
-                silhouette={item.silhouette}
-                colorHex={item.primaryColorHex}
-                className="w-8"
-              />
+              {hasPhoto(item.imageUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <GarmentGlyph
+                  category={item.category}
+                  silhouette={item.silhouette}
+                  colorHex={item.primaryColorHex}
+                  className="w-8"
+                />
+              )}
             </button>
           ))}
         </div>
