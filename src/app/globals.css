@@ -15,6 +15,8 @@
   --color-accent-soft: #a8c6e6;
   --color-blush: #f0cbd5; /* light pink accent */
   --color-blush-deep: #e0a6b6;
+  --color-danger: #c73e3e; /* clear red — destructive actions only, not a decorative accent */
+  --color-danger-deep: #a52f2f;
 }
 
 @theme inline {

@@ -10,11 +10,10 @@ import type {
 } from "@/lib/types";
 import { AddItemButton } from "./AddItemButton";
 import { CategoryTabs } from "./CategoryTabs";
-import { CreateOutfitButton } from "./CreateOutfitButton";
 import { DailySuggestionCard } from "./DailySuggestionCard";
-import { GenerateOutfitsButton } from "./GenerateOutfitsButton";
 import { ItemDetailPanel } from "./ItemDetailPanel";
 import { ItemGrid } from "./ItemGrid";
+import { OutfitActionsBanner } from "./OutfitActionsBanner";
 import { OutfitDetailPanel } from "./OutfitDetailPanel";
 import { OutfitGrid } from "./OutfitGrid";
 
@@ -104,21 +103,21 @@ export function WardrobeView({
         />
       </div>
 
-      {/* Filter tabs + contextual actions, one row — tabs scroll (with a
-          fade hint) rather than get pushed onto a second line. */}
+      {/* Filter tabs — Add Item rides along on every tab except Outfits,
+          which gets its own action banner below instead (see next block). */}
       <div className="mt-10 flex items-center justify-between gap-4">
         <CategoryTabs active={filter} onChange={setFilter} />
-        <div className="flex shrink-0 items-center gap-3">
-          {filter === "outfits" ? (
-            <>
-              <CreateOutfitButton items={items} />
-              <GenerateOutfitsButton items={items} />
-            </>
-          ) : (
-            <AddItemButton canFetchFromLink={canFetchFromLink} />
-          )}
-        </div>
+        {filter !== "outfits" && (
+          <AddItemButton canFetchFromLink={canFetchFromLink} />
+        )}
       </div>
+
+      {/* Outfit actions — a dedicated banner, not squeezed onto the tabs row */}
+      {filter === "outfits" && (
+        <div className="mt-6">
+          <OutfitActionsBanner items={items} />
+        </div>
+      )}
 
       {/* Grid */}
       <div className="mt-8">

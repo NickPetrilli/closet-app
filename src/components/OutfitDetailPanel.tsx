@@ -221,7 +221,7 @@ export function OutfitDetailPanel({
                 <button
                   type="button"
                   onClick={() => setDeleteModalOpen(true)}
-                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-blush-deep px-4 py-2 text-cream shadow-sm transition-colors hover:bg-[#c98596]"
+                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-danger px-4 py-2 text-cream shadow-sm transition-colors hover:bg-danger-deep"
                 >
                   <svg
                     viewBox="0 0 16 16"
@@ -261,17 +261,34 @@ export function OutfitDetailPanel({
           role="alertdialog"
           aria-modal="true"
           aria-label="Confirm delete outfit"
-          className={`relative w-full max-w-sm rounded-2xl border border-line-dark bg-cream p-7 shadow-xl transition-all duration-200 ${
+          className={`relative w-full max-w-sm rounded-2xl border border-danger/40 bg-cream p-7 shadow-xl transition-all duration-200 ${
             deleteModalOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
-          <h3 className="font-serif text-xl tracking-tight">Delete this outfit?</h3>
-          <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
+              <svg
+                viewBox="0 0 16 16"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2.5 4h11M6 4V2.5h4V4m-6 0 .6 9.4a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9L13 4" />
+                <path d="M6.5 7v4M9.5 7v4" />
+              </svg>
+            </span>
+            <h3 className="font-serif text-xl tracking-tight">Delete this outfit?</h3>
+          </div>
+          <p className="mt-3.5 text-sm leading-relaxed text-ink-soft">
             {shown ? `"${shown.name}" will be removed from your outfits.` : ""} The
             individual items stay in your wardrobe — this can&apos;t be undone.
           </p>
           {deleteError && (
-            <p className="mt-3 text-sm text-blush-deep">{deleteError}</p>
+            <p className="mt-3 text-sm text-danger">{deleteError}</p>
           )}
           <div className="mt-6 flex justify-end gap-3">
             <button
@@ -286,7 +303,7 @@ export function OutfitDetailPanel({
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="eyebrow cursor-pointer rounded-full bg-blush-deep px-5 py-2.5 text-cream transition-colors hover:bg-[#c98596] disabled:cursor-wait disabled:opacity-70"
+              className="eyebrow cursor-pointer rounded-full bg-danger px-5 py-2.5 text-cream shadow-sm transition-colors hover:bg-danger-deep disabled:cursor-wait disabled:opacity-70"
             >
               {isDeleting ? "Deleting…" : "Delete"}
             </button>
