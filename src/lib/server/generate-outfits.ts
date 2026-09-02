@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { ApiError, GoogleGenAI, Type } from "@google/genai";
 import sharp from "sharp";
 import type { Category, ClothingItem, Outfit, OutfitVibe } from "@/lib/types";
 
@@ -131,7 +131,21 @@ export async function generateOutfitCandidates(
     return { error: "Add some items to the wardrobe first." };
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  // The SDK's own default retry policy is up to 5 attempts with backoff up
+  // to 60s between them — fine for a long-running script, but this call
+  // runs inside a Vercel Server Action capped at 60s total (see maxDuration
+  // in src/app/page.tsx), and each attempt against the full wardrobe's
+  // images already takes ~10-15s on its own. Retrying the SAME model when
+  // it's reporting itself overloaded just burns that budget for nothing —
+  // disabling the SDK's retry and going straight to the fallback model
+  // below (measured: succeeded in ~7s while the primary model was actively
+  // failing) gets a real second attempt in far less time.
+  const ai = new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      retryOptions: { attempts: 1 },
+    },
+  });
 
   const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [
     { text: buildPrompt(items, existingOutfits, count) },
@@ -143,31 +157,73 @@ export async function generateOutfitCandidates(
     if (image) parts.push({ inlineData: image });
   }
 
-  let responseText: string | undefined;
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-flash-latest",
-      contents: [{ role: "user", parts }],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              name: { type: Type.STRING },
-              vibe: { type: Type.STRING, enum: VIBES },
-              itemIds: { type: Type.ARRAY, items: { type: Type.STRING } },
-            },
-            required: ["name", "vibe", "itemIds"],
-          },
+  const config = {
+    responseMimeType: "application/json",
+    responseSchema: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          name: { type: Type.STRING },
+          vibe: { type: Type.STRING, enum: VIBES },
+          itemIds: { type: Type.ARRAY, items: { type: Type.STRING } },
         },
+        required: ["name", "vibe", "itemIds"],
       },
-    });
-    responseText = response.text;
-  } catch (err) {
+    },
+  };
+
+  // "-latest" aliases route to whichever model is currently getting the
+  // most traffic, which is exactly what makes them prone to real, live
+  // 503 "high demand" responses on the free tier (confirmed directly:
+  // gemini-flash-latest returned one while gemini-flash-lite-latest
+  // succeeded on the same request seconds later). Falling back to the
+  // lite model on a server error trades a little sophistication for
+  // actually finishing — worth it for a task this size (matching colors
+  // and categories, not deep reasoning).
+  const MODEL_FALLBACK_CHAIN = ["gemini-flash-latest", "gemini-flash-lite-latest"];
+
+  let responseText: string | undefined;
+  let lastError: unknown;
+  for (const model of MODEL_FALLBACK_CHAIN) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: [{ role: "user", parts }],
+        config,
+      });
+      responseText = response.text;
+      lastError = undefined;
+      break;
+    } catch (err) {
+      lastError = err;
+      // 429 (quota exceeded) is tracked per model on the free tier, not
+      // shared across them, so a fallback model can genuinely still have
+      // headroom even when the primary is rate-limited — worth trying,
+      // same as a 5xx overload.
+      if (err instanceof ApiError && (err.status >= 500 || err.status === 429)) {
+        continue;
+      }
+      break; // anything else (bad key, bad request) won't be fixed by switching models
+    }
+  }
+
+  if (lastError !== undefined) {
+    if (lastError instanceof ApiError && lastError.status === 429) {
+      return {
+        error:
+          "Today's free outfit-generation quota has been used up across both models — it resets on Google's usual daily cycle, no charge either way. Try again later or tomorrow.",
+      };
+    }
+    if (lastError instanceof ApiError && lastError.status >= 500) {
+      return {
+        error:
+          "Google's outfit-generation models are temporarily overloaded (a known free-tier hiccup, not something wrong on our end) — please try again in a moment.",
+      };
+    }
     return {
-      error: err instanceof Error ? err.message : "Couldn't reach the outfit generator.",
+      error:
+        lastError instanceof Error ? lastError.message : "Couldn't reach the outfit generator.",
     };
   }
 
