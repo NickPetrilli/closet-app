@@ -151,6 +151,62 @@ Before wiring this into the full UI, first build a small isolated test route tha
 
 ---
 
+## Prompt 6 — AI-Generated Outfits
+
+**Added 2026-09-02, out of the original 1-5 sequence — run this next, before Prompt 4.** The app has since diverged from the Pass 1 plan this doc originally assumed: Supabase is live with no auth (single-user app, security boundary is keeping the key server-only, not RLS), background removal is the remove.bg API rather than self-hosted `rembg`, and an Add Item flow already exists (photo upload, plus a local-only Aritzia-link-fetch mode) — see `docs/DEPLOYMENT.md` and `[[closet-app-deployment-constraints]]`-equivalent context if the implementing session needs the why. The wardrobe currently holds ~28 real items across all categories with real cutout photos and extracted colors, but only 5 outfits — all hand-picked by a one-off seed script. This pass replaces that manual process with real AI-driven generation, which is the app's core value proposition.
+
+```
+Build an AI-powered outfit generation feature for [APP NAME] (existing Next.js + Supabase repo — real data already live, not mock).
+
+CURRENT STATE TO BUILD ON (don't re-derive, just use)
+- `items` table: id, name, category (tops/jackets/bottoms/accessories/shoes), silhouette (nullable), primary_color_hex, secondary_color_hex (nullable), image_url, cutout_image_url (nullable — background-removed PNG), source_photo_urls, product_url (nullable)
+- `outfits` table: id, name, vibe (office/evening/weekend/summer/autumn/street), created_at
+- `outfit_items` join table: outfit_id, item_id, position
+- Types already defined in `src/lib/types.ts` (Category, OutfitVibe, ClothingItem, Outfit) — reuse them, don't redefine
+- Existing display components (`OutfitCard`, `OutfitDetailPanel`, `OutfitGrid`) already render real cutout photos per item and vibe-keyed scene backdrops (`SceneBackdrop.tsx`) — new outfits just need to exist as real rows; no new outfit-rendering UI is needed
+- No auth/RLS — all Supabase calls are server-side already; follow the existing pattern (`src/lib/supabase/client.ts`, server-only, never imported from a Client Component)
+- `fetchDailySuggestion()` in `src/lib/data/wardrobe-repository.ts` is currently a dumb stub (first item found per category, hardcoded fake weather) — leave it alone, it's an intentional placeholder for the later weather-integrated Prompt 4, not in scope here
+
+FLOW
+1. Add a "Generate Outfits" action in the Outfits tab (reuse the existing pill-button visual style from `AddItemButton`). Clicking it calls a new Server Action that:
+   a. Fetches all current items and all existing outfits (with their item sets) from Supabase
+   b. Calls the Claude API once, sending it the full wardrobe (see GENERATION LOGIC below) and asking for a batch of new outfit combinations
+   c. Validates the response: every referenced item ID must actually exist, each outfit must have at least a top + a bottom + shoes (jacket and accessories are optional additions), and no proposed outfit may exactly duplicate an existing outfit's item set
+   d. Inserts a new `outfits` row plus matching `outfit_items` rows for each valid generated outfit
+   e. Revalidates the page so the Outfits tab shows the new outfits immediately
+2. Show a pending state on the button while generating (this call may take several seconds). On completion, indicate how many outfits were actually created — especially important if fewer were made than requested because the wardrobe didn't have enough compatible pieces in some category.
+3. Add a lightweight "Delete outfit" action to `OutfitDetailPanel` (a generated outfit that misses the mark should be easy to discard) — there's no outfit deletion anywhere in the app yet.
+
+GENERATION LOGIC (this is the part that matters most)
+- Use the Claude API (`@anthropic-ai/sdk`) with structured/tool-use output so the response is reliably parseable JSON (an array of {name, vibe, itemIds}) — don't rely on free-text parsing.
+- Send Claude the ACTUAL cutout images (`cutout_image_url`, falling back to `image_url` if no cutout exists), not just color/category metadata — real stylist-quality coordination (pattern clash, silhouette balance, fabric weight, whether two "busy" pieces fight each other) needs to see the pieces, not just their hex codes. Resize/downscale images before sending to keep the request a reasonable size; a metadata-only first pass to narrow candidates before a smaller vision call on the finalists is a reasonable optimization if the full wardrobe is large.
+- Give Claude explicit styling rules to apply, e.g.:
+  - Every outfit needs a top, a bottom, and shoes; a jacket and/or 1-2 accessories are optional additions, not required
+  - Color coordination: favor complementary, analogous, or tonal/monochrome pairings; avoid combinations that clash rather than intentionally contrast
+  - Avoid pairing two "loud" pieces (bold pattern, bright statement color) in the same outfit — let one piece lead
+  - Match the assigned `vibe` to the actual pieces (don't call a chunky wool sweater + boots outfit "summer"; don't call linen + sandals "office" unless it genuinely reads that way)
+  - Reusing individual items across multiple outfits is normal for a real wardrobe and fine, but never propose the exact same combination of items twice, and don't reuse a combination that already exists as a saved outfit
+  - Give each outfit a short, natural name (not generic like "Outfit 1") that reflects its vibe or a standout piece
+- Default to generating a batch (e.g. 6-8 outfits) per click; keep the count in one easy-to-change place rather than hardcoding it deep in the logic.
+
+ENV / SETUP
+- Needs a server-only Anthropic API key (new env var, e.g. `ANTHROPIC_API_KEY`) — follow the existing pattern of non-`NEXT_PUBLIC_` secrets read only in server code.
+- Use a current Claude model capable of both vision and reliable structured/tool-use output.
+
+EDGE CASES
+- Wardrobe too thin in a category to build N valid outfits: create as many valid ones as possible and report the actual count — don't fail the whole batch or fabricate an incomplete outfit.
+- Claude returns an item ID that doesn't exist, or an outfit missing a required category slot: drop that one outfit, keep the rest — don't fail the whole batch over one bad entry.
+- Anthropic API call fails or times out: show a clear error, don't leave a partial/corrupt outfit behind.
+
+DO NOT IMPLEMENT
+- Weather or occasion-based daily suggestions (Prompt 4 above — separate, later pass; this feature works from the full wardrobe, not "today")
+- Virtual try-on / rendering outfits on a real photo (Prompt 5 — unrelated, later pass)
+- A manual drag-and-drop outfit builder (a real future feature, but a different one — this pass is AI generation only)
+- Any change to the Add Item flow or background-removal pipeline
+```
+
+---
+
 ## Notes for later (not yet prompts)
 - Native app pass (Expo/React Native) once web version is stable
 - Consider a lightweight job queue (Inngest) if photo processing ever feels slow inline
