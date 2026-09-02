@@ -10,7 +10,9 @@ import type {
 } from "@/lib/types";
 import { AddItemButton } from "./AddItemButton";
 import { CategoryTabs } from "./CategoryTabs";
+import { CreateOutfitButton } from "./CreateOutfitButton";
 import { DailySuggestionCard } from "./DailySuggestionCard";
+import { GenerateOutfitsButton } from "./GenerateOutfitsButton";
 import { ItemDetailPanel } from "./ItemDetailPanel";
 import { ItemGrid } from "./ItemGrid";
 import { OutfitDetailPanel } from "./OutfitDetailPanel";
@@ -102,10 +104,21 @@ export function WardrobeView({
         />
       </div>
 
-      {/* Filter tabs */}
-      <div className="mt-10 flex items-center justify-between gap-4">
+      {/* Filter tabs — own row so action buttons never squeeze it */}
+      <div className="mt-10">
         <CategoryTabs active={filter} onChange={setFilter} />
-        <AddItemButton canFetchFromLink={canFetchFromLink} />
+      </div>
+
+      {/* Actions, right-aligned, contextual to the current tab */}
+      <div className="mt-4 flex items-center justify-end gap-3">
+        {filter === "outfits" ? (
+          <>
+            <CreateOutfitButton items={items} />
+            <GenerateOutfitsButton items={items} />
+          </>
+        ) : (
+          <AddItemButton canFetchFromLink={canFetchFromLink} />
+        )}
       </div>
 
       {/* Grid */}

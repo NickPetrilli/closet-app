@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { deleteOutfit } from "@/lib/actions/outfits";
 import { vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
@@ -28,12 +30,23 @@ export function OutfitDetailPanel({
   onSelectItem: (id: string) => void;
   onUpdate: (id: string, patch: Partial<Outfit>) => void;
 }) {
+  const router = useRouter();
   const open = outfit !== null;
 
   // Keep rendering the last outfit while sliding out.
   const lastOutfitRef = useRef<Outfit | null>(null);
   if (outfit) lastOutfitRef.current = outfit;
   const shown = outfit ?? lastOutfitRef.current;
+
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, startDeleting] = useTransition();
+
+  useEffect(() => {
+    if (!open) return;
+    setConfirmingDelete(false);
+    setDeleteError(null);
+  }, [open, shown?.id]);
 
   useEffect(() => {
     if (!open) return;
@@ -43,6 +56,19 @@ export function OutfitDetailPanel({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
+
+  function handleDelete() {
+    if (!shown) return;
+    startDeleting(async () => {
+      const result = await deleteOutfit(shown.id);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
+      onClose();
+      router.refresh();
+    });
+  }
 
   const pieces = shown ? outfitPieces(shown, items) : [];
 
@@ -187,10 +213,44 @@ export function OutfitDetailPanel({
                 </div>
               </div>
 
-              {/* Helper text */}
-              <p className="mt-auto border-t border-line pt-5 text-xs leading-relaxed text-muted">
-                Select a piece to view and edit its details.
-              </p>
+              {/* Helper text + delete */}
+              <div className="mt-auto flex items-center justify-between gap-4 border-t border-line pt-5">
+                <p className="text-xs leading-relaxed text-muted">
+                  Select a piece to view and edit its details.
+                </p>
+                {confirmingDelete ? (
+                  <div className="flex shrink-0 items-center gap-2.5">
+                    <span className="text-xs text-blush-deep">Delete this outfit?</span>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="eyebrow cursor-pointer rounded-full border border-blush-deep px-3.5 py-1.5 text-blush-deep transition-colors hover:bg-blush-deep hover:text-cream disabled:cursor-wait disabled:opacity-70"
+                    >
+                      {isDeleting ? "Deleting…" : "Confirm"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingDelete(false)}
+                      disabled={isDeleting}
+                      className="eyebrow cursor-pointer text-ink-soft hover:text-ink"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingDelete(true)}
+                    className="eyebrow shrink-0 cursor-pointer text-ink-soft transition-colors hover:text-blush-deep"
+                  >
+                    Delete outfit
+                  </button>
+                )}
+              </div>
+              {deleteError && (
+                <p className="text-sm text-blush-deep">{deleteError}</p>
+              )}
             </div>
           </div>
         )}

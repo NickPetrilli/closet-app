@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@google/genai": "^2.20.0",
     "@supabase/supabase-js": "^2.112.4",
     "next": "^15.3.4",
     "puppeteer": "^25.9.0",
