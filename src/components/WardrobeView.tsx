@@ -104,21 +104,20 @@ export function WardrobeView({
         />
       </div>
 
-      {/* Filter tabs — own row so action buttons never squeeze it */}
-      <div className="mt-10">
+      {/* Filter tabs + contextual actions, one row — tabs scroll (with a
+          fade hint) rather than get pushed onto a second line. */}
+      <div className="mt-10 flex items-center justify-between gap-4">
         <CategoryTabs active={filter} onChange={setFilter} />
-      </div>
-
-      {/* Actions, right-aligned, contextual to the current tab */}
-      <div className="mt-4 flex items-center justify-end gap-3">
-        {filter === "outfits" ? (
-          <>
-            <CreateOutfitButton items={items} />
-            <GenerateOutfitsButton items={items} />
-          </>
-        ) : (
-          <AddItemButton canFetchFromLink={canFetchFromLink} />
-        )}
+        <div className="flex shrink-0 items-center gap-3">
+          {filter === "outfits" ? (
+            <>
+              <CreateOutfitButton items={items} />
+              <GenerateOutfitsButton items={items} />
+            </>
+          ) : (
+            <AddItemButton canFetchFromLink={canFetchFromLink} />
+          )}
+        </div>
       </div>
 
       {/* Grid */}

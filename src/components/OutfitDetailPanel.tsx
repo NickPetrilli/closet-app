@@ -38,13 +38,13 @@ export function OutfitDetailPanel({
   if (outfit) lastOutfitRef.current = outfit;
   const shown = outfit ?? lastOutfitRef.current;
 
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, startDeleting] = useTransition();
 
   useEffect(() => {
     if (!open) return;
-    setConfirmingDelete(false);
+    setDeleteModalOpen(false);
     setDeleteError(null);
   }, [open, shown?.id]);
 
@@ -218,43 +218,81 @@ export function OutfitDetailPanel({
                 <p className="text-xs leading-relaxed text-muted">
                   Select a piece to view and edit its details.
                 </p>
-                {confirmingDelete ? (
-                  <div className="flex shrink-0 items-center gap-2.5">
-                    <span className="text-xs text-blush-deep">Delete this outfit?</span>
-                    <button
-                      type="button"
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      className="eyebrow cursor-pointer rounded-full border border-blush-deep px-3.5 py-1.5 text-blush-deep transition-colors hover:bg-blush-deep hover:text-cream disabled:cursor-wait disabled:opacity-70"
-                    >
-                      {isDeleting ? "Deleting…" : "Confirm"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmingDelete(false)}
-                      disabled={isDeleting}
-                      className="eyebrow cursor-pointer text-ink-soft hover:text-ink"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingDelete(true)}
-                    className="eyebrow shrink-0 cursor-pointer text-ink-soft transition-colors hover:text-blush-deep"
+                <button
+                  type="button"
+                  onClick={() => setDeleteModalOpen(true)}
+                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-blush-deep px-4 py-2 text-cream shadow-sm transition-colors hover:bg-[#c98596]"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    Delete outfit
-                  </button>
-                )}
+                    <path d="M2.5 4h11M6 4V2.5h4V4m-6 0 .6 9.4a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9L13 4" />
+                    <path d="M6.5 7v4M9.5 7v4" />
+                  </svg>
+                  Delete outfit
+                </button>
               </div>
-              {deleteError && (
-                <p className="text-sm text-blush-deep">{deleteError}</p>
-              )}
             </div>
           </div>
         )}
       </aside>
+
+      {/* Delete confirmation */}
+      <div
+        aria-hidden={!deleteModalOpen}
+        className={`fixed inset-0 z-[60] flex items-center justify-center p-6 ${
+          deleteModalOpen ? "" : "pointer-events-none"
+        }`}
+      >
+        <div
+          onClick={() => !isDeleting && setDeleteModalOpen(false)}
+          className={`absolute inset-0 bg-ink/35 transition-opacity duration-200 ${
+            deleteModalOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-label="Confirm delete outfit"
+          className={`relative w-full max-w-sm rounded-2xl border border-line-dark bg-cream p-7 shadow-xl transition-all duration-200 ${
+            deleteModalOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+          }`}
+        >
+          <h3 className="font-serif text-xl tracking-tight">Delete this outfit?</h3>
+          <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">
+            {shown ? `"${shown.name}" will be removed from your outfits.` : ""} The
+            individual items stay in your wardrobe — this can&apos;t be undone.
+          </p>
+          {deleteError && (
+            <p className="mt-3 text-sm text-blush-deep">{deleteError}</p>
+          )}
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={isDeleting}
+              className="eyebrow cursor-pointer rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:bg-card disabled:cursor-wait disabled:opacity-70"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="eyebrow cursor-pointer rounded-full bg-blush-deep px-5 py-2.5 text-cream transition-colors hover:bg-[#c98596] disabled:cursor-wait disabled:opacity-70"
+            >
+              {isDeleting ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
