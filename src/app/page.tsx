@@ -13,6 +13,11 @@ import {
 // always reflects the current database instead of going stale.
 export const dynamic = "force-dynamic";
 
+// The Add Item server action runs inside this route's function: remove.bg
+// round-trip + sharp processing + two Supabase uploads can take well over
+// Vercel's default 10s cap. 60s is the Hobby-tier ceiling and plenty here.
+export const maxDuration = 60;
+
 export default async function Home() {
   const [items, outfits, suggestion] = await Promise.all([
     fetchItems(),
