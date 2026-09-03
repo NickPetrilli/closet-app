@@ -100,7 +100,7 @@ export function ItemDetailPanel({
       {/* Backdrop — wardrobe stays visible, dimmed */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
+        className={`absolute inset-0 bg-backdrop transition-opacity duration-250 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />

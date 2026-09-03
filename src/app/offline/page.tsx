@@ -28,7 +28,7 @@ export default function OfflinePage() {
 
       <a
         href="/"
-        className="btn-label mt-8 cursor-pointer rounded-full border border-edge bg-ink px-7 py-3 text-on-accent transition-colors hover:bg-accent"
+        className="btn-label btn-primary mt-8 rounded-full px-7 py-3"
       >
         Try again
       </a>

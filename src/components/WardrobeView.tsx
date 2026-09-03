@@ -25,6 +25,7 @@ import { LocationSettings } from "./LocationSettings";
 import { OutfitActionsBanner } from "./OutfitActionsBanner";
 import { OutfitDetailPanel } from "./OutfitDetailPanel";
 import { OutfitGrid } from "./OutfitGrid";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function WardrobeView({
   initialItems,
@@ -112,6 +113,7 @@ export function WardrobeView({
           <p className="meta mb-1 whitespace-nowrap rounded-full border border-edge bg-surface-raised/50 px-3.5 py-1.5 text-ink-secondary">
             {items.length} Pieces
           </p>
+          <ThemeToggle />
           <LocationSettings
             currentLabel={settings.locationLabel}
             ipGuess={ipLocationGuess}

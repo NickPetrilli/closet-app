@@ -123,7 +123,7 @@ export function OutfitDetailPanel({
       {/* Backdrop — wardrobe stays visible, dimmed */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
+        className={`absolute inset-0 bg-backdrop transition-opacity duration-250 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -343,7 +343,7 @@ export function OutfitDetailPanel({
       >
         <div
           onClick={() => !isDeleting && setDeleteModalOpen(false)}
-          className={`absolute inset-0 bg-ink/35 transition-opacity duration-150 ${
+          className={`absolute inset-0 bg-backdrop-strong transition-opacity duration-150 ${
             deleteModalOpen ? "opacity-100" : "opacity-0"
           }`}
         />

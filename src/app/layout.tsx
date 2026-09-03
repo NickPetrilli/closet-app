@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
+import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -35,8 +36,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Matches the manifest's theme_color: --color-surface.
-  themeColor: "#edf3fa",
+  // The light surface. The inline theme script rewrites this meta before first
+  // paint when dark is active, so the phone's status bar matches the app.
+  themeColor: THEME_COLORS.light,
   width: "device-width",
   initialScale: 1,
   // Lets the page fill the screen behind the notch and home indicator; the
@@ -50,7 +52,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    // suppressHydrationWarning covers exactly one level: the data-theme the
+    // inline script stamps on <html> before React hydrates. Without it React
+    // reports a mismatch on every load, since the server cannot know the theme.
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        {/* Must run before first paint, or dark-mode users get a white flash
+            on every load. See src/lib/theme.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="font-sans antialiased">
         {children}
         <ServiceWorkerRegistrar />

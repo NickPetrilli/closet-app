@@ -77,7 +77,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
       >
         <div
           onClick={close}
-          className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
+          className={`absolute inset-0 bg-backdrop transition-opacity duration-250 ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -119,7 +119,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                 type="button"
                 onClick={() => switchMode("photo")}
                 className={`btn-label flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                  mode === "photo" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
+                  mode === "photo" ? "bg-accent text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
                 Upload a Photo
@@ -128,7 +128,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                 type="button"
                 onClick={() => switchMode("link")}
                 className={`btn-label flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                  mode === "link" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
+                  mode === "link" ? "bg-accent text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
                 Paste a Link

@@ -127,7 +127,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
       >
         <div
           onClick={close}
-          className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
+          className={`absolute inset-0 bg-backdrop transition-opacity duration-250 ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />

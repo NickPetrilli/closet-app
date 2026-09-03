@@ -77,6 +77,13 @@
      over a colored ground. */
   --shadow-tint: 24 40 56;
 
+  /* Ambient glows behind the page, and the sheen that sweeps a skeleton.
+     Both assume a ground to sit on, so both are per-theme. */
+  --backdrop-tint: 12 22 32;
+  --glow-top: rgba(178, 206, 235, 0.5);
+  --glow-corner: rgba(240, 203, 213, 0.22);
+  --skeleton-sheen: rgba(248, 250, 253, 0.7);
+
   /* Per-vibe gradient stops: top, middle, base. */
   --scene-office-1: #edf2f8;
   --scene-office-2: #d8e3ef;
@@ -104,25 +111,18 @@
 }
 
 /* ---------------------------------------------------------------------------
-   PROOF PALETTE — not shipped, not linked, no switcher.
-
-   The only way to know the token architecture is actually swappable is to swap
-   it, and a dark set is the hardest stress test because it inverts the
-   surface/text relationship rather than just shifting hue.
+   DARK PALETTE.
 
    Note what this block does NOT contain: a single component selector. It
-   redefines palette values only, and the semantic layer carries them through.
-   That is the whole claim of Phase A, kept honest by a fixture rather than an
-   assertion in a comment.
+   redefines palette values only, and the semantic layer carries them through
+   to every component — which is the whole claim of the token split.
 
-   To try it, set the attribute on the document root in devtools:
-       document.documentElement.dataset.theme = "dark"
-   Verify it with:
+   The theme is chosen by src/lib/theme.ts, which stamps data-theme on <html>
+   before first paint. Verify this palette with:
        node scripts/check-contrast.mjs --theme=dark
 
-   The real theming pass (a later phase) is what adds the switcher, persistence
-   and a properly art-directed set of scene tones; the scene values here are
-   deliberately rough.
+   Scene tones here are serviceable rather than art-directed; a later pass can
+   refine them without touching a component.
    --------------------------------------------------------------------------- */
 :root[data-theme="dark"] {
   /* Ramp inverts: 25 becomes the raised surface, 900 becomes the text. */
@@ -181,6 +181,13 @@
 
   /* On a dark ground an ink-tinted shadow is invisible; real depth needs black. */
   --shadow-tint: 0 0 0;
+
+  /* The glows have to darken rather than brighten, or they read as haze, and
+     the skeleton sheen has to sweep lighter than its track without flashing. */
+  --backdrop-tint: 0 0 0;
+  --glow-top: rgba(64, 104, 150, 0.28);
+  --glow-corner: rgba(125, 77, 94, 0.18);
+  --skeleton-sheen: rgba(174, 199, 226, 0.12);
 }
 
 /* ---------------------------------------------------------------------------
@@ -214,6 +221,12 @@
   --color-blush: var(--palette-blush-300);
   --color-blush-soft: var(--palette-blush-200);
   --color-blush-strong: var(--palette-blush-600);
+
+  /* Scrims behind modals and slide-over panels. Not ink-with-opacity: ink
+     inverts per theme, which would make a dark theme's backdrop brighten the
+     page instead of dimming it. */
+  --color-backdrop: rgb(var(--backdrop-tint) / 0.28);
+  --color-backdrop-strong: rgb(var(--backdrop-tint) / 0.42);
 
   /* State */
   --color-error: var(--palette-red-600);
@@ -281,17 +294,6 @@ body {
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
-  background-image:
-    radial-gradient(
-      ellipse 80% 50% at 50% -10%,
-      rgba(178, 206, 235, 0.5),
-      transparent
-    ),
-    radial-gradient(
-      ellipse 55% 40% at 100% 0%,
-      rgba(240, 203, 213, 0.22),
-      transparent
-    );
 }
 
 /* Fine film grain, as the topmost layer of the body's own background.
@@ -304,16 +306,8 @@ body {
 body {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E"),
-    radial-gradient(
-      ellipse 80% 50% at 50% -10%,
-      rgba(178, 206, 235, 0.5),
-      transparent
-    ),
-    radial-gradient(
-      ellipse 55% 40% at 100% 0%,
-      rgba(240, 203, 213, 0.22),
-      transparent
-    );
+    radial-gradient(ellipse 80% 50% at 50% -10%, var(--glow-top), transparent),
+    radial-gradient(ellipse 55% 40% at 100% 0%, var(--glow-corner), transparent);
 }
 
 /* Keyboard focus. The app previously had no focus ring anywhere -- every
@@ -453,7 +447,7 @@ textarea:focus-visible {
     background-image: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(248, 250, 253, 0.7) 50%,
+      var(--skeleton-sheen) 50%,
       transparent 100%
     );
     animation: shimmer 1.5s infinite;
