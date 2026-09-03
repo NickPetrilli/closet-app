@@ -18,14 +18,84 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const css = readFileSync(join(root, "src/app/globals.css"), "utf8");
 
+/** Which theme to check. `--theme=dark` overlays that theme's palette block. */
+const themeArg = process.argv.find((a) => a.startsWith("--theme="));
+const theme = themeArg ? themeArg.split("=")[1] : null;
+
 /* ---------- parse + resolve custom properties ---------- */
 
-/** Every `--name: value;` in the file, last declaration winning. */
-function readCustomProperties(source) {
+/**
+ * Split the stylesheet into top-level blocks so a theme's overrides are not
+ * mistaken for the default palette. Without this, adding a second palette
+ * would silently mix both themes' values together.
+ */
+function topLevelBlocks(rawSource) {
+  // Strip comments first: a block's selector is the text preceding its "{",
+  // which would otherwise include any comment sitting above it.
+  const source = rawSource.replace(/\/\*[\s\S]*?\*\//g, "");
+  const blocks = [];
+  let depth = 0;
+  let start = 0;
+  let selectorStart = 0;
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i];
+    if (ch === "{") {
+      if (depth === 0) {
+        // A selector is the text before "{", after any preceding at-rule
+        // statement (e.g. `@import "tailwindcss";`) has ended.
+        const raw = source.slice(selectorStart, i);
+        const selector = raw.slice(raw.lastIndexOf(";") + 1).trim();
+        blocks.push({ selector });
+        start = i + 1;
+      }
+      depth += 1;
+    } else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        blocks[blocks.length - 1].body = source.slice(start, i);
+        selectorStart = i + 1;
+      }
+    }
+  }
+  return blocks.filter((b) => b.body !== undefined);
+}
+
+/** Every `--name: value;` in a chunk of CSS, last declaration winning. */
+function declarationsIn(source) {
   const out = new Map();
   const re = /(--[\w-]+)\s*:\s*([^;}]+)[;}]/g;
   let m;
   while ((m = re.exec(source)) !== null) out.set(m[1], m[2].trim());
+  return out;
+}
+
+/**
+ * Base tokens come from the bare `:root` and `@theme` blocks. A named theme
+ * then overlays only the palette values it redefines — which is the whole
+ * claim being tested: a theme should be a palette swap, nothing more.
+ */
+function readCustomProperties(source, themeName) {
+  const blocks = topLevelBlocks(source);
+  const out = new Map();
+  const isBase = (sel) => sel === ":root" || sel.startsWith("@theme");
+  for (const b of blocks) {
+    if (isBase(b.selector)) {
+      for (const [k, v] of declarationsIn(b.body)) out.set(k, v);
+    }
+  }
+  if (themeName) {
+    const sel = `:root[data-theme="${themeName}"]`;
+    const themeBlocks = blocks.filter((b) => b.selector === sel);
+    if (themeBlocks.length === 0) {
+      console.log(`
+No block found for ${sel}
+`);
+      process.exit(1);
+    }
+    for (const b of themeBlocks) {
+      for (const [k, v] of declarationsIn(b.body)) out.set(k, v);
+    }
+  }
   return out;
 }
 
@@ -129,7 +199,9 @@ const HOVER_MUST_NOT_DEGRADE = [
 
 /* ---------- run ---------- */
 
-const props = readCustomProperties(css);
+const props = readCustomProperties(css, theme);
+console.log(`
+Theme: ${theme ?? "default (blue, light)"}`);
 const hex = (token) => resolve(token, props);
 const short = (token) => token.replace("--color-", "");
 const fmt = (n) => n.toFixed(2).padStart(6);

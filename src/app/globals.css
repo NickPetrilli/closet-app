@@ -72,6 +72,11 @@
      garment's own color survives the mix instead of being greyed by it. */
   --scene-shadow: #3d5670;
 
+  /* Shadow tint, as rgb channels so each elevation step can set its own alpha.
+     Ink-tinted rather than black: a neutral black shadow reads as grey haze
+     over a colored ground. */
+  --shadow-tint: 24 40 56;
+
   /* Per-vibe gradient stops: top, middle, base. */
   --scene-office-1: #edf2f8;
   --scene-office-2: #d8e3ef;
@@ -96,6 +101,86 @@
   --scene-street-1: #e8eaed;
   --scene-street-2: #ccd2d9;
   --scene-street-3: #9aa4b0;
+}
+
+/* ---------------------------------------------------------------------------
+   PROOF PALETTE — not shipped, not linked, no switcher.
+
+   The only way to know the token architecture is actually swappable is to swap
+   it, and a dark set is the hardest stress test because it inverts the
+   surface/text relationship rather than just shifting hue.
+
+   Note what this block does NOT contain: a single component selector. It
+   redefines palette values only, and the semantic layer carries them through.
+   That is the whole claim of Phase A, kept honest by a fixture rather than an
+   assertion in a comment.
+
+   To try it, set the attribute on the document root in devtools:
+       document.documentElement.dataset.theme = "dark"
+   Verify it with:
+       node scripts/check-contrast.mjs --theme=dark
+
+   The real theming pass (a later phase) is what adds the switcher, persistence
+   and a properly art-directed set of scene tones; the scene values here are
+   deliberately rough.
+   --------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  /* Ramp inverts: 25 becomes the raised surface, 900 becomes the text. */
+  --palette-blue-25: #1a2836;
+  --palette-blue-50: #111c27;
+  --palette-blue-100: #0c151e;
+  --palette-blue-200: #24384b;
+  --palette-blue-300: #33506b;
+  --palette-blue-400: #4a6a8a;
+  --palette-blue-500: #6d90b3;
+  --palette-blue-600: #8aa5c0;
+  --palette-blue-700: #afc4da;
+  --palette-blue-800: #c8d9ea;
+  --palette-blue-900: #dee9f5;
+
+  --palette-edge-1: #364e65;
+  --palette-edge-2: #496682;
+  --palette-edge-3: #5b7c9c;
+
+  /* Accent lightens, and "strong" lightens further so hover still increases
+     contrast against the dark on-accent text. */
+  --palette-accent: #8fb4da;
+  --palette-accent-deep: #b7d1ec;
+
+  --palette-blush-200: #4a2f39;
+  --palette-blush-300: #7d4d5e;
+  --palette-blush-600: #e7aebe;
+
+  --palette-red-600: #f08c8c;
+  --palette-red-700: #f7b5b5;
+  --palette-green-600: #7bc3a0;
+  --palette-amber-700: #d8ab5e;
+
+  /* Scenes: rough, enough to prove nothing is hardcoded. */
+  --scene-ink: #05090d;
+  --scene-light: #dce7f2;
+  --scene-shadow: #0b131c;
+  --scene-office-1: #223243;
+  --scene-office-2: #1a2735;
+  --scene-office-3: #121c27;
+  --scene-evening-1: #2b2b40;
+  --scene-evening-2: #1e1e2e;
+  --scene-evening-3: #14141f;
+  --scene-weekend-1: #1f2f2c;
+  --scene-weekend-2: #172422;
+  --scene-weekend-3: #101a19;
+  --scene-summer-1: #1d3245;
+  --scene-summer-2: #162736;
+  --scene-summer-3: #101c27;
+  --scene-autumn-1: #322a24;
+  --scene-autumn-2: #26201b;
+  --scene-autumn-3: #1a1512;
+  --scene-street-1: #262a2f;
+  --scene-street-2: #1c2025;
+  --scene-street-3: #13161a;
+
+  /* On a dark ground an ink-tinted shadow is invisible; real depth needs black. */
+  --shadow-tint: 0 0 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -154,18 +239,20 @@
   --radius-card: 0.875rem;
   --radius-sheet: 1.25rem;
 
-  /* Elevation. Four steps, replacing the ad-hoc one-off shadows. */
-  --shadow-card: 0 1px 2px rgba(24, 40, 56, 0.05), 0 6px 16px -10px rgba(24, 40, 56, 0.22);
-  --shadow-lift: 0 2px 4px rgba(24, 40, 56, 0.06), 0 18px 34px -16px rgba(24, 40, 56, 0.3);
-  --shadow-panel: 0 4px 8px rgba(24, 40, 56, 0.06), 0 26px 50px -20px rgba(24, 40, 56, 0.36);
-  --shadow-modal: 0 8px 16px rgba(24, 40, 56, 0.1), 0 40px 70px -24px rgba(24, 40, 56, 0.44);
+  /* Elevation. Four steps, replacing the ad-hoc one-off shadows. All four are
+     tinted from one value so a theme overrides --shadow-tint alone rather than
+     restating every shadow — a dark theme wants near-black here, not ink. */
+  --shadow-card: 0 1px 2px rgb(var(--shadow-tint) / 0.05), 0 6px 16px -10px rgb(var(--shadow-tint) / 0.22);
+  --shadow-lift: 0 2px 4px rgb(var(--shadow-tint) / 0.06), 0 18px 34px -16px rgb(var(--shadow-tint) / 0.3);
+  --shadow-panel: 0 4px 8px rgb(var(--shadow-tint) / 0.06), 0 26px 50px -20px rgb(var(--shadow-tint) / 0.36);
+  --shadow-modal: 0 8px 16px rgb(var(--shadow-tint) / 0.1), 0 40px 70px -24px rgb(var(--shadow-tint) / 0.44);
 
   /* Drop shadows for cut-out garment images, which sit directly on a scene
-     rather than in a box. Tinted with the theme's ink so they read as shadow
-     on a colored ground instead of grey haze. */
-  --drop-shadow-cutout-sm: 0 4px 8px rgb(24 40 56 / 0.22);
-  --drop-shadow-cutout: 0 6px 10px rgb(24 40 56 / 0.25);
-  --drop-shadow-cutout-lg: 0 10px 16px rgb(24 40 56 / 0.3);
+     rather than in a box. Same tint, so they read as shadow on a colored
+     ground instead of grey haze. */
+  --drop-shadow-cutout-sm: 0 4px 8px rgb(var(--shadow-tint) / 0.22);
+  --drop-shadow-cutout: 0 6px 10px rgb(var(--shadow-tint) / 0.25);
+  --drop-shadow-cutout-lg: 0 10px 16px rgb(var(--shadow-tint) / 0.3);
 
   /* Motion. Two curves; durations standardise on 150 / 250 / 400ms
      (`duration-150`, `duration-250`, `duration-400`) — no other values. */
