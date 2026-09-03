@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { deleteOutfit } from "@/lib/actions/outfits";
+import { deleteOutfit, updateOutfit } from "@/lib/actions/outfits";
 import { vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
@@ -12,6 +12,7 @@ import {
   type Outfit,
 } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
+import { OutfitFormModal, type OutfitFormValues } from "./OutfitFormModal";
 import { outfitPieces } from "./OutfitCard";
 import { SceneBackdrop, vibeLabel } from "./SceneBackdrop";
 
@@ -38,14 +39,26 @@ export function OutfitDetailPanel({
   if (outfit) lastOutfitRef.current = outfit;
   const shown = outfit ?? lastOutfitRef.current;
 
+  // What the database currently holds for the name, so blurring an unchanged
+  // field doesn't fire a pointless write.
+  const lastSavedNameRef = useRef<string>(outfit?.name ?? "");
+  if (outfit && outfit.id !== lastOutfitRef.current?.id) {
+    lastSavedNameRef.current = outfit.name;
+  }
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, startDeleting] = useTransition();
+  const [editOpen, setEditOpen] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [, startSaving] = useTransition();
 
   useEffect(() => {
     if (!open) return;
     setDeleteModalOpen(false);
     setDeleteError(null);
+    setEditOpen(false);
+    setSaveError(null);
   }, [open, shown?.id]);
 
   useEffect(() => {
@@ -56,6 +69,36 @@ export function OutfitDetailPanel({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [open, onClose]);
+
+  /**
+   * The name chip edits local state as you type; this writes it when you leave
+   * the field. Without it the rename looked like it worked and silently
+   * vanished on the next load.
+   */
+  function commitRename(id: string, name: string) {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === lastSavedNameRef.current) return;
+    startSaving(async () => {
+      const result = await updateOutfit({ id, name: trimmed });
+      if (result.error) {
+        setSaveError(result.error);
+        return;
+      }
+      lastSavedNameRef.current = trimmed;
+      setSaveError(null);
+      router.refresh();
+    });
+  }
+
+  async function handleEditSubmit(values: OutfitFormValues) {
+    if (!shown) return { error: "No outfit selected." };
+    const result = await updateOutfit({ id: shown.id, ...values });
+    if (result.error) return result;
+    onUpdate(shown.id, values);
+    lastSavedNameRef.current = values.name;
+    router.refresh();
+    return {};
+  }
 
   function handleDelete() {
     if (!shown) return;
@@ -128,6 +171,10 @@ export function OutfitDetailPanel({
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
+                  onBlur={(e) => commitRename(shown.id, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
                   aria-label="Outfit name"
                   size={Math.max(shown.name.length, 4)}
                   className="max-w-[16rem] bg-transparent font-serif text-xl leading-none focus:outline-none"
@@ -213,11 +260,36 @@ export function OutfitDetailPanel({
                 </div>
               </div>
 
-              {/* Helper text + delete */}
-              <div className="mt-auto flex items-center justify-between gap-4 border-t border-line pt-5">
-                <p className="text-xs leading-relaxed text-muted">
-                  Select a piece to view and edit its details.
-                </p>
+              {/* Helper text + actions */}
+              <div className="mt-auto flex flex-col gap-4 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs leading-relaxed text-muted">
+                    Select a piece to view and edit its details.
+                  </p>
+                  {saveError && (
+                    <p className="mt-1.5 text-sm text-danger">{saveError}</p>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(true)}
+                  className="eyebrow flex cursor-pointer items-center gap-2 rounded-full border border-line-dark px-4 py-2 text-ink transition-colors hover:border-ink"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M11.2 2.3a1.6 1.6 0 0 1 2.3 2.3L5.6 12.4l-3 .7.7-3z" />
+                  </svg>
+                  Edit outfit
+                </button>
                 <button
                   type="button"
                   onClick={() => setDeleteModalOpen(true)}
@@ -238,11 +310,29 @@ export function OutfitDetailPanel({
                   </svg>
                   Delete outfit
                 </button>
+                </div>
               </div>
             </div>
           </div>
         )}
       </aside>
+
+      {shown && (
+        <OutfitFormModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          items={items}
+          initial={{
+            name: shown.name,
+            vibe: shown.vibe,
+            itemIds: shown.itemIds,
+          }}
+          title="Edit outfit"
+          submitLabel="Save Changes"
+          pendingLabel="Saving…"
+          onSubmit={handleEditSubmit}
+        />
+      )}
 
       {/* Delete confirmation */}
       <div
