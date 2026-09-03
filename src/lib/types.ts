@@ -95,11 +95,51 @@ export interface Outfit {
   itemIds: string[];
 }
 
+/**
+ * Which hand-drawn weather glyph a forecast maps to. Derived from the WMO
+ * weather code (see src/lib/server/weather.ts) so the card never has to
+ * switch on raw numbers.
+ */
+export type WeatherIcon =
+  | "sun"
+  | "cloud-sun"
+  | "cloud"
+  | "fog"
+  | "drizzle"
+  | "rain"
+  | "snow"
+  | "storm";
+
+/** Normalised Open-Meteo reading — the shape cached in `weather_cache.payload`. */
+export interface Weather {
+  tempF: number;
+  feelsLikeF: number;
+  hiF: number;
+  loF: number;
+  /** Chance of precipitation today, 0-100. */
+  precipProbability: number;
+  windMph: number;
+  /** Raw WMO code, kept so the mapping can change without a cache wipe. */
+  code: number;
+  condition: string;
+  icon: WeatherIcon;
+  isDay: boolean;
+}
+
+/**
+ * The client-safe view of `app_settings`. Deliberately omits latitude and
+ * longitude: the browser only ever needs the label, and precise coordinates
+ * shouldn't be shipped in the page HTML.
+ */
+export interface AppSettings {
+  locationLabel: string | null;
+  hasLocation: boolean;
+  timezone: string | null;
+}
+
 export interface DailySuggestion {
-  weather: {
-    tempF: number;
-    condition: string;
-  };
+  /** null when no location is set yet, or the forecast couldn't be fetched. */
+  weather: Weather | null;
   occasion: string;
   itemIds: string[];
 }
