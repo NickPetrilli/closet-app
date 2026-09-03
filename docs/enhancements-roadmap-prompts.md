@@ -4,23 +4,29 @@ Phased plan for the next round of work, written so each phase can be handed to a
 fresh Claude Code session (Opus) on its own. Run them **in order** — later phases
 assume the tables and helpers from earlier ones exist.
 
-**Agreed order:** Phase 1 (weather: location + conditions) → Phase 2 (PWA) →
-Phase 3 (weather: occasion + wear log + smart suggestion) → Phase 4 (real garment
-identification on upload). Phases 5a–5f are small and unordered — pick up any
-time. Phases 6–8 are full sessions; suggested order after Phase 4 is
-6 (wear history) → 7 (suggestion feedback) → 5e (next/image) → 8 (notifications),
-since 6 and 7 compound on Phase 3 while it is fresh and 5e is a quick win that
-improves every screen.
+**Suggested order from here:** **Phase 9 (accounts)** next — it is the one
+change that gets harder with every row added, and Phases 4, 6 and 7 all create
+rows that would then need retrofitting with an owner. Then Phase 4 (garment
+identification), once the remove.bg question below is settled. Then 6 (wear
+history) → 7 (suggestion feedback), both of which want a few weeks of real wear
+data behind them first. Phases 5a–5f are small and unordered — pick up any time;
+5e (next/image) is the quickest win of them. Phase 8 (notifications) is the
+largest infrastructure lift and can wait.
 
-**Status as of 2026-09-02**
+**Status as of 2026-09-03**
 
 | Phase | State |
 |---|---|
 | 1 — Weather: location + conditions | Done, merged, deployed. `001-weather.sql` applied. |
-| 2 — PWA | Done, merged, deployed. Phone install test still outstanding. |
-| 3 — Occasion + wear log + suggestion | Done and verified on branch `phase-3-occasion`; **not merged**. `002-wear-log.sql` applied. |
-| 4 — Garment identification on upload | Next up. |
-| 5a–5f, 6, 7, 8 | Not started. |
+| 2 — PWA | Done, merged, deployed. **Phone install test still outstanding.** |
+| 3 — Occasion + wear log + suggestion | Done, merged, deployed. `002-wear-log.sql` applied. |
+| 5b — Search + sort | Done, merged, deployed. |
+| 5c — Outfit editing | Done, merged, deployed. Also fixed renames never persisting, for both items and outfits. |
+| 9 — Accounts (multi-user) | Not started. Added when Jenna's mom and sister asked for their own closets. **Do this before 4, 6 and 7.** |
+| 4 — Garment identification on upload | **Deferred.** Blocked on a decision: remove.bg has ~42 free calls left this month and a real wardrobe would exhaust them — skip-removal fallback, buy credits, or proceed and watch the counter. Phase 9 makes this sharper, since the quota is per project, not per user. |
+| 5a, 5d, 5e, 5f | Not started. |
+| 6, 7 | Not started, and both want real wear data first — `wear_log` is nearly empty, so a calendar and a feedback model would have nothing to show. |
+| 8 — Morning notification | Not started. Largest infrastructure lift. |
 
 **Housekeeping before Phase 6 or 7:** the `outfits` table holds ~28 rows, most of
 them leftovers from earlier AI-generation testing, plus one unexplained "Test"
@@ -600,7 +606,7 @@ table, `fetchRecentlyWornItemIds()`, and logging via the "Wore this" button.)
      rows with no outfit_id. Empty days stay quiet - hairline borders, no heavy
      chrome. Month back/forward, today marked, occasion shown as an .eyebrow label.
    - Mobile first: at 375px a 7-column grid is ~48px per cell, so thumbnails must be
-     tiny or collapse to one colour dot per item. Design for that width, not desktop.
+     tiny or collapse to one color dot per item. Design for that width, not desktop.
 
 4. PER-ITEM HISTORY
    - ItemDetailPanel: "Last worn 12 days ago" (or "Not worn yet"), plus a count of
@@ -732,6 +738,165 @@ the notification arrives and that clicking it focuses the app. Confirm a second 
 the same day is a no-op via notification_log. Confirm a revoked subscription is
 pruned. Real iOS delivery can only be checked on the installed PWA - say plainly that
 it is unverified if you cannot test it. tsc clean, small commits.
+```
+
+---
+
+## Phase 9 — Accounts
+
+**Goal:** Jenna's mom and sister want closets of their own. One app, three
+accounts, each person seeing only their own wardrobe — rather than three
+deployments to keep in sync.
+
+**Do this before Phases 4, 6 and 7.** Each of those adds rows to tables that
+would then need retrofitting with an owner, and Phase 4 in particular is about
+bulk-adding a real wardrobe — far better that it lands in the right account
+from the first upload.
+
+```
+Add multi-user accounts to Jenna's Closet. (Read the "Shared context" section of
+docs/enhancements-roadmap-prompts.md first.)
+
+Today the app is single-user with NO auth. RLS is disabled on every table and
+the entire security model is one sentence: the anon key is server-only and never
+reaches the browser. Three people sharing one deployment invalidates that. This
+phase touches every table, every Server Action, and the Supabase client itself —
+read the whole prompt before writing any code.
+
+CONFIRM WITH THE USER FIRST — both answers change the shape of the work:
+  a. SIGN-UP POLICY. The site is on a public URL, so open sign-up means any
+     stranger can create an account in this Supabase project. Recommended: an
+     email allowlist (three addresses in an env var or a small `allowed_emails`
+     table), checked in the sign-up action. Alternatives: an invite code, or
+     disabling sign-up entirely and creating the three users by hand in the
+     Supabase dashboard.
+  b. PHOTO PRIVACY. The `item-images` bucket is currently PUBLIC — anyone with
+     a URL can view a garment photo, and the paths are the only secret. With
+     one user that was fine. Options: (i) keep it public and namespace paths by
+     user id — simplest, and the URLs stay usable by the service worker's image
+     cache; (ii) make the bucket private and serve signed URLs — properly
+     private, but every image URL then expires, which the SW cache and the
+     shareable-outfit card (5d) both have to cope with. Recommend (i) unless
+     the user says otherwise, and say plainly in your summary that photos
+     remain fetchable by URL.
+
+1. AUTH — Supabase Auth, email + password
+   - Use `@supabase/ssr` (`createServerClient` with the Next cookie store).
+     Do NOT use `@supabase/auth-helpers-nextjs`; it is deprecated.
+   - Sign in, sign up and sign out are all SERVER ACTIONS. Doing auth
+     server-side means the anon key can stay out of the browser exactly as it
+     is today — do not introduce NEXT_PUBLIC_SUPABASE_ANON_KEY. Preserving that
+     invariant is a deliberate goal of this phase, not an accident.
+   - Add `middleware.ts` for session refresh, per Supabase's App Router guide.
+   - Email confirmation adds friction for three known people; suggest turning
+     it off in the Supabase dashboard and say so in docs/DEPLOYMENT.md.
+
+2. THE SUPABASE CLIENT — the most dangerous part of this phase
+   - `src/lib/supabase/client.ts` exports a MODULE-SCOPED client created once at
+     import. With a per-user session attached, a module singleton can leak one
+     user's session into another user's request on a warm serverless instance.
+     It MUST become a per-request factory, e.g. `getSupabase()` returning a
+     client built from the current request's cookies.
+   - Update every caller. There are many: the repository, all of
+     src/lib/actions/*, and the server modules under src/lib/server/.
+   - If any admin/script path needs to bypass RLS, give it a SEPARATE
+     service-role client in its own module, never importable from app code.
+
+3. SCHEMA (schema.sql + supabase/migrations/00N-accounts.sql + SQL for the user)
+   - Add `user_id uuid not null references auth.users (id) on delete cascade` to
+     `items`, `outfits`, `wear_log`, `daily_state`.
+   - `outfit_items` gets no user_id — it inherits ownership through outfit_id.
+     Its policies go through a subquery on `outfits`.
+   - `app_settings` STOPS BEING A SINGLETON. Drop the `id = 'singleton'` check
+     and the id column; the primary key becomes user_id. Every read of it in
+     src/lib/server/weather.ts assumes one row — all of that changes.
+   - `occasion_tags` gets a NULLABLE user_id: null means a seeded tag everyone
+     sees, non-null means one someone added. Reads allow `user_id is null or
+     user_id = auth.uid()`; inserts force user_id = auth.uid().
+   - `weather_cache` deliberately gets NO user_id. It caches public forecast
+     data by rounded coordinates and date, so two users in the same town
+     sharing a cache entry is a feature, not a leak. Note the one caveat in a
+     comment: `location_key` is approximate coordinates, so restrict reads to
+     authenticated users, and if that is still too much, hash the key.
+   - Index every new user_id column — every query in the app will filter on it.
+
+4. BACKFILL — do not skip, and do not guess
+   - Every existing row belongs to Jenna. The migration cannot know her user id
+     until she has signed up, so this is a two-step deploy: create the columns
+     as NULLABLE, have her sign up, then run a second statement setting user_id
+     on all existing rows to her uuid and adding the NOT NULL constraint.
+   - Give the user both SQL blocks and say explicitly which to run when.
+
+5. RLS — this is what actually enforces separation
+   - `alter table ... enable row level security` on items, outfits,
+     outfit_items, wear_log, daily_state, app_settings, occasion_tags. This
+     REVERSES the `disable row level security` lines currently in schema.sql —
+     update those lines rather than leaving contradictory DDL in the file.
+   - Policies for select/insert/update/delete keyed on `user_id = auth.uid()`.
+   - Revoke the blanket write grants to `anon`; `authenticated` keeps them.
+     An unauthenticated request should see nothing at all.
+
+6. STORAGE
+   - Namespace uploads as `<user_id>/<item_id>.<ext>` in item-pipeline.ts.
+   - Replace the permissive "item-images full access" policy with one scoped to
+     the uploader's own prefix.
+   - Existing objects are at the old flat paths and are still referenced by
+     `items.image_url` — either move them and update the URLs, or leave them and
+     have the policy tolerate both. Whichever you choose, say which.
+
+7. DATA LAYER AND ACTIONS
+   - Add a `requireUser()` helper that returns the current user or redirects to
+     sign-in, and use it at the top of every Server Action and every repository
+     read. Do not rely on RLS alone to scope reads — belt and braces, and it
+     gives a real error instead of a silently empty page.
+   - src/app/page.tsx redirects to /sign-in when there is no session.
+
+8. UI
+   - A sign-in / sign-up page in the app's visual language (see the modals in
+     AddItemButton and LocationSettings for the established form styling), and
+     a sign-out control in the settings modal.
+   - APP_NAME in src/lib/config.ts is the literal string "Jenna's Closet" and is
+     rendered as the page heading. With three accounts it has to become
+     per-user: keep a neutral product name and derive the heading from the
+     signed-in user's display name, collected at sign-up.
+   - NOTE THE PWA CONSEQUENCE: src/app/manifest.ts hardcodes name "Jenna's
+     Closet" / short_name "Closet". The manifest is static and shared, so an
+     installed app on the sister's phone would say Jenna's name. Rename the
+     installed app to something neutral. Anyone who already installed it keeps
+     the old icon label until they reinstall — iOS snapshots that at install
+     time (see Phase 2).
+
+9. SERVICE WORKER
+   - public/sw.js caches item photos in `closet-images-v1`. On a shared laptop
+     that cache would outlive a sign-out. Clear the image and shell caches on
+     sign-out (postMessage to the SW, or `caches.delete` from the sign-out
+     handler), and bump the SW VERSION so old caches are dropped on upgrade.
+
+10. SHARED RESOURCES — flag these to the user, do not silently absorb them
+   - remove.bg is 50 images/month for the whole PROJECT, not per user. Three
+     people building real wardrobes will blow through that immediately. This
+     interacts directly with the open Phase 4 decision.
+   - The Gemini free tier is per API key per day, also now shared three ways.
+   - Supabase free tier: 500MB database, 1GB storage. Three photo wardrobes is
+     the first time storage is worth watching.
+
+DO NOT: build sharing, following, or any way to view another person's closet;
+add roles or an admin view; implement social login; or write a custom password
+reset — use Supabase's built-in flow if one is needed at all.
+
+VERIFY
+- Create TWO accounts and prove isolation properly: sign in as A, note an item
+  id, then as B attempt to read that row directly through the data layer and
+  confirm it comes back empty rather than merely hidden in the UI. Do the same
+  for outfits, wear_log and app_settings. A UI that looks right is not evidence.
+- Confirm a signed-out request to "/" redirects and returns no data.
+- Confirm each account gets its own location and its own daily suggestion.
+- Confirm the Phase 3 wear log and occasion tags stay per-user, and that seeded
+  occasion tags are visible to everyone.
+- Re-run scripts/check-weather.mjs and scripts/check-suggestion.mjs; both use
+  the anon key directly and WILL need updating for RLS — decide whether they
+  move to the service-role client or take a user session.
+- `tsc` clean, `next build` passes. Small commits.
 ```
 
 ---
