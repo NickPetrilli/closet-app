@@ -61,7 +61,7 @@ function ItemPicker({
             onClick={() => onToggle(item.id)}
             title={item.name}
             aria-pressed={isSelected}
-            className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 bg-surface-sunken/40 p-2 transition-colors ${
+            className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-control border-2 bg-surface-sunken/40 p-2 transition-colors ${
               isSelected ? "border-accent" : "border-transparent hover:border-edge"
             }`}
           >
@@ -231,7 +231,7 @@ export function OutfitFormModal({
     >
       <div
         onClick={close}
-        className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -240,7 +240,7 @@ export function OutfitFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+        className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-sheet border border-edge bg-surface-raised p-5 shadow-modal transition-all duration-250 sm:max-h-[85vh] sm:p-8 ${
           open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         }`}
       >

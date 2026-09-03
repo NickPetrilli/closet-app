@@ -160,6 +160,13 @@
   --shadow-panel: 0 4px 8px rgba(24, 40, 56, 0.06), 0 26px 50px -20px rgba(24, 40, 56, 0.36);
   --shadow-modal: 0 8px 16px rgba(24, 40, 56, 0.1), 0 40px 70px -24px rgba(24, 40, 56, 0.44);
 
+  /* Drop shadows for cut-out garment images, which sit directly on a scene
+     rather than in a box. Tinted with the theme's ink so they read as shadow
+     on a colored ground instead of grey haze. */
+  --drop-shadow-cutout-sm: 0 4px 8px rgb(24 40 56 / 0.22);
+  --drop-shadow-cutout: 0 6px 10px rgb(24 40 56 / 0.25);
+  --drop-shadow-cutout-lg: 0 10px 16px rgb(24 40 56 / 0.3);
+
   /* Motion. Two curves; durations standardise on 150 / 250 / 400ms
      (`duration-150`, `duration-250`, `duration-400`) — no other values. */
   --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);

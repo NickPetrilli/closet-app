@@ -16,7 +16,7 @@ export function OutfitGrid({
 }) {
   if (outfits.length === 0) {
     return (
-      <div className="border border-edge-subtle py-24 text-center">
+      <div className="rounded-card border border-edge-subtle bg-surface-raised/40 py-24 text-center">
         <p className="font-serif text-2xl italic text-ink-secondary">
           No outfits yet.
         </p>

@@ -127,7 +127,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
       >
         <div
           onClick={close}
-          className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -142,7 +142,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 ? "Outfit generation failed"
                 : "Review generated outfits"
           }
-          className={`relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-edge bg-surface-raised shadow-xl transition-all duration-300 sm:max-h-[85vh] ${
+          className={`relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-sheet border border-edge bg-surface-raised shadow-modal transition-all duration-250 sm:max-h-[85vh] ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -229,7 +229,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                   key={index}
                   type="button"
                   onClick={() => toggle(index)}
-                  className={`group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border text-left transition-colors ${
+                  className={`group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-card border text-left transition-colors ${
                     isSelected ? "border-accent" : "border-edge-subtle opacity-50"
                   }`}
                 >
@@ -244,7 +244,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                           key={piece.id}
                           src={photoUrl}
                           alt={piece.name}
-                          className="h-14 w-14 object-contain drop-shadow-[0_4px_8px_rgba(36,56,75,0.25)]"
+                          className="h-14 w-14 object-contain drop-shadow-cutout-sm"
                         />
                       ) : (
                         <GarmentGlyph
@@ -345,7 +345,7 @@ function GeneratingState({ step }: { step: number }) {
 
       <div className="grid w-full max-w-md grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="skeleton aspect-[3/4] rounded-xl border border-edge-subtle" />
+          <div key={i} className="skeleton aspect-[3/4] rounded-card border border-edge-subtle" />
         ))}
       </div>
 

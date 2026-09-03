@@ -123,7 +123,7 @@ export function DailySuggestionCard({
   return (
     <section
       aria-label="Today's suggestion"
-      className="flex flex-col gap-5 rounded-2xl border border-edge-subtle bg-gradient-to-br from-surface-raised to-surface-sunken px-6 py-5 shadow-[0_10px_30px_-20px_rgba(36,56,75,0.5)]"
+      className="flex flex-col gap-5 rounded-card border border-edge-subtle bg-gradient-to-br from-surface-raised to-surface-sunken px-6 py-5 shadow-card"
     >
       {/* Weather + the pieces themselves */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -176,7 +176,7 @@ export function DailySuggestionCard({
         <div className="flex gap-2">
           {isPending
             ? [0, 1, 2].map((i) => (
-                <div key={i} className="skeleton h-14 w-14 rounded-xl" />
+                <div key={i} className="skeleton h-14 w-14 rounded-control" />
               ))
             : suggestedItems.map((item) => (
                 <button
@@ -184,7 +184,7 @@ export function DailySuggestionCard({
                   type="button"
                   onClick={() => onSelectItem(item.id)}
                   title={item.name}
-                  className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-edge-subtle bg-surface-sunken transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-sm"
+                  className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-control border border-edge-subtle bg-surface-sunken transition-all duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-card"
                 >
                   {hasPhoto(item.imageUrl) ? (
                     // eslint-disable-next-line @next/next/no-img-element

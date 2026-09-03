@@ -100,7 +100,7 @@ export function ItemDetailPanel({
       {/* Backdrop — wardrobe stays visible, dimmed */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -110,7 +110,7 @@ export function ItemDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={shown ? `Details for ${shown.name}` : "Item details"}
-        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised transition-transform duration-300 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised shadow-panel transition-transform duration-400 ease-standard ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -118,7 +118,7 @@ export function ItemDetailPanel({
           <div className="flex min-h-full flex-col">
             {/* Hero — item rendered on the user, scene vibe follows the color */}
             <div
-              className="relative h-[420px] shrink-0 overflow-hidden transition-[background] duration-500"
+              className="relative h-[420px] shrink-0 overflow-hidden transition-[background] duration-400"
               style={{ background: vibeGradient(shown.primaryColorHex) }}
             >
               {hasPhoto(shown.imageUrl) ? (
@@ -135,13 +135,13 @@ export function ItemDetailPanel({
                     category={shown.category}
                     silhouette={shown.silhouette}
                     colorHex={shown.primaryColorHex}
-                    className="absolute left-1/2 top-[24%] w-[19%] -translate-x-1/2 drop-shadow-sm"
+                    className="absolute left-1/2 top-[24%] w-[19%] -translate-x-1/2 drop-shadow-cutout-sm"
                   />
                 </>
               )}
 
               {/* Editable name chip */}
-              <div className="absolute top-5 left-5 border border-edge bg-surface-raised px-4 py-2.5">
+              <div className="absolute top-5 left-5 rounded-control border border-edge bg-surface-raised px-4 py-2.5">
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
@@ -160,7 +160,7 @@ export function ItemDetailPanel({
                 type="button"
                 onClick={onClose}
                 aria-label="Close details"
-                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
+                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center rounded-full border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -179,13 +179,13 @@ export function ItemDetailPanel({
                   category={shown.category}
                   silhouette={shown.silhouette}
                   colorHex={shown.primaryColorHex}
-                  className="absolute right-6 bottom-6 w-28 drop-shadow-md"
+                  className="absolute right-6 bottom-6 w-28 drop-shadow-cutout"
                 />
               )}
 
               {/* Source photo thumbnails */}
               {shown.sourcePhotoUrls.length > 0 && (
-              <div className="absolute bottom-6 left-6 flex gap-1.5 border border-edge-subtle bg-surface-raised/95 p-1.5">
+              <div className="absolute bottom-6 left-6 flex gap-1.5 rounded-control border border-edge-subtle bg-surface-raised/95 p-1.5">
                 {shown.sourcePhotoUrls.map((url, index) => {
                   const isActive = index === activeSourceIndex;
                   return (
@@ -195,7 +195,7 @@ export function ItemDetailPanel({
                       onClick={() => setActiveSourceIndex(index)}
                       aria-pressed={isActive}
                       aria-label={`Source photo ${index + 1}`}
-                      className={`relative flex h-12 w-16 items-center justify-center border transition-colors ${
+                      className={`relative flex h-12 w-16 items-center justify-center rounded-control border transition-colors ${
                         isActive
                           ? "border-ink"
                           : "border-edge-subtle hover:border-edge"
@@ -235,7 +235,7 @@ export function ItemDetailPanel({
                       if (e.key === "Enter") e.currentTarget.blur();
                     }}
                     aria-label="Item name"
-                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full rounded-control border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
                   />
                   {saveError && (
                     <p className="mt-1.5 text-sm text-error">{saveError}</p>
@@ -243,7 +243,7 @@ export function ItemDetailPanel({
                 </div>
                 <div>
                   <p className="eyebrow text-ink-tertiary">Category</p>
-                  <p className="mt-2.5 border border-edge-subtle bg-surface-sunken/50 px-3.5 py-2.5 text-sm text-ink-secondary">
+                  <p className="mt-2.5 rounded-control border border-edge-subtle bg-surface-sunken/50 px-3.5 py-2.5 text-sm text-ink-secondary">
                     {categoryLabel(shown.category)}
                   </p>
                 </div>
@@ -258,7 +258,7 @@ export function ItemDetailPanel({
                     <p className="text-sm font-medium">Primary color</p>
                     <div className="mt-4 flex items-center gap-4">
                       <span
-                        className="h-12 w-12 shrink-0 border border-edge"
+                        className="h-12 w-12 shrink-0 rounded-control border border-edge"
                         style={{ backgroundColor: shown.primaryColorHex }}
                       />
                       <div>
@@ -281,7 +281,7 @@ export function ItemDetailPanel({
                     {shown.secondaryColorHex ? (
                       <div className="mt-4 flex items-center gap-4">
                         <span
-                          className="h-12 w-12 shrink-0 border border-edge"
+                          className="h-12 w-12 shrink-0 rounded-control border border-edge"
                           style={{
                             backgroundColor: shown.secondaryColorHex,
                           }}
@@ -312,7 +312,7 @@ export function ItemDetailPanel({
                         key={outfit.id}
                         type="button"
                         onClick={() => onSelectOutfit(outfit.id)}
-                        className="group flex items-center justify-between border border-edge-subtle px-4 py-3 text-left transition-colors hover:border-ink"
+                        className="group flex items-center justify-between rounded-control border border-edge-subtle px-4 py-3 text-left transition-colors hover:border-ink"
                       >
                         <span>
                           <span className="block font-serif text-base leading-snug">

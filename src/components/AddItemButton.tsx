@@ -77,7 +77,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
       >
         <div
           onClick={close}
-          className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -86,7 +86,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
           role="dialog"
           aria-modal="true"
           aria-label="Add an item"
-          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-sheet border border-edge bg-surface-raised p-5 shadow-modal transition-all duration-250 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -147,7 +147,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                 {/* Photo */}
                 <div>
                   <p className="eyebrow text-ink-tertiary">Photo</p>
-                  <label className="mt-2.5 flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-edge bg-surface-sunken/40 transition-colors hover:border-accent">
+                  <label className="mt-2.5 flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-card border border-dashed border-edge bg-surface-sunken/40 transition-colors hover:border-accent">
                     {previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img

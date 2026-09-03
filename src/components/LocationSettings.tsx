@@ -100,7 +100,7 @@ export function LocationSettings({
       >
         <div
           onClick={close}
-          className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+          className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
             open ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -109,7 +109,7 @@ export function LocationSettings({
           role="dialog"
           aria-modal="true"
           aria-label="Location settings"
-          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-sheet border border-edge bg-surface-raised p-5 shadow-modal transition-all duration-250 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -168,7 +168,7 @@ export function LocationSettings({
                         type="button"
                         onClick={() => commit(match)}
                         disabled={isPending}
-                        className="w-full cursor-pointer rounded-xl border border-edge-subtle bg-surface-sunken/40 px-3.5 py-2.5 text-left text-sm transition-colors hover:border-accent hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70"
+                        className="w-full cursor-pointer rounded-control border border-edge-subtle bg-surface-sunken/40 px-3.5 py-2.5 text-left text-sm transition-colors hover:border-accent hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70"
                       >
                         {match.label}
                       </button>

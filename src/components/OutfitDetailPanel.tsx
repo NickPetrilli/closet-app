@@ -123,7 +123,7 @@ export function OutfitDetailPanel({
       {/* Backdrop — wardrobe stays visible, dimmed */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-ink/25 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-ink/25 transition-opacity duration-250 ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -133,7 +133,7 @@ export function OutfitDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={shown ? `Details for ${shown.name}` : "Outfit details"}
-        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised transition-transform duration-300 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised shadow-panel transition-transform duration-400 ease-standard ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -152,7 +152,7 @@ export function OutfitDetailPanel({
                       key={piece.id}
                       src={photoUrl}
                       alt={piece.name}
-                      className={`absolute h-auto -translate-x-1/2 object-contain drop-shadow-[0_10px_16px_rgba(36,56,75,0.3)] ${HERO_SLOTS[piece.category]}`}
+                      className={`absolute h-auto -translate-x-1/2 object-contain drop-shadow-cutout-lg ${HERO_SLOTS[piece.category]}`}
                     />
                   ) : (
                     <GarmentGlyph
@@ -160,14 +160,14 @@ export function OutfitDetailPanel({
                       category={piece.category}
                       silhouette={piece.silhouette}
                       colorHex={piece.primaryColorHex}
-                      className={`absolute -translate-x-1/2 drop-shadow-sm ${HERO_SLOTS[piece.category]}`}
+                      className={`absolute -translate-x-1/2 drop-shadow-cutout-sm ${HERO_SLOTS[piece.category]}`}
                     />
                   );
                 })}
               </div>
 
               {/* Editable name chip */}
-              <div className="absolute top-5 left-5 border border-edge bg-surface-raised px-4 py-2.5">
+              <div className="absolute top-5 left-5 rounded-control border border-edge bg-surface-raised px-4 py-2.5">
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
@@ -186,7 +186,7 @@ export function OutfitDetailPanel({
                 type="button"
                 onClick={onClose}
                 aria-label="Close details"
-                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
+                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center rounded-full border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -199,7 +199,7 @@ export function OutfitDetailPanel({
                 </svg>
               </button>
 
-              <span className="eyebrow absolute bottom-5 left-5 border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink">
+              <span className="eyebrow absolute bottom-5 left-5 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink">
                 {vibeLabel(shown.vibe)} · {pieces.length} pieces
               </span>
             </div>
@@ -214,10 +214,10 @@ export function OutfitDetailPanel({
                       key={piece.id}
                       type="button"
                       onClick={() => onSelectItem(piece.id)}
-                      className="group flex items-center gap-5 border border-edge-subtle p-3 text-left transition-colors hover:border-ink"
+                      className="group flex items-center gap-5 rounded-control border border-edge-subtle p-3 text-left transition-colors hover:border-ink"
                     >
                       <span
-                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-edge-subtle"
+                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-control border border-edge-subtle"
                         style={{
                           background: vibeGradient(piece.primaryColorHex),
                         }}
@@ -251,7 +251,7 @@ export function OutfitDetailPanel({
                           {piece.primaryColorHex}
                         </span>
                         <span
-                          className="h-6 w-6 border border-edge"
+                          className="h-6 w-6 rounded-[3px] border border-edge"
                           style={{ backgroundColor: piece.primaryColorHex }}
                         />
                       </span>
@@ -343,7 +343,7 @@ export function OutfitDetailPanel({
       >
         <div
           onClick={() => !isDeleting && setDeleteModalOpen(false)}
-          className={`absolute inset-0 bg-ink/35 transition-opacity duration-200 ${
+          className={`absolute inset-0 bg-ink/35 transition-opacity duration-150 ${
             deleteModalOpen ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -351,7 +351,7 @@ export function OutfitDetailPanel({
           role="alertdialog"
           aria-modal="true"
           aria-label="Confirm delete outfit"
-          className={`relative w-full max-w-sm rounded-2xl border border-error/40 bg-surface-raised p-7 shadow-xl transition-all duration-200 ${
+          className={`relative w-full max-w-sm rounded-sheet border border-error/40 bg-surface-raised p-7 shadow-modal transition-all duration-150 ${
             deleteModalOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >

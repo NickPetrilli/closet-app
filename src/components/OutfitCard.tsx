@@ -46,11 +46,11 @@ export function OutfitCard({
           onSelect(outfit.id);
         }
       }}
-      className="group relative aspect-[3/4] cursor-pointer overflow-hidden border border-edge-subtle transition-colors duration-300 hover:border-ink focus-visible:border-ink focus-visible:outline-none"
+      className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-card border border-edge-subtle transition-colors duration-250 hover:border-ink focus-visible:border-ink focus-visible:outline-none"
     >
       <SceneBackdrop
         vibe={outfit.vibe}
-        className="transition-opacity duration-500 group-hover:opacity-60"
+        className="transition-opacity duration-400 group-hover:opacity-60"
       />
 
       {pieces.map((piece) => {
@@ -66,28 +66,28 @@ export function OutfitCard({
             }}
             title={piece.name}
             aria-label={piece.name}
-            className={`absolute -translate-x-1/2 transition-all duration-500 ease-out ${SLOT_CLASSES[piece.category]}`}
+            className={`absolute -translate-x-1/2 transition-all duration-400 ease-out ${SLOT_CLASSES[piece.category]}`}
           >
             {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={photoUrl}
                 alt={piece.name}
-                className="h-auto w-full object-contain drop-shadow-[0_6px_10px_rgba(36,56,75,0.25)]"
+                className="h-auto w-full object-contain drop-shadow-cutout"
               />
             ) : (
               <GarmentGlyph
                 category={piece.category}
                 silhouette={piece.silhouette}
                 colorHex={piece.primaryColorHex}
-                className="w-full drop-shadow-sm"
+                className="w-full drop-shadow-cutout-sm"
               />
             )}
           </button>
         );
       })}
 
-      <span className="eyebrow pointer-events-none absolute bottom-3 left-3 border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+      <span className="eyebrow pointer-events-none absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-250 group-hover:opacity-100">
         {outfit.name} · {pieces.length} pieces
       </span>
     </div>

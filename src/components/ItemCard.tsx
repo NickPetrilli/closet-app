@@ -16,7 +16,7 @@ export function ItemCard({
       type="button"
       onClick={() => onSelect(item.id)}
       aria-label={item.name}
-      className="group relative block aspect-square w-full cursor-pointer overflow-hidden rounded-2xl border border-edge-subtle transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_16px_32px_-18px_rgba(36,56,75,0.45)]"
+      className="group relative block aspect-square w-full cursor-pointer overflow-hidden rounded-card border border-edge-subtle transition-all duration-250 hover:-translate-y-0.5 hover:border-accent hover:shadow-lift"
     >
       <div
         className="absolute inset-0"
@@ -27,7 +27,7 @@ export function ItemCard({
         <img
           src={item.imageUrl}
           alt={item.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-400 ease-out group-hover:scale-[1.06]"
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
@@ -35,11 +35,11 @@ export function ItemCard({
             category={item.category}
             silhouette={item.silhouette}
             colorHex={item.primaryColorHex}
-            className="w-3/5 drop-shadow-sm transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+            className="w-3/5 drop-shadow-cutout-sm transition-transform duration-400 ease-out group-hover:scale-[1.06]"
           />
         </div>
       )}
-      <span className="eyebrow absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-3 py-1.5 text-ink opacity-0 shadow-sm transition-opacity duration-300 group-hover:opacity-100">
+      <span className="eyebrow absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-3 py-1.5 text-ink opacity-0 shadow-card transition-opacity duration-250 group-hover:opacity-100">
         {item.name}
       </span>
     </button>
