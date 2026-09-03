@@ -128,7 +128,7 @@ export function CreateOutfitButton({ items }: { items: ClothingItem[] }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:border-ink"
+        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:border-ink sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
@@ -145,7 +145,7 @@ export function CreateOutfitButton({ items }: { items: ClothingItem[] }) {
 
       <div
         aria-hidden={!open}
-        className={`fixed inset-0 z-50 flex items-center justify-center p-6 ${open ? "" : "pointer-events-none"}`}
+        className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 ${open ? "" : "pointer-events-none"}`}
       >
         <div
           onClick={close}
@@ -158,7 +158,7 @@ export function CreateOutfitButton({ items }: { items: ClothingItem[] }) {
           role="dialog"
           aria-modal="true"
           aria-label="Create an outfit"
-          className={`relative max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-line-dark bg-cream p-8 shadow-xl transition-all duration-300 ${
+          className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-line-dark bg-cream p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >

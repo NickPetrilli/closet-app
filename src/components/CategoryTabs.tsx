@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { FILTER_OPTIONS, type CategoryFilter } from "@/lib/types";
 
 export function CategoryTabs({
@@ -9,6 +10,18 @@ export function CategoryTabs({
   active: CategoryFilter;
   onChange: (filter: CategoryFilter) => void;
 }) {
+  const activeRef = useRef<HTMLButtonElement>(null);
+
+  // On narrow screens the strip scrolls; keep the selected tab in view so it's
+  // never hidden off the edge after a change.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({
+      inline: "center",
+      block: "nearest",
+      behavior: "smooth",
+    });
+  }, [active]);
+
   return (
     <nav
       aria-label="Filter by category"
@@ -19,6 +32,7 @@ export function CategoryTabs({
         return (
           <button
             key={option.value}
+            ref={isActive ? activeRef : undefined}
             type="button"
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}

@@ -11,14 +11,14 @@ import { GenerateOutfitsButton } from "./GenerateOutfitsButton";
  */
 export function OutfitActionsBanner({ items }: { items: ClothingItem[] }) {
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-accent-soft bg-gradient-to-r from-accent-soft/25 via-cream to-blush/25 p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-5 rounded-2xl border border-accent-soft bg-gradient-to-r from-accent-soft/25 via-cream to-blush/25 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div>
         <p className="eyebrow text-accent">Outfits</p>
-        <p className="mt-1.5 font-serif text-xl tracking-tight">
+        <p className="mt-1.5 font-serif text-lg tracking-tight sm:text-xl">
           Let AI put a look together, or build one yourself.
         </p>
       </div>
-      <div className="flex shrink-0 flex-wrap items-center gap-3">
+      <div className="flex w-full shrink-0 flex-col gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <CreateOutfitButton items={items} />
         <GenerateOutfitsButton items={items} />
       </div>

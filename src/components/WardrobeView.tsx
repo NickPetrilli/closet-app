@@ -82,14 +82,14 @@ export function WardrobeView({
   return (
     <main className="mx-auto max-w-6xl px-6 pt-12 pb-24 lg:px-10">
       {/* Header */}
-      <header className="flex items-end justify-between border-b border-line pb-7">
+      <header className="flex items-end justify-between gap-4 border-b border-line pb-7">
         <div>
           <p className="eyebrow text-accent">{APP_TAGLINE}</p>
-          <h1 className="mt-1.5 font-serif text-5xl tracking-tight sm:text-6xl">
+          <h1 className="mt-1.5 font-serif text-4xl tracking-tight sm:text-6xl">
             {APP_NAME}
           </h1>
         </div>
-        <p className="eyebrow mb-1 rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
+        <p className="eyebrow mb-1 shrink-0 whitespace-nowrap rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
           {items.length} Pieces
         </p>
       </header>
@@ -104,11 +104,15 @@ export function WardrobeView({
       </div>
 
       {/* Filter tabs — Add Item rides along on every tab except Outfits,
-          which gets its own action banner below instead (see next block). */}
-      <div className="mt-10 flex items-center justify-between gap-4">
+          which gets its own action banner below instead (see next block).
+          On phones the two stack so the scrollable tab strip gets the full
+          width instead of being squeezed next to the button. */}
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <CategoryTabs active={filter} onChange={setFilter} />
         {filter !== "outfits" && (
-          <AddItemButton canFetchFromLink={canFetchFromLink} />
+          <div className="sm:shrink-0">
+            <AddItemButton canFetchFromLink={canFetchFromLink} />
+          </div>
         )}
       </div>
 
