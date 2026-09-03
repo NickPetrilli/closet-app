@@ -274,7 +274,7 @@ export function OutfitDetailPanel({
                 <button
                   type="button"
                   onClick={() => setEditOpen(true)}
-                  className="eyebrow flex cursor-pointer items-center gap-2 rounded-full border border-edge px-4 py-2 text-ink transition-colors hover:border-ink"
+                  className="btn-label flex cursor-pointer items-center gap-2 rounded-full btn-secondary px-4 py-2"
                 >
                   <svg
                     viewBox="0 0 16 16"
@@ -293,7 +293,7 @@ export function OutfitDetailPanel({
                 <button
                   type="button"
                   onClick={() => setDeleteModalOpen(true)}
-                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-error px-4 py-2 text-on-accent shadow-sm transition-colors hover:bg-error-strong"
+                  className="btn-label flex shrink-0 cursor-pointer items-center gap-2 rounded-full btn-danger px-4 py-2"
                 >
                   <svg
                     viewBox="0 0 16 16"
@@ -385,7 +385,7 @@ export function OutfitDetailPanel({
               type="button"
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
-              className="eyebrow cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70"
+              className="btn-label cursor-pointer rounded-full btn-secondary px-5 py-2.5 disabled:cursor-wait disabled:opacity-70"
             >
               Cancel
             </button>
@@ -393,7 +393,7 @@ export function OutfitDetailPanel({
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="eyebrow cursor-pointer rounded-full bg-error px-5 py-2.5 text-on-accent shadow-sm transition-colors hover:bg-error-strong disabled:cursor-wait disabled:opacity-70"
+              className="btn-label cursor-pointer rounded-full btn-danger px-5 py-2.5 disabled:cursor-wait disabled:opacity-70"
             >
               {isDeleting ? "Deleting…" : "Delete"}
             </button>

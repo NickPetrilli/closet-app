@@ -101,7 +101,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
         type="button"
         onClick={handleGenerate}
         disabled={isGenerating}
-        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:w-auto sm:justify-start"
+        className="btn-label flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full btn-primary px-5 py-2.5 disabled:cursor-wait disabled:opacity-70 sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
@@ -175,14 +175,14 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 <button
                   type="button"
                   onClick={close}
-                  className="eyebrow cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken"
+                  className="btn-label cursor-pointer rounded-full btn-secondary px-5 py-2.5"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  className="eyebrow cursor-pointer rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent"
+                  className="btn-label cursor-pointer rounded-full btn-primary px-5 py-2.5"
                 >
                   Try Again
                 </button>
@@ -297,7 +297,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 type="button"
                 onClick={close}
                 disabled={isSaving}
-                className="eyebrow flex-1 cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70 sm:flex-none"
+                className="btn-label flex-1 cursor-pointer rounded-full btn-secondary px-5 py-2.5 disabled:cursor-wait disabled:opacity-70 sm:flex-none"
               >
                 Discard All
               </button>
@@ -305,7 +305,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || selected.size === 0}
-                className="eyebrow flex-1 cursor-pointer rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:flex-none"
+                className="btn-label flex-1 cursor-pointer rounded-full btn-primary px-5 py-2.5 disabled:cursor-wait disabled:opacity-70 sm:flex-none"
               >
                 {isSaving ? "Saving…" : `Save Selected (${selected.size})`}
               </button>

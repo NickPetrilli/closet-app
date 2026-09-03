@@ -183,7 +183,7 @@ export function LocationSettings({
             <button
               type="submit"
               disabled={isPending || query.trim().length === 0}
-              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-edge bg-ink py-3 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+              className="btn-label mt-1 w-full cursor-pointer rounded-full btn-primary py-3 disabled:cursor-wait disabled:opacity-70"
             >
               {isPending ? "Looking it up…" : matches ? "Search again" : "Find my location"}
             </button>

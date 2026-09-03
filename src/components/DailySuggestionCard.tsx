@@ -237,7 +237,7 @@ export function DailySuggestionCard({
               type="button"
               onClick={showAnother}
               disabled={isPending}
-              className="eyebrow w-full cursor-pointer rounded-full border border-edge bg-surface-raised/60 px-4 py-2.5 text-ink-secondary transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+              className="btn-label btn-secondary w-full rounded-full px-4 py-2.5 sm:w-auto"
             >
               Show another
             </button>
@@ -245,10 +245,12 @@ export function DailySuggestionCard({
               type="button"
               onClick={wearThis}
               disabled={isPending || suggestion.loggedToday}
-              className={`eyebrow w-full cursor-pointer rounded-full border px-4 py-2.5 transition-colors disabled:cursor-default sm:w-auto ${
+              className={`btn-label w-full rounded-full px-4 py-2.5 sm:w-auto ${
+                // Logged is a settled state, not an action — it reads as a
+                // quiet confirmation rather than something still to press.
                 suggestion.loggedToday
-                  ? "border-accent-muted bg-accent-muted/25 text-accent"
-                  : "border-edge bg-ink text-on-accent hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+                  ? "cursor-default border border-accent-muted bg-accent-muted/25 text-accent"
+                  : "btn-primary"
               }`}
             >
               {suggestion.loggedToday ? "Worn today ✓" : "Wore this"}

@@ -56,7 +56,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent sm:w-auto sm:justify-start"
+        className="btn-label flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full btn-primary px-5 py-2.5 sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
@@ -247,7 +247,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
             <button
               type="submit"
               disabled={isPending}
-              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-edge bg-ink py-3 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+              className="btn-label mt-1 w-full cursor-pointer rounded-full btn-primary py-3 disabled:cursor-wait disabled:opacity-70"
             >
               {isPending
                 ? mode === "photo"

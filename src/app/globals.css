@@ -237,6 +237,77 @@ body::after {
     letter-spacing: 0.005em;
   }
 
+  /* -------------------------------------------------------------------------
+     Control tiers. Appearance only — callers keep their own layout utilities
+     (width, padding, flex), so these compose rather than dictate.
+
+     Three tiers exist so the eye can tell the main action from a filter:
+     previously every control in the app was the same pill at the same weight.
+     Primary is accent-filled and the selected-tab state stays ink-filled, so
+     "this is the action" and "this is where you are" no longer look alike.
+     ------------------------------------------------------------------------- */
+  .btn-primary,
+  .btn-secondary,
+  .btn-quiet,
+  .btn-danger {
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color 250ms var(--ease-standard),
+      border-color 250ms var(--ease-standard),
+      color 250ms var(--ease-standard),
+      box-shadow 250ms var(--ease-standard);
+  }
+  .btn-primary:disabled,
+  .btn-secondary:disabled,
+  .btn-quiet:disabled,
+  .btn-danger:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+    box-shadow: var(--shadow-card);
+  }
+  /* Deepens on hover. The previous primary lightened to the pale accent, which
+     dropped its label from 11.63:1 to 2.79:1 — interaction made it harder to
+     read. Contrast now rises to 8.78:1 instead. */
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-accent-strong);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    border-color: var(--color-edge-strong);
+    color: var(--color-ink);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-surface-sunken);
+    border-color: var(--color-ink);
+  }
+
+  .btn-quiet {
+    background-color: transparent;
+    color: var(--color-ink-tertiary);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    background-color: var(--color-surface-sunken);
+    color: var(--color-ink);
+  }
+
+  .btn-danger {
+    background-color: var(--color-error);
+    color: var(--color-on-accent);
+    box-shadow: var(--shadow-card);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: var(--color-error-strong);
+    box-shadow: var(--shadow-lift);
+  }
+
   /* Slow twinkle for the "generating" sparkle */
   .animate-twinkle {
     animation: twinkle 1.9s ease-in-out infinite;
