@@ -150,7 +150,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
             <GeneratingState step={loadingStep} />
           ) : candidates === null ? (
             <div className="flex flex-col items-center gap-5 px-5 py-14 text-center sm:px-8 sm:py-16">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush/30 text-blush-strong">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-error/10 text-error">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
@@ -283,7 +283,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
           </div>
 
           {error && (
-            <p className="border-t border-edge-subtle px-5 py-3 text-sm text-blush-strong sm:px-8">
+            <p className="border-t border-edge-subtle px-5 py-3 text-sm text-error sm:px-8">
               {error}
             </p>
           )}

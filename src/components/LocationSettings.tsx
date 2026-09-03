@@ -178,7 +178,7 @@ export function LocationSettings({
               </div>
             )}
 
-            {error && <p className="text-sm text-blush-strong">{error}</p>}
+            {error && <p className="text-sm text-error">{error}</p>}
 
             <button
               type="submit"

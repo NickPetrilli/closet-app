@@ -241,7 +241,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
             )}
 
             {state.error && (
-              <p className="text-sm text-blush-strong">{state.error}</p>
+              <p className="text-sm text-error">{state.error}</p>
             )}
 
             <button

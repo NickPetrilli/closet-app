@@ -93,7 +93,7 @@ export function OccasionPicker({
         )}
       </div>
 
-      {error && <p className="mt-2 text-xs text-blush-strong">{error}</p>}
+      {error && <p className="mt-2 text-xs text-error">{error}</p>}
     </div>
   );
 }

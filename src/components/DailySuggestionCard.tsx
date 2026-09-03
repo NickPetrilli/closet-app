@@ -225,7 +225,7 @@ export function DailySuggestionCard({
           <p className="mt-0.5 text-sm leading-relaxed text-ink-secondary">
             {isPending ? "Thinking it over…" : suggestion.rationale}
           </p>
-          {error && <p className="mt-1.5 text-sm text-blush-strong">{error}</p>}
+          {error && <p className="mt-1.5 text-sm text-error">{error}</p>}
         </div>
 
         {/* Actions stack on phones: side by side, "Show another" wraps to two
