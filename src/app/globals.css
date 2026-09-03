@@ -27,6 +27,13 @@
 body {
   background-color: var(--color-ground);
   color: var(--color-ink);
+  /* The viewport is `viewport-fit=cover` so the installed app can paint edge
+     to edge; these keep content out from under the notch and home indicator.
+     Zero everywhere else, including desktop. */
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
   background-image:
     radial-gradient(
       ellipse 80% 50% at 50% -10%,
