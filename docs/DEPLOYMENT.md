@@ -24,7 +24,11 @@ three environments (Production, Preview, Development) unless noted.
 | `SUPABASE_URL` | `https://ydxbpgaycpvebsxiolww.supabase.co` | Bare URL — no trailing slash, no `/rest/v1`. |
 | `SUPABASE_ANON_KEY` | the anon/public key | Supabase → Project Settings → API. Not `NEXT_PUBLIC_`-prefixed on purpose — it must stay server-only. |
 | `REMOVE_BG_API_KEY` | the remove.bg API key | remove.bg → Dashboard → API Key. Free tier = 50 images/month total (shared across local + prod on the same key). |
+| `GEMINI_API_KEY` | the Gemini API key | Google AI Studio → API keys. Powers Generate Outfits (`src/lib/server/generate-outfits.ts`). Free tier; quota is per-model per-day and resets at midnight Pacific. |
 | `PUPPETEER_SKIP_DOWNLOAD` | `true` | Stops `npm install` from downloading ~200MB of Chromium during the Vercel build. Puppeteer is excluded from the bundle anyway, so the download is pure waste. |
+
+Weather needs **no** environment variable — Open-Meteo requires no key, no
+signup and no card.
 
 **Do NOT set:**
 
@@ -57,6 +61,18 @@ Vercel auto-detects everything from `package.json`; defaults are correct:
 4. Deploy. Every future push to `main` redeploys production; other branches
    get preview URLs.
 
+## 3a. Database migrations
+
+The app talks to Supabase with the anon key, which can't run DDL — new tables
+are applied by hand. When a release adds one, run the matching file from
+`supabase/migrations/` in **Supabase → SQL Editor → New query → Run** *before*
+(or right after) deploying. `supabase/schema.sql` stays the full from-scratch
+schema; the migration files are the deltas.
+
+| Migration | Adds | Needed for |
+|---|---|---|
+| `001-weather.sql` | `app_settings`, `weather_cache` | Location setting + real weather on the daily card. |
+
 ## 4. Deploy via CLI (alternative)
 
 ```bash
@@ -66,6 +82,7 @@ vercel link          # link this folder to a Vercel project
 vercel env add SUPABASE_URL production
 vercel env add SUPABASE_ANON_KEY production
 vercel env add REMOVE_BG_API_KEY production
+vercel env add GEMINI_API_KEY production
 vercel env add PUPPETEER_SKIP_DOWNLOAD production
 vercel --prod
 ```
@@ -81,6 +98,8 @@ vercel --prod
       `REMOVE_BG_API_KEY` and `maxDuration`).
 - [ ] Check the build log has no "Downloading Chromium" line (confirms
       `PUPPETEER_SKIP_DOWNLOAD`).
+- [ ] Daily card shows real weather after setting a location via the gear icon
+      (confirms `001-weather.sql` ran — an unset card just offers "Set location").
 
 ## Notes
 
