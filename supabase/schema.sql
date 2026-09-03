@@ -68,3 +68,34 @@ create policy "item-images full access"
   to anon, authenticated, service_role
   using (bucket_id = 'item-images')
   with check (bucket_id = 'item-images');
+
+-- ---------------------------------------------------------------------------
+-- Phase 1 — weather (location settings + a per-day forecast cache).
+-- ---------------------------------------------------------------------------
+
+-- Single-row settings table. The `singleton` check makes "there is exactly one
+-- row" a database invariant, so reads/upserts never have to pick between rows.
+create table if not exists app_settings (
+  id text primary key default 'singleton' check (id = 'singleton'),
+  location_label text,
+  latitude double precision,
+  longitude double precision,
+  timezone text,
+  updated_at timestamptz not null default now()
+);
+
+-- The home page is force-dynamic, so without this every page load would hit
+-- Open-Meteo. Keyed by rounded coords + the local date the payload is for;
+-- `fetched_at` lets the app refresh within the day without a second row.
+create table if not exists weather_cache (
+  location_key text not null,
+  fetched_for date not null,
+  payload jsonb not null,
+  fetched_at timestamptz not null default now(),
+  primary key (location_key, fetched_for)
+);
+
+alter table app_settings disable row level security;
+alter table weather_cache disable row level security;
+
+grant all on app_settings, weather_cache to anon, authenticated, service_role;
