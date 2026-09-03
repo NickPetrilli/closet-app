@@ -15,6 +15,7 @@ These phases touch nearly every component, so they conflict with anything in fli
 | Phase | State |
 |---|---|
 | A - Design foundation | Done on branch `ui-revamp-phase-a`; awaiting the user's review before merge. |
+| Light/dark switch | Done, pulled forward at the user's request (2026-09-03) and included in the same branch. |
 | B - Phone-first layout | Not started. |
 | C - Large screens | Not started. |
 | Deferred backlog | Not started. |
@@ -379,11 +380,15 @@ VERIFY
 
 Agreed with the user on 2026-09-03 to sequence these after the foundation and layouts:
 
-- **Theming system.** Multiple palettes (light/dark, plus alternates such as a blue mode
-  and a pink mode) with a switcher, persisted per user. Phase A's palette / semantic
-  token split is the prerequisite; each new theme should be a palette layer plus a
-  remapping, with no component edits. Re-run Phase A's contrast script for every theme
-  before shipping it.
+- **More palettes.** Light and dark now ship with a switcher (`src/lib/theme.ts` +
+  `ThemeToggle`), pulled forward from this backlog. What remains is the user's
+  alternates -- a blue mode, a pink mode -- which are now genuinely just more palette
+  blocks in globals.css plus more options in the toggle. Re-run
+  `node scripts/check-contrast.mjs --theme=<name>` for each before shipping it.
+  Two known rough edges in dark, both deliberately deferred: the scene tones behind
+  outfit cards are serviceable rather than art-directed, and garment photos shot on
+  white read as bright rectangles against the dark ground (a subtle per-theme tile
+  treatment would fix it).
 - **Motion and transitions pass.** Grid stagger on mount, panel/sheet choreography,
   view transitions between tabs, first-load skeletons for the grid (today only modals
   have them). Phase A defines the duration/easing tokens this builds on.
