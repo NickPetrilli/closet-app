@@ -44,6 +44,58 @@
   --palette-red-700: #8f2020;
   --palette-green-600: #2f6e4f; /* 5.43:1 */
   --palette-amber-700: #8a5a12; /* 5.29:1 */
+
+  /* -------------------------------------------------------------------------
+     SCENE LAYER — the atmospheric backdrops behind outfit cards, and the
+     shadow tone the per-garment tile gradient falls to.
+
+     These are consumed through var() in inline styles and SVG presentation
+     attributes, so they are deliberately NOT in @theme (no utilities needed).
+     They live here so a future theme retones every tile and every scene
+     without touching a component.
+
+     Five of the six vibes are blue-forward. Autumn keeps a warm cast on
+     purpose: warmth as a deliberate seasonal signal is the opposite of the
+     problem being fixed, which was warmth as the unintended default.
+     ------------------------------------------------------------------------- */
+  --scene-ink: #1c2a38; /* cool near-black for scene linework */
+  --scene-light: #f4f8fc; /* moon, sun disc, wave crests */
+  --scene-sun: #f2dfa8;
+  --scene-rust: #a65833;
+  --scene-amber: #b08d57;
+  --scene-water: #8fb0c4;
+  --scene-foliage: #63705a;
+  --scene-terracotta: #8a5a33;
+  --scene-earth: #55606b;
+
+  /* The tone a garment tile's gradient falls to at its base. Cool, so a
+     garment's own color survives the mix instead of being greyed by it. */
+  --scene-shadow: #3d5670;
+
+  /* Per-vibe gradient stops: top, middle, base. */
+  --scene-office-1: #edf2f8;
+  --scene-office-2: #d8e3ef;
+  --scene-office-3: #b6c7da;
+
+  --scene-evening-1: #b6bcd6;
+  --scene-evening-2: #8a8cae;
+  --scene-evening-3: #57567a;
+
+  --scene-weekend-1: #eaf3f0;
+  --scene-weekend-2: #cfe2dd;
+  --scene-weekend-3: #a2bdb6;
+
+  --scene-summer-1: #e6f1fc;
+  --scene-summer-2: #c8e0f6;
+  --scene-summer-3: #97c1e4;
+
+  --scene-autumn-1: #efeae6;
+  --scene-autumn-2: #d8cdc4;
+  --scene-autumn-3: #a99a8c;
+
+  --scene-street-1: #e8eaed;
+  --scene-street-2: #ccd2d9;
+  --scene-street-3: #9aa4b0;
 }
 
 /* ---------------------------------------------------------------------------

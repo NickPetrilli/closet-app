@@ -137,28 +137,43 @@ export function mixHex(hex: string, toward: string, t: number): string {
 }
 
 /**
- * Derive an atmospheric backdrop gradient from an item's color, so the
- * scene "vibe" follows the garment: creams/whites read summery and bright,
- * browns/olives read autumnal, blues read cool and coastal. Later this is
+ * Derive an atmospheric backdrop gradient from an item's color, so the tile
+ * carries the garment's own color rather than a flat swatch. Later this is
  * replaced by real AI-rendered scenes; the same color-driven idea applies.
+ *
+ * The mix targets are theme tokens rather than literals, so the whole
+ * wardrobe grid retones with the theme and a garment's color survives the
+ * mix. The previous version mixed toward cream and brown — leftovers from an
+ * earlier warm palette — which rendered a blue top as grey-green and a blush
+ * cardigan as tan, and was the main reason the grid looked washed out.
  */
-export function vibeGradient(hex: string): string {
-  const sky = mixHex(hex, "#FBF6EC", 0.8);
-  const mid = mixHex(hex, "#EDE4D2", 0.62);
-  const ground = mixHex(hex, "#6E5F4B", 0.4);
-  return `linear-gradient(180deg, ${sky} 0%, ${mid} 55%, ${ground} 100%)`;
+export function vibeGradient(color: string): string {
+  const sky = `color-mix(in srgb, ${color} 18%, var(--color-surface-raised))`;
+  const mid = `color-mix(in srgb, ${color} 40%, var(--color-surface-sunken))`;
+  const base = `color-mix(in srgb, ${color} 66%, var(--scene-shadow))`;
+  return `linear-gradient(180deg, ${sky} 0%, ${mid} 55%, ${base} 100%)`;
+}
+
+/**
+ * Tint a garment color toward the page, for secondary thumbnails that should
+ * read as the same piece without competing with the hero. Returns a CSS color
+ * expression, so it composes with vibeGradient.
+ */
+export function tintTowardSurface(color: string, amount: number): string {
+  const keep = Math.round((1 - amount) * 100);
+  return `color-mix(in srgb, ${color} ${keep}%, var(--color-surface-sunken))`;
 }
 
 /**
  * Derive a stable row of suggestion swatches from a base color.
  * Stands in for photo-derived palette suggestions.
  */
-export function suggestionSwatches(baseHex: string): string[] {
+export function suggestionSwatches(baseColor: string): string[] {
   return [
-    mixHex(baseHex, "#FFFFFF", 0.3),
-    mixHex(baseHex, "#000000", 0.28),
-    mixHex(baseHex, "#E7E2D9", 0.5),
-    mixHex(baseHex, "#7A6A55", 0.4),
-    mixHex(baseHex, "#3D4A52", 0.38),
+    `color-mix(in srgb, ${baseColor} 70%, var(--color-surface-raised))`,
+    `color-mix(in srgb, ${baseColor} 72%, var(--color-ink))`,
+    `color-mix(in srgb, ${baseColor} 50%, var(--color-surface-sunken))`,
+    `color-mix(in srgb, ${baseColor} 60%, var(--scene-shadow))`,
+    `color-mix(in srgb, ${baseColor} 62%, var(--color-ink-secondary))`,
   ];
 }

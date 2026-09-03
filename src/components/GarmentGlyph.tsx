@@ -26,8 +26,15 @@ export function GarmentGlyph({
     <svg
       viewBox="0 0 100 100"
       className={className}
-      style={{ color: colorHex }}
-      stroke="rgba(38, 32, 25, 0.18)"
+      style={
+        {
+          color: colorHex,
+          // Seam strokes below read this. Defined here rather than per-shape so
+          // the whole glyph set follows the theme's ink.
+          "--seam": "color-mix(in srgb, var(--color-ink) 30%, transparent)",
+          stroke: "color-mix(in srgb, var(--color-ink) 18%, transparent)",
+        } as React.CSSProperties
+      }
       strokeWidth="1"
       aria-hidden="true"
     >
@@ -36,8 +43,12 @@ export function GarmentGlyph({
   );
 }
 
-/** Subtle seam/detail stroke that reads on light and mid-tone fills. */
-const DETAIL = "rgba(28, 28, 40, 0.28)";
+/**
+ * Subtle seam/detail stroke that reads on light and mid-tone fills. Resolves
+ * to the `--seam` custom property set on the root <svg>, so it follows the
+ * theme's ink instead of a baked-in warm grey.
+ */
+const DETAIL = "var(--seam)";
 
 const SILHOUETTES: Record<Silhouette, React.ReactNode> = {
   // ── Tops ────────────────────────────────────────────────

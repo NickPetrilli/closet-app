@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateItem } from "@/lib/actions/items";
-import { mixHex, vibeGradient } from "@/lib/color";
+import { tintTowardSurface, vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
   hasPhoto,
@@ -202,14 +202,14 @@ export function ItemDetailPanel({
                       }`}
                       style={{
                         background: vibeGradient(
-                          mixHex(shown.primaryColorHex, "#8D8478", 0.2)
+                          tintTowardSurface(shown.primaryColorHex, 0.2)
                         ),
                       }}
                     >
                       <GarmentGlyph
                         category={shown.category}
                         silhouette={shown.silhouette}
-                        colorHex={mixHex(shown.primaryColorHex, "#57503F", 0.2)}
+                        colorHex={tintTowardSurface(shown.primaryColorHex, 0.2)}
                         className="w-7"
                       />
                     </button>
