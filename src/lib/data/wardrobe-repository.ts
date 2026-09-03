@@ -1,10 +1,13 @@
-import { getWeather, readStoredLocation } from "@/lib/server/weather";
+import { chooseSuggestion } from "@/lib/server/suggest-outfit";
+import { RECENTLY_WORN_DAYS } from "@/lib/server/suggest-outfit-core";
+import { getLocalToday, getWeather, readStoredLocation } from "@/lib/server/weather";
 import { supabase } from "@/lib/supabase/client";
 import type {
   AppSettings,
   Category,
   ClothingItem,
   DailySuggestion,
+  OccasionTag,
   Outfit,
   Weather,
 } from "@/lib/types";
@@ -115,27 +118,158 @@ export async function fetchWeather(): Promise<Weather | null> {
 }
 
 /**
- * Real weather (Phase 1) around a still-naive item pick — the occasion and
- * outfit-choosing logic land in Phase 3. Until then this samples one item per
- * core category so the card points at real pieces.
+ * Seeded tags plus anything Jenna has added.
+ *
+ * Degrades to an empty list rather than throwing: migrations here are applied
+ * by hand (the anon key can't run DDL), so between deploying this and running
+ * 002-wear-log.sql these tables don't exist. Throwing would take the whole
+ * live page down over a missing occasion row; an empty list just hides the
+ * picker until the SQL runs.
  */
-export async function fetchDailySuggestion(): Promise<DailySuggestion> {
-  const [items, weather] = await Promise.all([fetchItems(), fetchWeather()]);
+export async function fetchOccasionTags(): Promise<OccasionTag[]> {
+  const { data, error } = await supabase
+    .from("occasion_tags")
+    .select("id, label")
+    .order("label", { ascending: true });
 
-  const byCategory = (category: Category) =>
-    items.find((item) => item.category === category);
+  if (error) {
+    console.warn(`fetchOccasionTags: ${error.message}`);
+    return [];
+  }
+  return (data ?? []) as OccasionTag[];
+}
 
-  const picks = [
-    byCategory("tops"),
-    byCategory("bottoms"),
-    byCategory("shoes"),
-  ].filter((item): item is ClothingItem => item !== undefined);
+/** The occasion picked for today, if any. Survives a reload; resets each day. */
+export async function fetchTodayOccasion(): Promise<string | null> {
+  const today = await getLocalToday();
+  const { data } = await supabase
+    .from("daily_state")
+    .select("occasion_tag")
+    .eq("day", today)
+    .maybeSingle();
 
-  return {
-    weather,
-    occasion: "Today",
-    itemIds: (picks.length > 0 ? picks : items.slice(0, 3)).map(
-      (item) => item.id
-    ),
-  };
+  return data?.occasion_tag ?? null;
+}
+
+/**
+ * Item ids worn in the last `days` days — both saved outfits (resolved
+ * through outfit_items) and ad-hoc combinations logged by item id.
+ */
+export async function fetchRecentlyWornItemIds(
+  days = RECENTLY_WORN_DAYS
+): Promise<Set<string>> {
+  const today = await getLocalToday();
+  const since = new Date(`${today}T00:00:00Z`);
+  since.setUTCDate(since.getUTCDate() - days);
+  const sinceDay = since.toISOString().slice(0, 10);
+
+  const { data, error } = await supabase
+    .from("wear_log")
+    .select("outfit_id, item_ids")
+    .gte("worn_on", sinceDay);
+
+  // Same reasoning as fetchOccasionTags: no wear_log table yet means nothing
+  // has been worn, not that the page should fail.
+  if (error) {
+    console.warn(`fetchRecentlyWornItemIds: ${error.message}`);
+    return new Set();
+  }
+
+  const ids = new Set<string>();
+  const outfitIds: string[] = [];
+  for (const row of data ?? []) {
+    for (const id of (row.item_ids ?? []) as string[]) ids.add(id);
+    if (row.outfit_id) outfitIds.push(row.outfit_id as string);
+  }
+
+  if (outfitIds.length > 0) {
+    const { data: members } = await supabase
+      .from("outfit_items")
+      .select("item_id")
+      .in("outfit_id", outfitIds);
+    for (const row of members ?? []) ids.add(row.item_id as string);
+  }
+
+  return ids;
+}
+
+/** What has already been logged today, so the card can show its confirmed state. */
+async function fetchTodaysWearLog(): Promise<
+  { outfitId: string | null; itemIds: string[] }[]
+> {
+  const today = await getLocalToday();
+  const { data } = await supabase
+    .from("wear_log")
+    .select("outfit_id, item_ids")
+    .eq("worn_on", today);
+
+  return (data ?? []).map((row) => ({
+    outfitId: (row.outfit_id as string | null) ?? null,
+    itemIds: ((row.item_ids ?? []) as string[]) ?? [],
+  }));
+}
+
+function sameItems(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const set = new Set(a);
+  return b.every((id) => set.has(id));
+}
+
+export interface SuggestionOptions {
+  /** Overrides the stored selection — used when Jenna taps a different occasion. */
+  occasion?: string | null;
+  excludeOutfitIds?: string[];
+  excludeItemIds?: string[];
+}
+
+export interface DailySuggestionResult {
+  suggestion: DailySuggestion;
+  /** Set when the AI fallback failed; the suggestion is still usable. */
+  error?: string;
+}
+
+/**
+ * Today's suggestion: real weather (Phase 1), the chosen occasion, and an
+ * outfit that suits both — a saved one where possible, an AI-composed one
+ * only when nothing saved fits (Phase 3).
+ */
+export async function fetchDailySuggestion(
+  options: SuggestionOptions = {}
+): Promise<DailySuggestionResult> {
+  const [items, outfits, weather, tags, storedOccasion, recentlyWorn, wornToday] =
+    await Promise.all([
+      fetchItems(),
+      fetchOutfits(),
+      fetchWeather(),
+      fetchOccasionTags(),
+      fetchTodayOccasion(),
+      fetchRecentlyWornItemIds(),
+      fetchTodaysWearLog(),
+    ]);
+
+  const occasion =
+    options.occasion !== undefined ? options.occasion : storedOccasion;
+  const occasionLabel =
+    tags.find((tag) => tag.id === occasion)?.label ?? occasion ?? null;
+
+  const { suggestion, error } = await chooseSuggestion(
+    {
+      items,
+      outfits,
+      weather,
+      occasion,
+      recentlyWorn,
+      excludeOutfitIds: options.excludeOutfitIds,
+      excludeItemIds: options.excludeItemIds,
+    },
+    occasionLabel
+  );
+
+  const loggedToday = wornToday.some((row) =>
+    suggestion.outfitId
+      ? row.outfitId === suggestion.outfitId
+      : sameItems(row.itemIds, suggestion.itemIds)
+  );
+
+  return { suggestion: { ...suggestion, loggedToday }, error };
 }

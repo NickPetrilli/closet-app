@@ -4,6 +4,7 @@ import {
   fetchAppSettings,
   fetchDailySuggestion,
   fetchItems,
+  fetchOccasionTags,
   fetchOutfits,
 } from "@/lib/data/wardrobe-repository";
 
@@ -34,19 +35,22 @@ async function ipLocationGuess(): Promise<string | null> {
 }
 
 export default async function Home() {
-  const [items, outfits, suggestion, settings, guess] = await Promise.all([
-    fetchItems(),
-    fetchOutfits(),
-    fetchDailySuggestion(),
-    fetchAppSettings(),
-    ipLocationGuess(),
-  ]);
+  const [items, outfits, daily, settings, occasionTags, guess] =
+    await Promise.all([
+      fetchItems(),
+      fetchOutfits(),
+      fetchDailySuggestion(),
+      fetchAppSettings(),
+      fetchOccasionTags(),
+      ipLocationGuess(),
+    ]);
 
   return (
     <WardrobeView
       initialItems={items}
       initialOutfits={outfits}
-      suggestion={suggestion}
+      suggestion={daily.suggestion}
+      occasionTags={occasionTags}
       settings={settings}
       ipLocationGuess={guess}
       // The Aritzia link-fetch mode needs a real local browser (Puppeteer),

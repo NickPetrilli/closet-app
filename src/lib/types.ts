@@ -137,11 +137,30 @@ export interface AppSettings {
   timezone: string | null;
 }
 
+/** A reason to get dressed. Seeded in the DB, extendable from the card. */
+export interface OccasionTag {
+  /** Slug, and the value stored in wear_log.occasion_tag. */
+  id: string;
+  label: string;
+}
+
+/** Where a suggestion came from — the card says so, and it drives the copy. */
+export type SuggestionSource = "saved" | "ai" | "none";
+
 export interface DailySuggestion {
   /** null when no location is set yet, or the forecast couldn't be fetched. */
   weather: Weather | null;
-  occasion: string;
+  /** Selected occasion tag id, or null before one is picked. */
+  occasion: string | null;
+  /** Set when the pick is one of Jenna's saved outfits. */
+  outfitId: string | null;
+  outfitName: string | null;
   itemIds: string[];
+  /** One line on why this, shown under the weather. */
+  rationale: string;
+  source: SuggestionSource;
+  /** True when a wear_log row already exists for this pick today. */
+  loggedToday: boolean;
 }
 
 export const CATEGORY_OPTIONS: { value: Category; label: string }[] = [

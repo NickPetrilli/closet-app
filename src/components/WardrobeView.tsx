@@ -7,6 +7,7 @@ import type {
   CategoryFilter,
   ClothingItem,
   DailySuggestion,
+  OccasionTag,
   Outfit,
 } from "@/lib/types";
 import { AddItemButton } from "./AddItemButton";
@@ -23,6 +24,7 @@ export function WardrobeView({
   initialItems,
   initialOutfits,
   suggestion,
+  occasionTags,
   settings,
   ipLocationGuess,
   canFetchFromLink,
@@ -30,6 +32,7 @@ export function WardrobeView({
   initialItems: ClothingItem[];
   initialOutfits: Outfit[];
   suggestion: DailySuggestion;
+  occasionTags: OccasionTag[];
   settings: AppSettings;
   ipLocationGuess: string | null;
   canFetchFromLink: boolean;
@@ -113,6 +116,7 @@ export function WardrobeView({
       <div className="mt-8">
         <DailySuggestionCard
           suggestion={suggestion}
+          occasionTags={occasionTags}
           items={items}
           onOpenLocationSettings={() => setSettingsOpen(true)}
           onSelectItem={openItem}

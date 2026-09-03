@@ -386,8 +386,13 @@ export const MOCK_DAILY_SUGGESTION: DailySuggestion = {
     icon: "sun",
     isDay: true,
   },
-  occasion: "Brunch",
+  occasion: "casual",
+  outfitId: null,
+  outfitName: null,
   itemIds: ["top-07", "btm-04", "sho-05"],
+  rationale: "Easy for a mild day — one of your saved weekend looks.",
+  source: "saved",
+  loggedToday: false,
 };
 
 /* ─────────────────────────────────────────────────────────────

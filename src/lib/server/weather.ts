@@ -140,6 +140,17 @@ async function writeCache(
 }
 
 /**
+ * Today's date in Jenna's own timezone, as YYYY-MM-DD. Everything dated — the
+ * weather cache, the wear log, the day's chosen occasion — keys off this
+ * rather than the server's clock, which on Vercel is UTC and rolls over
+ * mid-evening for a US location.
+ */
+export async function getLocalToday(): Promise<string> {
+  const location = await readStoredLocation();
+  return localDate(location?.timezone ?? "auto");
+}
+
+/**
  * Today's weather for the saved location — null when no location is set (the
  * card shows its "set your location" state) or the fetch failed with nothing
  * cached to fall back on.
