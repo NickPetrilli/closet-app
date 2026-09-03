@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import type {
+  AppSettings,
   CategoryFilter,
   ClothingItem,
   DailySuggestion,
@@ -13,6 +14,7 @@ import { CategoryTabs } from "./CategoryTabs";
 import { DailySuggestionCard } from "./DailySuggestionCard";
 import { ItemDetailPanel } from "./ItemDetailPanel";
 import { ItemGrid } from "./ItemGrid";
+import { LocationSettings } from "./LocationSettings";
 import { OutfitActionsBanner } from "./OutfitActionsBanner";
 import { OutfitDetailPanel } from "./OutfitDetailPanel";
 import { OutfitGrid } from "./OutfitGrid";
@@ -21,11 +23,15 @@ export function WardrobeView({
   initialItems,
   initialOutfits,
   suggestion,
+  settings,
+  ipLocationGuess,
   canFetchFromLink,
 }: {
   initialItems: ClothingItem[];
   initialOutfits: Outfit[];
   suggestion: DailySuggestion;
+  settings: AppSettings;
+  ipLocationGuess: string | null;
   canFetchFromLink: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
@@ -41,6 +47,7 @@ export function WardrobeView({
   const [selectedOutfitId, setSelectedOutfitId] = useState<string | null>(
     null
   );
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const selectedItem = items.find((item) => item.id === selectedItemId) ?? null;
   const selectedOutfit =
@@ -89,9 +96,17 @@ export function WardrobeView({
             {APP_NAME}
           </h1>
         </div>
-        <p className="eyebrow mb-1 shrink-0 whitespace-nowrap rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
-          {items.length} Pieces
-        </p>
+        <div className="flex shrink-0 items-center gap-2">
+          <p className="eyebrow mb-1 whitespace-nowrap rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
+            {items.length} Pieces
+          </p>
+          <LocationSettings
+            currentLabel={settings.locationLabel}
+            ipGuess={ipLocationGuess}
+            open={settingsOpen}
+            onOpenChange={setSettingsOpen}
+          />
+        </div>
       </header>
 
       {/* Daily suggestion */}
@@ -99,6 +114,7 @@ export function WardrobeView({
         <DailySuggestionCard
           suggestion={suggestion}
           items={items}
+          onOpenLocationSettings={() => setSettingsOpen(true)}
           onSelectItem={openItem}
         />
       </div>

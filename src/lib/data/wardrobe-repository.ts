@@ -1,5 +1,13 @@
+import { getWeather, readStoredLocation } from "@/lib/server/weather";
 import { supabase } from "@/lib/supabase/client";
-import type { Category, ClothingItem, DailySuggestion, Outfit } from "@/lib/types";
+import type {
+  AppSettings,
+  Category,
+  ClothingItem,
+  DailySuggestion,
+  Outfit,
+  Weather,
+} from "@/lib/types";
 
 /**
  * Data-access layer. UI components never touch Supabase directly — they
@@ -74,12 +82,46 @@ export async function fetchOutfits(): Promise<Outfit[]> {
 }
 
 /**
- * Weather/occasion aren't wired up yet (Prompt 4) — this samples a few real
- * items so the suggestion card has something real to point at instead of
- * dangling mock ids.
+ * The client-safe slice of app_settings. Latitude/longitude stay server-side
+ * (see readStoredLocation) — the browser only ever needs the label.
+ */
+export async function fetchAppSettings(): Promise<AppSettings> {
+  const location = await readStoredLocation();
+  if (location) {
+    return {
+      locationLabel: location.label || null,
+      hasLocation: true,
+      timezone: location.timezone,
+    };
+  }
+
+  // No coordinates saved — still surface a label if one somehow exists.
+  const { data } = await supabase
+    .from("app_settings")
+    .select("location_label, timezone")
+    .eq("id", "singleton")
+    .maybeSingle();
+
+  return {
+    locationLabel: data?.location_label ?? null,
+    hasLocation: false,
+    timezone: data?.timezone ?? null,
+  };
+}
+
+/** Today's forecast for the saved location; null if unset or unreachable. */
+export async function fetchWeather(): Promise<Weather | null> {
+  return getWeather();
+}
+
+/**
+ * Real weather (Phase 1) around a still-naive item pick — the occasion and
+ * outfit-choosing logic land in Phase 3. Until then this samples one item per
+ * core category so the card points at real pieces.
  */
 export async function fetchDailySuggestion(): Promise<DailySuggestion> {
-  const items = await fetchItems();
+  const [items, weather] = await Promise.all([fetchItems(), fetchWeather()]);
+
   const byCategory = (category: Category) =>
     items.find((item) => item.category === category);
 
@@ -90,7 +132,7 @@ export async function fetchDailySuggestion(): Promise<DailySuggestion> {
   ].filter((item): item is ClothingItem => item !== undefined);
 
   return {
-    weather: { tempF: 72, condition: "Clear" },
+    weather,
     occasion: "Today",
     itemIds: (picks.length > 0 ? picks : items.slice(0, 3)).map(
       (item) => item.id

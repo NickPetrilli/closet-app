@@ -1,5 +1,7 @@
+import { headers } from "next/headers";
 import { WardrobeView } from "@/components/WardrobeView";
 import {
+  fetchAppSettings,
   fetchDailySuggestion,
   fetchItems,
   fetchOutfits,
@@ -18,11 +20,26 @@ export const dynamic = "force-dynamic";
 // Vercel's default 10s cap. 60s is the Hobby-tier ceiling and plenty here.
 export const maxDuration = 60;
 
+/**
+ * First-run convenience only: Vercel's edge adds these headers, so we can
+ * prefill the location box with a guess. It is never saved without the user
+ * picking it — see LocationSettings.
+ */
+async function ipLocationGuess(): Promise<string | null> {
+  const h = await headers();
+  const city = h.get("x-vercel-ip-city");
+  if (!city) return null;
+  const region = h.get("x-vercel-ip-country-region");
+  return [decodeURIComponent(city), region].filter(Boolean).join(", ");
+}
+
 export default async function Home() {
-  const [items, outfits, suggestion] = await Promise.all([
+  const [items, outfits, suggestion, settings, guess] = await Promise.all([
     fetchItems(),
     fetchOutfits(),
     fetchDailySuggestion(),
+    fetchAppSettings(),
+    ipLocationGuess(),
   ]);
 
   return (
@@ -30,6 +47,8 @@ export default async function Home() {
       initialItems={items}
       initialOutfits={outfits}
       suggestion={suggestion}
+      settings={settings}
+      ipLocationGuess={guess}
       // The Aritzia link-fetch mode needs a real local browser (Puppeteer),
       // which can't run on Vercel (no display) — so only that mode is
       // hidden on the deployed site. Photo upload works everywhere, since

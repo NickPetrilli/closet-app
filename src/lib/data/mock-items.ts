@@ -374,7 +374,18 @@ export const MOCK_OUTFITS: Outfit[] = [
 ];
 
 export const MOCK_DAILY_SUGGESTION: DailySuggestion = {
-  weather: { tempF: 72, condition: "Clear" },
+  weather: {
+    tempF: 72,
+    feelsLikeF: 73,
+    hiF: 76,
+    loF: 61,
+    precipProbability: 5,
+    windMph: 6,
+    code: 0,
+    condition: "Clear",
+    icon: "sun",
+    isDay: true,
+  },
   occasion: "Brunch",
   itemIds: ["top-07", "btm-04", "sho-05"],
 };
