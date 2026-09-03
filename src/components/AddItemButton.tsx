@@ -4,6 +4,11 @@ import { useActionState, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { addItem, addItemFromUrl, type AddItemResult } from "@/lib/actions/add-item";
 import { CATEGORY_OPTIONS } from "@/lib/types";
+import {
+  formatBytes,
+  MAX_UPLOAD_BYTES,
+  prepareForUpload,
+} from "@/lib/prepare-photo";
 
 const ITEM_CATEGORIES = CATEGORY_OPTIONS.filter((c) => c.value !== "outfits");
 
@@ -20,15 +25,43 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: AddItemResult, formData: FormData) => {
-      const result =
-        mode === "photo" ? await addItem(formData) : await addItemFromUrl(formData);
-      if (!result.error) {
-        setOpen(false);
-        setPreviewUrl(null);
-        formRef.current?.reset();
-        router.refresh();
+      try {
+        if (mode === "photo") {
+          const chosen = formData.get("photo");
+          if (chosen instanceof File && chosen.size > 0) {
+            // Shrink before it goes over the wire: the platform rejects bodies
+            // over 4.5 MB at the edge, and phone photos routinely exceed that.
+            const ready = await prepareForUpload(chosen);
+            if (ready.size > MAX_UPLOAD_BYTES) {
+              return {
+                error: `That photo is ${formatBytes(
+                  ready.size
+                )}, which is too large to upload. Try one taken at a smaller size.`,
+              };
+            }
+            formData.set("photo", ready, ready.name);
+          }
+        }
+
+        const result =
+          mode === "photo" ? await addItem(formData) : await addItemFromUrl(formData);
+        if (!result.error) {
+          setOpen(false);
+          setPreviewUrl(null);
+          formRef.current?.reset();
+          router.refresh();
+        }
+        return result;
+      } catch {
+        // A rejected Server Action call — a dropped connection, or the edge
+        // refusing the request before any of our code runs — would otherwise
+        // escape this reducer and take the whole app down with React's error
+        // boundary. Keep it inside the dialog as an ordinary message.
+        return {
+          error:
+            "Couldn't add that one — the upload didn't get through. Check your connection and try again.",
+        };
       }
-      return result;
     },
     initialState
   );

@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     // Default (1mb) is too small for real photo uploads in the add-item flow.
+    //
+    // This raises Next's own limit only. On Vercel the platform caps a
+    // serverless function's request body at 4.5 MB and enforces it at the edge,
+    // so anything larger is rejected with a 413 before this setting — or any of
+    // our code — is consulted. Photos are therefore resized in the browser
+    // first; see src/lib/prepare-photo.ts. The generous value here still helps
+    // local development, which has no such cap.
     serverActions: {
       bodySizeLimit: "15mb",
     },
