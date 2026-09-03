@@ -58,7 +58,7 @@ export function OccasionPicker({
               onClick={() => onSelect(active ? null : tag.id)}
               className={`btn-label cursor-pointer rounded-full border px-3.5 py-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${
                 active
-                  ? "border-edge bg-ink text-on-accent"
+                  ? "border-accent bg-accent text-on-accent"
                   : "border-edge bg-surface-raised/50 text-ink-secondary hover:border-accent hover:text-accent"
               }`}
             >
