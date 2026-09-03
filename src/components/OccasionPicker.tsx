@@ -56,7 +56,7 @@ export function OccasionPicker({
               aria-pressed={active}
               // Tapping the active tag clears it — back to "no particular plans".
               onClick={() => onSelect(active ? null : tag.id)}
-              className={`eyebrow cursor-pointer rounded-full border px-3.5 py-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${
+              className={`btn-label cursor-pointer rounded-full border px-3.5 py-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${
                 active
                   ? "border-edge bg-ink text-on-accent"
                   : "border-edge bg-surface-raised/50 text-ink-secondary hover:border-accent hover:text-accent"
@@ -77,7 +77,7 @@ export function OccasionPicker({
               placeholder="Brunch"
               maxLength={24}
               aria-label="New occasion"
-              className="w-28 rounded-full border border-edge bg-transparent px-3.5 py-1.5 text-xs focus:border-ink focus:outline-none"
+              className="w-28 rounded-full border border-edge bg-transparent px-3.5 py-1.5 text-xs focus:border-ink"
             />
           </form>
         ) : (
@@ -86,7 +86,7 @@ export function OccasionPicker({
             disabled={disabled}
             onClick={() => setAdding(true)}
             aria-label="Add an occasion"
-            className="eyebrow cursor-pointer rounded-full border border-dashed border-edge px-3 py-1.5 text-ink-tertiary transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60"
+            className="btn-label cursor-pointer rounded-full border border-dashed border-edge px-3 py-1.5 text-ink-tertiary transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60"
           >
             + Add
           </button>

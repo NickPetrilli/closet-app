@@ -177,7 +177,7 @@ export function OutfitDetailPanel({
                   }}
                   aria-label="Outfit name"
                   size={Math.max(shown.name.length, 4)}
-                  className="max-w-[16rem] bg-transparent font-serif text-xl leading-none focus:outline-none"
+                  className="max-w-[16rem] bg-transparent font-serif text-xl leading-none"
                 />
               </div>
 
@@ -199,7 +199,7 @@ export function OutfitDetailPanel({
                 </svg>
               </button>
 
-              <span className="eyebrow absolute bottom-5 left-5 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink">
+              <span className="meta absolute bottom-5 left-5 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink">
                 {vibeLabel(shown.vibe)} · {pieces.length} pieces
               </span>
             </div>
@@ -242,7 +242,7 @@ export function OutfitDetailPanel({
                         <span className="block truncate font-serif text-lg leading-snug">
                           {piece.name}
                         </span>
-                        <span className="eyebrow mt-1 block text-ink-tertiary">
+                        <span className="meta mt-1 block text-ink-tertiary">
                           {categoryLabel(piece.category)}
                         </span>
                       </span>

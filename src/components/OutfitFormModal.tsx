@@ -272,7 +272,7 @@ export function OutfitFormModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Sunday Coffee Run"
-              className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+              className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
             />
           </div>
 
@@ -282,7 +282,7 @@ export function OutfitFormModal({
               <select
                 value={vibe}
                 onChange={(e) => setVibe(e.target.value as OutfitVibe)}
-                className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
+                className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink"
               >
                 {VIBES.map((v) => (
                   <option key={v} value={v}>

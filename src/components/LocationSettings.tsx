@@ -149,7 +149,7 @@ export function LocationSettings({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="e.g. Boston, MA"
                 autoComplete="off"
-                className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
               />
               {!currentLabel && ipGuess && (
                 <p className="mt-2 text-xs text-ink-tertiary">

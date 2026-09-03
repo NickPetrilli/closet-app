@@ -118,7 +118,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
               <button
                 type="button"
                 onClick={() => switchMode("photo")}
-                className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
+                className={`btn-label flex-1 cursor-pointer rounded-full py-2 transition-colors ${
                   mode === "photo" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
@@ -127,7 +127,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
               <button
                 type="button"
                 onClick={() => switchMode("link")}
-                className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
+                className={`btn-label flex-1 cursor-pointer rounded-full py-2 transition-colors ${
                   mode === "link" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
@@ -156,7 +156,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                         className="h-full w-full object-contain p-3"
                       />
                     ) : (
-                      <span className="eyebrow px-6 text-center text-ink-tertiary">
+                      <span className="meta px-6 text-center text-ink-tertiary">
                         Tap to take a photo or choose one from your library
                       </span>
                     )}
@@ -179,7 +179,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                     name="name"
                     required
                     placeholder="e.g. Sage Linen Camp Shirt"
-                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
                   />
                 </div>
 
@@ -191,7 +191,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                       name="category"
                       required
                       defaultValue=""
-                      className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
+                      className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink"
                     >
                       <option value="" disabled>
                         Choose a category
@@ -229,7 +229,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                     name="url"
                     required
                     placeholder="https://www.aritzia.com/us/en/product/..."
-                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
                   />
                 </div>
 

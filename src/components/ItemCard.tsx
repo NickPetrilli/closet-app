@@ -39,7 +39,7 @@ export function ItemCard({
           />
         </div>
       )}
-      <span className="eyebrow absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-3 py-1.5 text-ink opacity-0 shadow-card transition-opacity duration-250 group-hover:opacity-100">
+      <span className="meta absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-3 py-1.5 text-ink opacity-0 shadow-card transition-opacity duration-250 group-hover:opacity-100">
         {item.name}
       </span>
     </button>

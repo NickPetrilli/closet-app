@@ -87,7 +87,7 @@ export function OutfitCard({
         );
       })}
 
-      <span className="eyebrow pointer-events-none absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-250 group-hover:opacity-100">
+      <span className="meta pointer-events-none absolute bottom-3 left-3 rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-250 group-hover:opacity-100">
         {outfit.name} · {pieces.length} pieces
       </span>
     </div>

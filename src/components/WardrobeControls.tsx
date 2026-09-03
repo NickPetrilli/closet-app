@@ -104,7 +104,7 @@ export function WardrobeControls({
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Name, category, or color"
           aria-label="Search your wardrobe"
-          className="w-full rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-10 text-sm focus:border-ink focus:outline-none"
+          className="w-full rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-10 text-sm focus:border-ink"
         />
         {query && (
           <button
@@ -131,7 +131,7 @@ export function WardrobeControls({
           value={order}
           onChange={(e) => onOrderChange(e.target.value as SortOrder)}
           aria-label="Sort your wardrobe"
-          className="eyebrow w-full cursor-pointer appearance-none rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-5 text-ink-secondary focus:border-ink focus:outline-none sm:w-auto"
+          className="btn-label w-full cursor-pointer appearance-none rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-5 text-ink-secondary focus:border-ink sm:w-auto"
         >
           {SORT_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>

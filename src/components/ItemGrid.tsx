@@ -19,7 +19,7 @@ export function ItemGrid({
     return (
       <div className="rounded-card border border-edge-subtle bg-surface-raised/40 py-24 text-center">
         <p className="font-serif text-2xl italic text-ink-secondary">{emptyTitle}</p>
-        <p className="eyebrow mt-3 text-ink-tertiary">{emptyHint}</p>
+        <p className="meta mt-3 text-ink-tertiary">{emptyHint}</p>
       </div>
     );
   }

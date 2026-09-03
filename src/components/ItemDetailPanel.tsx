@@ -151,7 +151,7 @@ export function ItemDetailPanel({
                   }}
                   aria-label="Item name"
                   size={Math.max(shown.name.length, 4)}
-                  className="max-w-[16rem] bg-transparent font-serif text-xl leading-none focus:outline-none"
+                  className="max-w-[16rem] bg-transparent font-serif text-xl leading-none"
                 />
               </div>
 
@@ -235,7 +235,7 @@ export function ItemDetailPanel({
                       if (e.key === "Enter") e.currentTarget.blur();
                     }}
                     aria-label="Item name"
-                    className="mt-2.5 w-full rounded-control border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full rounded-control border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
                   />
                   {saveError && (
                     <p className="mt-1.5 text-sm text-error">{saveError}</p>
@@ -318,7 +318,7 @@ export function ItemDetailPanel({
                           <span className="block font-serif text-base leading-snug">
                             {outfit.name}
                           </span>
-                          <span className="eyebrow mt-0.5 block text-ink-tertiary">
+                          <span className="meta mt-0.5 block text-ink-tertiary">
                             {vibeLabel(outfit.vibe)}
                           </span>
                         </span>

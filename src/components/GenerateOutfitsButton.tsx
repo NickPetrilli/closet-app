@@ -118,7 +118,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
       </button>
 
       {savedMessage && !open && (
-        <span className="eyebrow text-ink-tertiary">{savedMessage}</span>
+        <span className="meta text-ink-tertiary">{savedMessage}</span>
       )}
 
       <div
@@ -195,7 +195,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
               <h2 className="font-serif text-xl tracking-tight sm:text-2xl">
                 Review generated outfits
               </h2>
-              <p className="eyebrow mt-1.5 text-ink-tertiary">
+              <p className="meta mt-1.5 text-ink-tertiary">
                 Uncheck any you don&apos;t want, then save the rest.
               </p>
             </div>
@@ -274,7 +274,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                       </svg>
                     )}
                   </span>
-                  <span className="eyebrow absolute right-2.5 bottom-2.5 left-2.5 truncate rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1 text-ink">
+                  <span className="meta absolute right-2.5 bottom-2.5 left-2.5 truncate rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1 text-ink">
                     {candidate.name} · {vibeLabel(candidate.vibe)}
                   </span>
                 </button>
@@ -289,7 +289,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
           )}
 
           <div className="flex flex-col gap-3 border-t border-edge px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8 sm:py-5">
-            <p className="eyebrow text-ink-tertiary">
+            <p className="meta text-ink-tertiary">
               {selected.size} of {candidates?.length ?? 0} selected
             </p>
             <div className="flex gap-2 sm:gap-3">
@@ -338,7 +338,7 @@ function GeneratingState({ step }: { step: number }) {
 
       <div className="space-y-2">
         <h2 className="font-serif text-2xl tracking-tight">Putting looks together</h2>
-        <p key={step} className="eyebrow animate-fade-in text-ink-tertiary">
+        <p key={step} className="meta animate-fade-in text-ink-tertiary">
           {LOADING_STEPS[step]}
         </p>
       </div>

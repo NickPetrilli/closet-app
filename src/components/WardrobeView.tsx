@@ -109,7 +109,7 @@ export function WardrobeView({
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <p className="eyebrow mb-1 whitespace-nowrap rounded-full border border-edge bg-surface-raised/50 px-3.5 py-1.5 text-ink-secondary">
+          <p className="meta mb-1 whitespace-nowrap rounded-full border border-edge bg-surface-raised/50 px-3.5 py-1.5 text-ink-secondary">
             {items.length} Pieces
           </p>
           <LocationSettings

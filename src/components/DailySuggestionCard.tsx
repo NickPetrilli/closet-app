@@ -147,7 +147,7 @@ export function DailySuggestionCard({
                 <p className="mt-1 font-serif text-xl leading-snug">
                   {weather.condition}, {weather.tempF}°
                 </p>
-                <p className="eyebrow mt-1.5 text-ink-tertiary">
+                <p className="meta mt-1.5 text-ink-tertiary">
                   H {weather.hiF}° · L {weather.loF}°
                   {weather.precipProbability >= NOTABLE_PRECIP
                     ? ` · ${weather.precipProbability}% chance of ${
@@ -164,7 +164,7 @@ export function DailySuggestionCard({
                 <button
                   type="button"
                   onClick={onOpenLocationSettings}
-                  className="eyebrow mt-2 cursor-pointer rounded-full border border-edge bg-surface-raised/60 px-3.5 py-1.5 text-ink-secondary transition-colors hover:border-accent hover:text-accent"
+                  className="btn-label mt-2 cursor-pointer rounded-full border border-edge bg-surface-raised/60 px-3.5 py-1.5 text-ink-secondary transition-colors hover:border-accent hover:text-accent"
                 >
                   Set location
                 </button>

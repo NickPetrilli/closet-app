@@ -20,7 +20,7 @@ export function OutfitGrid({
         <p className="font-serif text-2xl italic text-ink-secondary">
           No outfits yet.
         </p>
-        <p className="eyebrow mt-3 text-ink-tertiary">
+        <p className="meta mt-3 text-ink-tertiary">
           Combinations you save will appear here
         </p>
       </div>
