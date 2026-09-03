@@ -6,19 +6,20 @@ import { ItemCard } from "./ItemCard";
 export function ItemGrid({
   items,
   onSelect,
+  emptyTitle = "Nothing here yet.",
+  emptyHint = "Pieces you add will appear in this view",
 }: {
   items: ClothingItem[];
   onSelect: (id: string) => void;
+  /** Overridden when a search comes back empty, so the copy fits the reason. */
+  emptyTitle?: string;
+  emptyHint?: string;
 }) {
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-line bg-cream/40 py-24 text-center">
-        <p className="font-serif text-2xl italic text-ink-soft">
-          Nothing here yet.
-        </p>
-        <p className="eyebrow mt-3 text-muted">
-          Pieces you add will appear in this view
-        </p>
+        <p className="font-serif text-2xl italic text-ink-soft">{emptyTitle}</p>
+        <p className="eyebrow mt-3 text-muted">{emptyHint}</p>
       </div>
     );
   }

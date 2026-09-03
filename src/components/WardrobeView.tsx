@@ -15,6 +15,12 @@ import { CategoryTabs } from "./CategoryTabs";
 import { DailySuggestionCard } from "./DailySuggestionCard";
 import { ItemDetailPanel } from "./ItemDetailPanel";
 import { ItemGrid } from "./ItemGrid";
+import {
+  WardrobeControls,
+  matchesQuery,
+  sortItems,
+  type SortOrder,
+} from "./WardrobeControls";
 import { LocationSettings } from "./LocationSettings";
 import { OutfitActionsBanner } from "./OutfitActionsBanner";
 import { OutfitDetailPanel } from "./OutfitDetailPanel";
@@ -51,18 +57,21 @@ export function WardrobeView({
     null
   );
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [order, setOrder] = useState<SortOrder>("newest");
 
   const selectedItem = items.find((item) => item.id === selectedItemId) ?? null;
   const selectedOutfit =
     outfits.find((outfit) => outfit.id === selectedOutfitId) ?? null;
 
-  const visibleItems = useMemo(
-    () =>
-      filter === "all"
-        ? items
-        : items.filter((item) => item.category === filter),
-    [items, filter]
-  );
+  const visibleItems = useMemo(() => {
+    const inCategory =
+      filter === "all" ? items : items.filter((item) => item.category === filter);
+    const matching = query
+      ? inCategory.filter((item) => matchesQuery(item, query))
+      : inCategory;
+    return sortItems(matching, order);
+  }, [items, filter, query, order]);
 
   function updateItem(id: string, patch: Partial<ClothingItem>) {
     setItems((prev) =>
@@ -136,6 +145,20 @@ export function WardrobeView({
         )}
       </div>
 
+      {/* Search + sort — its own row so the scrollable tab strip keeps its
+          full width, and so the two stack cleanly on a phone. */}
+      {filter !== "outfits" && (
+        <div className="mt-4">
+          <WardrobeControls
+            query={query}
+            onQueryChange={setQuery}
+            order={order}
+            onOrderChange={setOrder}
+            resultCount={visibleItems.length}
+          />
+        </div>
+      )}
+
       {/* Outfit actions — a dedicated banner, not squeezed onto the tabs row */}
       {filter === "outfits" && (
         <div className="mt-6">
@@ -153,7 +176,16 @@ export function WardrobeView({
             onSelectItem={openItem}
           />
         ) : (
-          <ItemGrid items={visibleItems} onSelect={openItem} />
+          <ItemGrid
+            items={visibleItems}
+            onSelect={openItem}
+            emptyTitle={query ? "No pieces match that." : "Nothing here yet."}
+            emptyHint={
+              query
+                ? "Try a different word, or clear the search"
+                : "Pieces you add will appear in this view"
+            }
+          />
         )}
       </div>
 

@@ -30,6 +30,7 @@ interface ItemRow {
   cutout_image_url: string | null;
   source_photo_urls: string[];
   product_url: string | null;
+  created_at: string;
 }
 
 function toClothingItem(row: ItemRow): ClothingItem {
@@ -44,6 +45,7 @@ function toClothingItem(row: ItemRow): ClothingItem {
     cutoutImageUrl: row.cutout_image_url,
     sourcePhotoUrls: row.source_photo_urls,
     productUrl: row.product_url,
+    createdAt: row.created_at,
   };
 }
 
@@ -51,7 +53,7 @@ export async function fetchItems(): Promise<ClothingItem[]> {
   const { data, error } = await supabase
     .from("items")
     .select(
-      "id, name, category, silhouette, primary_color_hex, secondary_color_hex, image_url, cutout_image_url, source_photo_urls, product_url"
+      "id, name, category, silhouette, primary_color_hex, secondary_color_hex, image_url, cutout_image_url, source_photo_urls, product_url, created_at"
     )
     .order("created_at", { ascending: true });
 

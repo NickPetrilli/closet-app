@@ -73,6 +73,11 @@ export interface ClothingItem {
   sourcePhotoUrls: string[];
   /** Retailer listing URL (e.g. the Aritzia product page), for reordering. */
   productUrl?: string | null;
+  /**
+   * When the item was added, ISO 8601. Optional because the legacy mock set
+   * predates it; sorting falls back to insertion order when it's missing.
+   */
+  createdAt?: string;
 }
 
 /**
