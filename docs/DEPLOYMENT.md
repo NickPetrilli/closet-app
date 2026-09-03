@@ -100,6 +100,9 @@ vercel --prod
       `PUPPETEER_SKIP_DOWNLOAD`).
 - [ ] Daily card shows real weather after setting a location via the gear icon
       (confirms `001-weather.sql` ran — an unset card just offers "Set location").
+- [ ] DevTools → Application: manifest parses, `/sw.js` is activated, and the
+      install option appears. The service worker only registers in production,
+      so this is deploy-only — `next dev` never registers one.
 
 ## Notes
 
