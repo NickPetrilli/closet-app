@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { updateItem } from "@/lib/actions/items";
 import { mixHex, vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
@@ -36,6 +38,45 @@ export function ItemDetailPanel({
   const outfitsWithItem = shown
     ? outfits.filter((outfit) => outfit.itemIds.includes(shown.id))
     : [];
+
+  const router = useRouter();
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [, startSaving] = useTransition();
+
+  // What the database currently holds, so blurring an untouched field doesn't
+  // fire a pointless write. Reset whenever a different item is opened.
+  const lastSavedNameRef = useRef<string>(item?.name ?? "");
+  const lastIdRef = useRef<string | null>(item?.id ?? null);
+  if (item && item.id !== lastIdRef.current) {
+    lastIdRef.current = item.id;
+    lastSavedNameRef.current = item.name;
+    if (saveError) setSaveError(null);
+  }
+
+  /**
+   * The name inputs update local state as you type; this persists on blur or
+   * Enter. Without it the rename looked like it worked and silently reverted
+   * on the next load — there was no server action behind onUpdate at all.
+   */
+  function commitName(id: string, value: string) {
+    const trimmed = value.trim();
+    if (trimmed === lastSavedNameRef.current) return;
+    if (!trimmed) {
+      // Put the saved name back rather than leaving an empty chip on screen.
+      onUpdate(id, { name: lastSavedNameRef.current });
+      return;
+    }
+    startSaving(async () => {
+      const result = await updateItem({ id, name: trimmed });
+      if (result.error) {
+        setSaveError(result.error);
+        return;
+      }
+      lastSavedNameRef.current = trimmed;
+      setSaveError(null);
+      router.refresh();
+    });
+  }
 
   const [activeSourceIndex, setActiveSourceIndex] = useState(0);
   useEffect(() => {
@@ -104,6 +145,10 @@ export function ItemDetailPanel({
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
+                  onBlur={(e) => commitName(shown.id, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
                   aria-label="Item name"
                   size={Math.max(shown.name.length, 4)}
                   className="max-w-[16rem] bg-transparent font-serif text-xl leading-none focus:outline-none"
@@ -185,8 +230,16 @@ export function ItemDetailPanel({
                     onChange={(e) =>
                       onUpdate(shown.id, { name: e.target.value })
                     }
+                    onBlur={(e) => commitName(shown.id, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
+                    aria-label="Item name"
                     className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
                   />
+                  {saveError && (
+                    <p className="mt-1.5 text-sm text-danger">{saveError}</p>
+                  )}
                 </div>
                 <div>
                   <p className="eyebrow text-muted">Category</p>
