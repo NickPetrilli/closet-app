@@ -17,9 +17,9 @@ export function ItemGrid({
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-line bg-cream/40 py-24 text-center">
-        <p className="font-serif text-2xl italic text-ink-soft">{emptyTitle}</p>
-        <p className="eyebrow mt-3 text-muted">{emptyHint}</p>
+      <div className="rounded-2xl border border-edge-subtle bg-surface-raised/40 py-24 text-center">
+        <p className="font-serif text-2xl italic text-ink-secondary">{emptyTitle}</p>
+        <p className="eyebrow mt-3 text-ink-tertiary">{emptyHint}</p>
       </div>
     );
   }

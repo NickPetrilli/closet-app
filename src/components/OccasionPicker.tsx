@@ -44,7 +44,7 @@ export function OccasionPicker({
 
   return (
     <div>
-      <p className="eyebrow text-muted">For</p>
+      <p className="eyebrow text-ink-tertiary">For</p>
       <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
         {tags.map((tag) => {
           const active = tag.id === selected;
@@ -58,8 +58,8 @@ export function OccasionPicker({
               onClick={() => onSelect(active ? null : tag.id)}
               className={`eyebrow cursor-pointer rounded-full border px-3.5 py-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${
                 active
-                  ? "border-line-dark bg-ink text-cream"
-                  : "border-line-dark bg-cream/50 text-ink-soft hover:border-accent hover:text-accent"
+                  ? "border-edge bg-ink text-on-accent"
+                  : "border-edge bg-surface-raised/50 text-ink-secondary hover:border-accent hover:text-accent"
               }`}
             >
               {tag.label}
@@ -77,7 +77,7 @@ export function OccasionPicker({
               placeholder="Brunch"
               maxLength={24}
               aria-label="New occasion"
-              className="w-28 rounded-full border border-line-dark bg-transparent px-3.5 py-1.5 text-xs focus:border-ink focus:outline-none"
+              className="w-28 rounded-full border border-edge bg-transparent px-3.5 py-1.5 text-xs focus:border-ink focus:outline-none"
             />
           </form>
         ) : (
@@ -86,14 +86,14 @@ export function OccasionPicker({
             disabled={disabled}
             onClick={() => setAdding(true)}
             aria-label="Add an occasion"
-            className="eyebrow cursor-pointer rounded-full border border-dashed border-line-dark px-3 py-1.5 text-muted transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60"
+            className="eyebrow cursor-pointer rounded-full border border-dashed border-edge px-3 py-1.5 text-ink-tertiary transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60"
           >
             + Add
           </button>
         )}
       </div>
 
-      {error && <p className="mt-2 text-xs text-blush-deep">{error}</p>}
+      {error && <p className="mt-2 text-xs text-blush-strong">{error}</p>}
     </div>
   );
 }

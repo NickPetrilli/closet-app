@@ -56,7 +56,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-line-dark bg-ink px-5 py-2.5 text-cream transition-colors hover:bg-accent sm:w-auto sm:justify-start"
+        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
@@ -86,7 +86,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
           role="dialog"
           aria-modal="true"
           aria-label="Add an item"
-          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line-dark bg-cream p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -97,7 +97,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
               onClick={close}
               aria-label="Close"
               disabled={isPending}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-card hover:text-ink"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-colors hover:bg-surface-sunken hover:text-ink"
             >
               <svg
                 viewBox="0 0 16 16"
@@ -114,12 +114,12 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
           {/* Mode switch — link-fetch needs a local browser (Puppeteer),
               which can't run on the deployed site, so it's hidden there. */}
           {canFetchFromLink && (
-            <div className="mt-5 flex gap-1 rounded-full border border-line-dark bg-card/40 p-1">
+            <div className="mt-5 flex gap-1 rounded-full border border-edge bg-surface-sunken/40 p-1">
               <button
                 type="button"
                 onClick={() => switchMode("photo")}
                 className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                  mode === "photo" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
+                  mode === "photo" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
                 Upload a Photo
@@ -128,7 +128,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                 type="button"
                 onClick={() => switchMode("link")}
                 className={`eyebrow flex-1 cursor-pointer rounded-full py-2 transition-colors ${
-                  mode === "link" ? "bg-ink text-cream" : "text-ink-soft hover:text-ink"
+                  mode === "link" ? "bg-ink text-on-accent" : "text-ink-secondary hover:text-ink"
                 }`}
               >
                 Paste a Link
@@ -146,8 +146,8 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
               <>
                 {/* Photo */}
                 <div>
-                  <p className="eyebrow text-muted">Photo</p>
-                  <label className="mt-2.5 flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-line-dark bg-card/40 transition-colors hover:border-accent">
+                  <p className="eyebrow text-ink-tertiary">Photo</p>
+                  <label className="mt-2.5 flex h-44 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-edge bg-surface-sunken/40 transition-colors hover:border-accent">
                     {previewUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -156,7 +156,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                         className="h-full w-full object-contain p-3"
                       />
                     ) : (
-                      <span className="eyebrow px-6 text-center text-muted">
+                      <span className="eyebrow px-6 text-center text-ink-tertiary">
                         Tap to take a photo or choose one from your library
                       </span>
                     )}
@@ -173,25 +173,25 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
 
                 {/* Name */}
                 <div>
-                  <p className="eyebrow text-muted">Name</p>
+                  <p className="eyebrow text-ink-tertiary">Name</p>
                   <input
                     type="text"
                     name="name"
                     required
                     placeholder="e.g. Sage Linen Camp Shirt"
-                    className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
                   />
                 </div>
 
                 {/* Category */}
                 <div>
-                  <p className="eyebrow text-muted">Category</p>
+                  <p className="eyebrow text-ink-tertiary">Category</p>
                   <div className="relative mt-2.5">
                     <select
                       name="category"
                       required
                       defaultValue=""
-                      className="w-full appearance-none border border-line-dark bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
+                      className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
                     >
                       <option value="" disabled>
                         Choose a category
@@ -204,7 +204,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                     </select>
                     <svg
                       viewBox="0 0 12 8"
-                      className="pointer-events-none absolute top-1/2 right-3.5 h-2 w-3 -translate-y-1/2 text-ink-soft"
+                      className="pointer-events-none absolute top-1/2 right-3.5 h-2 w-3 -translate-y-1/2 text-ink-secondary"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="1.25"
@@ -215,7 +215,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                   </div>
                 </div>
 
-                <p className="text-xs leading-relaxed text-muted">
+                <p className="text-xs leading-relaxed text-ink-tertiary">
                   The background is removed automatically, so use a photo of
                   just the item — laid flat or on a hanger works best.
                 </p>
@@ -223,17 +223,17 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
             ) : (
               <>
                 <div>
-                  <p className="eyebrow text-muted">Aritzia Product Link</p>
+                  <p className="eyebrow text-ink-tertiary">Aritzia Product Link</p>
                   <input
                     type="url"
                     name="url"
                     required
                     placeholder="https://www.aritzia.com/us/en/product/..."
-                    className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
                   />
                 </div>
 
-                <p className="text-xs leading-relaxed text-muted">
+                <p className="text-xs leading-relaxed text-ink-tertiary">
                   We&apos;ll pull the name, category, and a flat product photo
                   automatically, then remove the background — no photo needed.
                 </p>
@@ -241,13 +241,13 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
             )}
 
             {state.error && (
-              <p className="text-sm text-blush-deep">{state.error}</p>
+              <p className="text-sm text-blush-strong">{state.error}</p>
             )}
 
             <button
               type="submit"
               disabled={isPending}
-              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-line-dark bg-ink py-3 text-cream transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-edge bg-ink py-3 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
             >
               {isPending
                 ? mode === "photo"

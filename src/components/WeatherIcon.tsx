@@ -60,7 +60,7 @@ export function WeatherIcon({
           <path
             d={CLOUD}
             transform="translate(1.6 2.4) scale(0.92)"
-            className="fill-cream"
+            className="fill-surface-raised"
           />
         </>
       )}

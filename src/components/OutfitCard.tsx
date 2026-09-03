@@ -46,7 +46,7 @@ export function OutfitCard({
           onSelect(outfit.id);
         }
       }}
-      className="group relative aspect-[3/4] cursor-pointer overflow-hidden border border-line transition-colors duration-300 hover:border-ink focus-visible:border-ink focus-visible:outline-none"
+      className="group relative aspect-[3/4] cursor-pointer overflow-hidden border border-edge-subtle transition-colors duration-300 hover:border-ink focus-visible:border-ink focus-visible:outline-none"
     >
       <SceneBackdrop
         vibe={outfit.vibe}
@@ -87,7 +87,7 @@ export function OutfitCard({
         );
       })}
 
-      <span className="eyebrow pointer-events-none absolute bottom-3 left-3 border border-line bg-cream/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+      <span className="eyebrow pointer-events-none absolute bottom-3 left-3 border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink opacity-0 transition-opacity duration-300 group-hover:opacity-100">
         {outfit.name} · {pieces.length} pieces
       </span>
     </div>

@@ -101,7 +101,7 @@ export function WardrobeView({
   return (
     <main className="mx-auto max-w-6xl px-6 pt-12 pb-24 lg:px-10">
       {/* Header */}
-      <header className="flex items-end justify-between gap-4 border-b border-line pb-7">
+      <header className="flex items-end justify-between gap-4 border-b border-edge-subtle pb-7">
         <div>
           <p className="eyebrow text-accent">{APP_TAGLINE}</p>
           <h1 className="mt-1.5 font-serif text-4xl tracking-tight sm:text-6xl">
@@ -109,7 +109,7 @@ export function WardrobeView({
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <p className="eyebrow mb-1 whitespace-nowrap rounded-full border border-line-dark bg-cream/50 px-3.5 py-1.5 text-ink-soft">
+          <p className="eyebrow mb-1 whitespace-nowrap rounded-full border border-edge bg-surface-raised/50 px-3.5 py-1.5 text-ink-secondary">
             {items.length} Pieces
           </p>
           <LocationSettings

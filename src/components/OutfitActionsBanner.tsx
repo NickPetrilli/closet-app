@@ -11,7 +11,7 @@ import { GenerateOutfitsButton } from "./GenerateOutfitsButton";
  */
 export function OutfitActionsBanner({ items }: { items: ClothingItem[] }) {
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-accent-soft bg-gradient-to-r from-accent-soft/25 via-cream to-blush/25 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+    <div className="flex flex-col gap-5 rounded-2xl border border-accent-muted bg-gradient-to-r from-accent-muted/25 via-surface-raised to-blush/25 p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div>
         <p className="eyebrow text-accent">Outfits</p>
         <p className="mt-1.5 font-serif text-lg tracking-tight sm:text-xl">

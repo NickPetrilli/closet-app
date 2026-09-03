@@ -46,7 +46,7 @@ function ItemPicker({
   onToggle: (id: string) => void;
 }) {
   if (items.length === 0) {
-    return <p className="text-xs text-muted">No items in this category yet.</p>;
+    return <p className="text-xs text-ink-tertiary">No items in this category yet.</p>;
   }
   return (
     <div className="flex gap-2.5 overflow-x-auto pb-1">
@@ -61,8 +61,8 @@ function ItemPicker({
             onClick={() => onToggle(item.id)}
             title={item.name}
             aria-pressed={isSelected}
-            className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 bg-card/40 p-2 transition-colors ${
-              isSelected ? "border-accent" : "border-transparent hover:border-line-dark"
+            className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border-2 bg-surface-sunken/40 p-2 transition-colors ${
+              isSelected ? "border-accent" : "border-transparent hover:border-edge"
             }`}
           >
             {photoUrl ? (
@@ -240,7 +240,7 @@ export function OutfitFormModal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-line-dark bg-cream p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+        className={`relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
           open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         }`}
       >
@@ -251,7 +251,7 @@ export function OutfitFormModal({
             onClick={close}
             aria-label="Close"
             disabled={isPending}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-card hover:text-ink"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-colors hover:bg-surface-sunken hover:text-ink"
           >
             <svg
               viewBox="0 0 16 16"
@@ -267,22 +267,22 @@ export function OutfitFormModal({
 
         <div className="mt-6 flex flex-col gap-6">
           <div>
-            <p className="eyebrow text-muted">Name</p>
+            <p className="eyebrow text-ink-tertiary">Name</p>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Sunday Coffee Run"
-              className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+              className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
             />
           </div>
 
           <div>
-            <p className="eyebrow text-muted">Vibe</p>
+            <p className="eyebrow text-ink-tertiary">Vibe</p>
             <div className="relative mt-2.5">
               <select
                 value={vibe}
                 onChange={(e) => setVibe(e.target.value as OutfitVibe)}
-                className="w-full appearance-none border border-line-dark bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
+                className="w-full appearance-none border border-edge bg-transparent px-3.5 py-2.5 pr-9 text-sm focus:border-ink focus:outline-none"
               >
                 {VIBES.map((v) => (
                   <option key={v} value={v}>
@@ -292,7 +292,7 @@ export function OutfitFormModal({
               </select>
               <svg
                 viewBox="0 0 12 8"
-                className="pointer-events-none absolute top-1/2 right-3.5 h-2 w-3 -translate-y-1/2 text-ink-soft"
+                className="pointer-events-none absolute top-1/2 right-3.5 h-2 w-3 -translate-y-1/2 text-ink-secondary"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.25"
@@ -312,7 +312,7 @@ export function OutfitFormModal({
             ] as [SlotCategory, string][]
           ).map(([category, label]) => (
             <div key={category}>
-              <p className="eyebrow text-muted">{label}</p>
+              <p className="eyebrow text-ink-tertiary">{label}</p>
               <div className="mt-2.5">
                 <ItemPicker
                   items={byCategory(category)}
@@ -324,7 +324,7 @@ export function OutfitFormModal({
           ))}
 
           <div>
-            <p className="eyebrow text-muted">Accessories (optional)</p>
+            <p className="eyebrow text-ink-tertiary">Accessories (optional)</p>
             <div className="mt-2.5">
               <ItemPicker
                 items={byCategory("accessories")}
@@ -334,13 +334,13 @@ export function OutfitFormModal({
             </div>
           </div>
 
-          {error && <p className="text-sm text-blush-deep">{error}</p>}
+          {error && <p className="text-sm text-blush-strong">{error}</p>}
 
           <button
             type="button"
             onClick={handleSubmit}
             disabled={isPending}
-            className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-line-dark bg-ink py-3 text-cream transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+            className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-edge bg-ink py-3 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
           >
             {isPending ? pendingLabel : submitLabel}
           </button>

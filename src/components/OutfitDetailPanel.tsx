@@ -133,7 +133,7 @@ export function OutfitDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={shown ? `Details for ${shown.name}` : "Outfit details"}
-        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-line-dark bg-cream transition-transform duration-300 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -167,7 +167,7 @@ export function OutfitDetailPanel({
               </div>
 
               {/* Editable name chip */}
-              <div className="absolute top-5 left-5 border border-line-dark bg-cream px-4 py-2.5">
+              <div className="absolute top-5 left-5 border border-edge bg-surface-raised px-4 py-2.5">
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
@@ -186,7 +186,7 @@ export function OutfitDetailPanel({
                 type="button"
                 onClick={onClose}
                 aria-label="Close details"
-                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-line-dark bg-cream text-ink-soft transition-colors hover:border-ink hover:text-ink"
+                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -199,7 +199,7 @@ export function OutfitDetailPanel({
                 </svg>
               </button>
 
-              <span className="eyebrow absolute bottom-5 left-5 border border-line bg-cream/95 px-2.5 py-1.5 text-ink">
+              <span className="eyebrow absolute bottom-5 left-5 border border-edge-subtle bg-surface-raised/95 px-2.5 py-1.5 text-ink">
                 {vibeLabel(shown.vibe)} · {pieces.length} pieces
               </span>
             </div>
@@ -207,17 +207,17 @@ export function OutfitDetailPanel({
             {/* Pieces list */}
             <div className="flex flex-1 flex-col gap-8 px-8 py-8">
               <div>
-                <p className="eyebrow text-muted">In this outfit</p>
+                <p className="eyebrow text-ink-tertiary">In this outfit</p>
                 <div className="mt-4 flex flex-col gap-3">
                   {pieces.map((piece) => (
                     <button
                       key={piece.id}
                       type="button"
                       onClick={() => onSelectItem(piece.id)}
-                      className="group flex items-center gap-5 border border-line p-3 text-left transition-colors hover:border-ink"
+                      className="group flex items-center gap-5 border border-edge-subtle p-3 text-left transition-colors hover:border-ink"
                     >
                       <span
-                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-line"
+                        className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden border border-edge-subtle"
                         style={{
                           background: vibeGradient(piece.primaryColorHex),
                         }}
@@ -242,16 +242,16 @@ export function OutfitDetailPanel({
                         <span className="block truncate font-serif text-lg leading-snug">
                           {piece.name}
                         </span>
-                        <span className="eyebrow mt-1 block text-muted">
+                        <span className="eyebrow mt-1 block text-ink-tertiary">
                           {categoryLabel(piece.category)}
                         </span>
                       </span>
                       <span className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs tracking-[0.06em] text-ink-soft uppercase">
+                        <span className="text-xs tracking-[0.06em] text-ink-secondary uppercase">
                           {piece.primaryColorHex}
                         </span>
                         <span
-                          className="h-6 w-6 border border-line-dark"
+                          className="h-6 w-6 border border-edge"
                           style={{ backgroundColor: piece.primaryColorHex }}
                         />
                       </span>
@@ -261,20 +261,20 @@ export function OutfitDetailPanel({
               </div>
 
               {/* Helper text + actions */}
-              <div className="mt-auto flex flex-col gap-4 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-auto flex flex-col gap-4 border-t border-edge-subtle pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <p className="text-xs leading-relaxed text-muted">
+                  <p className="text-xs leading-relaxed text-ink-tertiary">
                     Select a piece to view and edit its details.
                   </p>
                   {saveError && (
-                    <p className="mt-1.5 text-sm text-danger">{saveError}</p>
+                    <p className="mt-1.5 text-sm text-error">{saveError}</p>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setEditOpen(true)}
-                  className="eyebrow flex cursor-pointer items-center gap-2 rounded-full border border-line-dark px-4 py-2 text-ink transition-colors hover:border-ink"
+                  className="eyebrow flex cursor-pointer items-center gap-2 rounded-full border border-edge px-4 py-2 text-ink transition-colors hover:border-ink"
                 >
                   <svg
                     viewBox="0 0 16 16"
@@ -293,7 +293,7 @@ export function OutfitDetailPanel({
                 <button
                   type="button"
                   onClick={() => setDeleteModalOpen(true)}
-                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-danger px-4 py-2 text-cream shadow-sm transition-colors hover:bg-danger-deep"
+                  className="eyebrow flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-error px-4 py-2 text-on-accent shadow-sm transition-colors hover:bg-error-strong"
                 >
                   <svg
                     viewBox="0 0 16 16"
@@ -351,12 +351,12 @@ export function OutfitDetailPanel({
           role="alertdialog"
           aria-modal="true"
           aria-label="Confirm delete outfit"
-          className={`relative w-full max-w-sm rounded-2xl border border-danger/40 bg-cream p-7 shadow-xl transition-all duration-200 ${
+          className={`relative w-full max-w-sm rounded-2xl border border-error/40 bg-surface-raised p-7 shadow-xl transition-all duration-200 ${
             deleteModalOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-danger/10 text-danger">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
               <svg
                 viewBox="0 0 16 16"
                 className="h-4 w-4"
@@ -373,19 +373,19 @@ export function OutfitDetailPanel({
             </span>
             <h3 className="font-serif text-xl tracking-tight">Delete this outfit?</h3>
           </div>
-          <p className="mt-3.5 text-sm leading-relaxed text-ink-soft">
+          <p className="mt-3.5 text-sm leading-relaxed text-ink-secondary">
             {shown ? `"${shown.name}" will be removed from your outfits.` : ""} The
             individual items stay in your wardrobe — this can&apos;t be undone.
           </p>
           {deleteError && (
-            <p className="mt-3 text-sm text-danger">{deleteError}</p>
+            <p className="mt-3 text-sm text-error">{deleteError}</p>
           )}
           <div className="mt-6 flex justify-end gap-3">
             <button
               type="button"
               onClick={() => setDeleteModalOpen(false)}
               disabled={isDeleting}
-              className="eyebrow cursor-pointer rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:bg-card disabled:cursor-wait disabled:opacity-70"
+              className="eyebrow cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70"
             >
               Cancel
             </button>
@@ -393,7 +393,7 @@ export function OutfitDetailPanel({
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="eyebrow cursor-pointer rounded-full bg-danger px-5 py-2.5 text-cream shadow-sm transition-colors hover:bg-danger-deep disabled:cursor-wait disabled:opacity-70"
+              className="eyebrow cursor-pointer rounded-full bg-error px-5 py-2.5 text-on-accent shadow-sm transition-colors hover:bg-error-strong disabled:cursor-wait disabled:opacity-70"
             >
               {isDeleting ? "Deleting…" : "Delete"}
             </button>

@@ -88,7 +88,7 @@ export function WardrobeControls({
       <div className="relative flex-1">
         <svg
           viewBox="0 0 16 16"
-          className="pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-muted"
+          className="pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-ink-tertiary"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.4"
@@ -104,14 +104,14 @@ export function WardrobeControls({
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Name, category, or color"
           aria-label="Search your wardrobe"
-          className="w-full rounded-full border border-line-dark bg-cream/50 py-2.5 pr-9 pl-10 text-sm focus:border-ink focus:outline-none"
+          className="w-full rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-10 text-sm focus:border-ink focus:outline-none"
         />
         {query && (
           <button
             type="button"
             onClick={() => onQueryChange("")}
             aria-label="Clear search"
-            className="absolute top-1/2 right-3 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted transition-colors hover:text-ink"
+            className="absolute top-1/2 right-3 flex h-5 w-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-ink-tertiary transition-colors hover:text-ink"
           >
             <svg
               viewBox="0 0 16 16"
@@ -131,7 +131,7 @@ export function WardrobeControls({
           value={order}
           onChange={(e) => onOrderChange(e.target.value as SortOrder)}
           aria-label="Sort your wardrobe"
-          className="eyebrow w-full cursor-pointer appearance-none rounded-full border border-line-dark bg-cream/50 py-2.5 pr-9 pl-5 text-ink-soft focus:border-ink focus:outline-none sm:w-auto"
+          className="eyebrow w-full cursor-pointer appearance-none rounded-full border border-edge bg-surface-raised/50 py-2.5 pr-9 pl-5 text-ink-secondary focus:border-ink focus:outline-none sm:w-auto"
         >
           {SORT_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -141,7 +141,7 @@ export function WardrobeControls({
         </select>
         <svg
           viewBox="0 0 12 8"
-          className="pointer-events-none absolute top-1/2 right-4 h-2 w-3 -translate-y-1/2 text-ink-soft"
+          className="pointer-events-none absolute top-1/2 right-4 h-2 w-3 -translate-y-1/2 text-ink-secondary"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.25"

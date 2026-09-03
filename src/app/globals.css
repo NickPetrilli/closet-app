@@ -1,22 +1,88 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------------
+   PALETTE LAYER — raw ramps for one named theme ("blue").
+   Nothing outside this file should reference a --palette-* value. To add a
+   theme later (dark, pink, …), add a palette layer and remap the semantic
+   layer below; no component needs to change.
+
+   Every text/edge value here was solved to a WCAG target and is verified by
+   `node scripts/check-contrast.mjs` — run it after touching any of these.
+   --------------------------------------------------------------------------- */
+:root {
+  /* Blue ramp, hue ~210. Anchors the whole app. */
+  --palette-blue-25: #f8fafd;
+  --palette-blue-50: #edf3fa;
+  --palette-blue-100: #e0eaf5;
+  --palette-blue-200: #cbdcef;
+  --palette-blue-300: #a8c3de;
+  --palette-blue-400: #7e9dc0;
+  --palette-blue-500: #547ca3;
+  --palette-blue-600: #3d6087;
+  --palette-blue-700: #2e4a6a;
+  --palette-blue-800: #22384e;
+  --palette-blue-900: #182838;
+
+  /* Edges get their own steps: solved for perceptibility on the page ground
+     rather than sampled off the ramp, which is why they aren't blue-200/300. */
+  --palette-edge-1: #9fb5cc; /* 1.73:1 on the darkest surface — a hairline that is actually visible */
+  --palette-edge-2: #7895b3; /* 2.56:1 */
+  --palette-edge-3: #6685a5; /* 3.16:1 — clears the 3:1 non-text UI threshold */
+
+  /* Accent: more saturated than the ramp so it reads as an accent and not as
+     tertiary text, while still passing AA as text. */
+  --palette-accent: #2a6491; /* 5.65:1 on surface */
+  --palette-accent-deep: #1e4b6e;
+
+  /* Blush — decorative, plus one text-safe step. */
+  --palette-blush-200: #f3d3dc;
+  --palette-blush-300: #e7aebe;
+  --palette-blush-600: #9a4b64; /* 5.27:1 — the only blush usable as text */
+
+  /* State. Semantic only; never decorative. */
+  --palette-red-600: #b32d2d; /* 5.65:1 */
+  --palette-red-700: #8f2020;
+  --palette-green-600: #2f6e4f; /* 5.43:1 */
+  --palette-amber-700: #8a5a12; /* 5.29:1 */
+}
+
+/* ---------------------------------------------------------------------------
+   SEMANTIC LAYER — the only colors components may reference.
+   Named for the ROLE, never the appearance: "surface-raised", not "cream".
+   A dark theme can redefine these truthfully; it could never redefine "cream".
+   --------------------------------------------------------------------------- */
 @theme {
-  /* Soft blue editorial palette — feminine, blue-forward with blush accents */
-  --color-ground: #eaf1f8; /* page background — airy pale blue */
-  --color-ground-deep: #dde8f3;
-  --color-cream: #f9fbfe; /* panels / surfaces */
-  --color-card: #e7eff8; /* item tiles */
-  --color-ink: #24384b; /* deep serene slate-blue (soft near-black) */
-  --color-ink-soft: #4e6379;
-  --color-muted: #66798e;
-  --color-line: #d8e2ec; /* hairline borders */
-  --color-line-dark: #bccbdb;
-  --color-accent: #6c9bd2; /* serene blue accent */
-  --color-accent-soft: #a8c6e6;
-  --color-blush: #f0cbd5; /* light pink accent */
-  --color-blush-deep: #e0a6b6;
-  --color-danger: #c73e3e; /* clear red — destructive actions only, not a decorative accent */
-  --color-danger-deep: #a52f2f;
+  /* Surfaces */
+  --color-surface: var(--palette-blue-50); /* page ground */
+  --color-surface-raised: var(--palette-blue-25); /* panels, cards, modals */
+  --color-surface-sunken: var(--palette-blue-100); /* inset wells, tiles */
+
+  /* Text */
+  --color-ink: var(--palette-blue-900);
+  --color-ink-secondary: var(--palette-blue-700);
+  --color-ink-tertiary: var(--palette-blue-600);
+
+  /* Edges */
+  --color-edge-subtle: var(--palette-edge-1);
+  --color-edge: var(--palette-edge-2);
+  --color-edge-strong: var(--palette-edge-3);
+
+  /* Accent */
+  --color-accent: var(--palette-accent);
+  --color-accent-strong: var(--palette-accent-deep);
+  --color-accent-muted: var(--palette-blue-300);
+  --color-on-accent: var(--palette-blue-25); /* text/icons on accent or ink fills */
+
+  /* Decorative */
+  --color-blush: var(--palette-blush-300);
+  --color-blush-soft: var(--palette-blush-200);
+  --color-blush-strong: var(--palette-blush-600);
+
+  /* State */
+  --color-error: var(--palette-red-600);
+  --color-error-strong: var(--palette-red-700);
+  --color-success: var(--palette-green-600);
+  --color-warning: var(--palette-amber-700);
 }
 
 @theme inline {
@@ -24,8 +90,43 @@
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
 }
 
+/* ---------------------------------------------------------------------------
+   SHAPE, ELEVATION, MOTION and TYPE scales.
+   Additive: Tailwind's own spacing and font-size scales are left alone on
+   purpose — redefining them silently changes every existing utility.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Radius. Pills stay `rounded-full`; everything else picks a step.
+     control = buttons/inputs/chips · card = tiles/cards · sheet = modals/panels */
+  --radius-control: 0.5rem;
+  --radius-card: 0.875rem;
+  --radius-sheet: 1.25rem;
+
+  /* Elevation. Four steps, replacing the ad-hoc one-off shadows. */
+  --shadow-card: 0 1px 2px rgba(24, 40, 56, 0.05), 0 6px 16px -10px rgba(24, 40, 56, 0.22);
+  --shadow-lift: 0 2px 4px rgba(24, 40, 56, 0.06), 0 18px 34px -16px rgba(24, 40, 56, 0.3);
+  --shadow-panel: 0 4px 8px rgba(24, 40, 56, 0.06), 0 26px 50px -20px rgba(24, 40, 56, 0.36);
+  --shadow-modal: 0 8px 16px rgba(24, 40, 56, 0.1), 0 40px 70px -24px rgba(24, 40, 56, 0.44);
+
+  /* Motion. Two curves; durations standardise on 150 / 250 / 400ms
+     (`duration-150`, `duration-250`, `duration-400`) — no other values. */
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Type — additive only. 2xs fills the gap under Tailwind's 12px `xs`;
+     the display sizes are for Playfair. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.45;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.25;
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 1.12;
+  --text-display-lg: 3.5rem;
+  --text-display-lg--line-height: 1.04;
+}
+
 body {
-  background-color: var(--color-ground);
+  background-color: var(--color-surface);
   color: var(--color-ink);
   /* The viewport is `viewport-fit=cover` so the installed app can paint edge
      to edge; these keep content out from under the notch and home indicator.
@@ -59,12 +160,29 @@ body::after {
 }
 
 @layer components {
-  /* Small-caps editorial label */
+  /* Small-caps editorial label. One job: labelling a field or a section.
+     Button text uses .btn-label and metadata uses .meta — see below. */
   .eyebrow {
-    font-size: 10px;
-    letter-spacing: 0.22em;
+    font-size: var(--text-2xs);
+    letter-spacing: 0.13em;
     text-transform: uppercase;
-    font-weight: 500;
+    font-weight: 600;
+  }
+
+  /* Uppercase label sized and tracked for a control, not a caption. */
+  .btn-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Sentence-case supporting detail — counts, hi/lo, timestamps. Replaces
+     .eyebrow everywhere the text is information rather than a label. */
+  .meta {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    letter-spacing: 0.005em;
   }
 
   /* Slow twinkle for the "generating" sparkle */
@@ -81,7 +199,7 @@ body::after {
   .skeleton {
     position: relative;
     overflow: hidden;
-    background-color: var(--color-card);
+    background-color: var(--color-surface-sunken);
   }
   .skeleton::after {
     content: "";
@@ -91,7 +209,7 @@ body::after {
     background-image: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(249, 251, 254, 0.7) 50%,
+      rgba(248, 250, 253, 0.7) 50%,
       transparent 100%
     );
     animation: shimmer 1.5s infinite;

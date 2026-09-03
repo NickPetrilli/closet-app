@@ -123,12 +123,12 @@ export function DailySuggestionCard({
   return (
     <section
       aria-label="Today's suggestion"
-      className="flex flex-col gap-5 rounded-2xl border border-line bg-gradient-to-br from-cream to-card px-6 py-5 shadow-[0_10px_30px_-20px_rgba(36,56,75,0.5)]"
+      className="flex flex-col gap-5 rounded-2xl border border-edge-subtle bg-gradient-to-br from-surface-raised to-surface-sunken px-6 py-5 shadow-[0_10px_30px_-20px_rgba(36,56,75,0.5)]"
     >
       {/* Weather + the pieces themselves */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-5">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-soft/30 text-accent">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-muted/30 text-accent">
             {weather ? (
               <WeatherIcon
                 icon={weather.icon}
@@ -141,13 +141,13 @@ export function DailySuggestionCard({
           </span>
 
           <div>
-            <p className="eyebrow text-muted">Today&rsquo;s suggestion</p>
+            <p className="eyebrow text-ink-tertiary">Today&rsquo;s suggestion</p>
             {weather ? (
               <>
                 <p className="mt-1 font-serif text-xl leading-snug">
                   {weather.condition}, {weather.tempF}°
                 </p>
-                <p className="eyebrow mt-1.5 text-muted">
+                <p className="eyebrow mt-1.5 text-ink-tertiary">
                   H {weather.hiF}° · L {weather.loF}°
                   {weather.precipProbability >= NOTABLE_PRECIP
                     ? ` · ${weather.precipProbability}% chance of ${
@@ -164,7 +164,7 @@ export function DailySuggestionCard({
                 <button
                   type="button"
                   onClick={onOpenLocationSettings}
-                  className="eyebrow mt-2 cursor-pointer rounded-full border border-line-dark bg-cream/60 px-3.5 py-1.5 text-ink-soft transition-colors hover:border-accent hover:text-accent"
+                  className="eyebrow mt-2 cursor-pointer rounded-full border border-edge bg-surface-raised/60 px-3.5 py-1.5 text-ink-secondary transition-colors hover:border-accent hover:text-accent"
                 >
                   Set location
                 </button>
@@ -184,7 +184,7 @@ export function DailySuggestionCard({
                   type="button"
                   onClick={() => onSelectItem(item.id)}
                   title={item.name}
-                  className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-line bg-card transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-sm"
+                  className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-edge-subtle bg-surface-sunken transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-sm"
                 >
                   {hasPhoto(item.imageUrl) ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -215,17 +215,17 @@ export function DailySuggestionCard({
       />
 
       {/* Why this, and what to do about it */}
-      <div className="flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-edge-subtle pt-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           {suggestion.outfitName && (
             <p className="font-serif text-lg leading-snug">
               {suggestion.outfitName}
             </p>
           )}
-          <p className="mt-0.5 text-sm leading-relaxed text-ink-soft">
+          <p className="mt-0.5 text-sm leading-relaxed text-ink-secondary">
             {isPending ? "Thinking it over…" : suggestion.rationale}
           </p>
-          {error && <p className="mt-1.5 text-sm text-blush-deep">{error}</p>}
+          {error && <p className="mt-1.5 text-sm text-blush-strong">{error}</p>}
         </div>
 
         {/* Actions stack on phones: side by side, "Show another" wraps to two
@@ -237,7 +237,7 @@ export function DailySuggestionCard({
               type="button"
               onClick={showAnother}
               disabled={isPending}
-              className="eyebrow w-full cursor-pointer rounded-full border border-line-dark bg-cream/60 px-4 py-2.5 text-ink-soft transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+              className="eyebrow w-full cursor-pointer rounded-full border border-edge bg-surface-raised/60 px-4 py-2.5 text-ink-secondary transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60 sm:w-auto"
             >
               Show another
             </button>
@@ -247,8 +247,8 @@ export function DailySuggestionCard({
               disabled={isPending || suggestion.loggedToday}
               className={`eyebrow w-full cursor-pointer rounded-full border px-4 py-2.5 transition-colors disabled:cursor-default sm:w-auto ${
                 suggestion.loggedToday
-                  ? "border-accent-soft bg-accent-soft/25 text-accent"
-                  : "border-line-dark bg-ink text-cream hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+                  ? "border-accent-muted bg-accent-muted/25 text-accent"
+                  : "border-edge bg-ink text-on-accent hover:bg-accent disabled:cursor-wait disabled:opacity-70"
               }`}
             >
               {suggestion.loggedToday ? "Worn today ✓" : "Wore this"}

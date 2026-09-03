@@ -110,7 +110,7 @@ export function ItemDetailPanel({
         role="dialog"
         aria-modal="true"
         aria-label={shown ? `Details for ${shown.name}` : "Item details"}
-        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-line-dark bg-cream transition-transform duration-300 ease-out ${
+        className={`absolute top-0 right-0 h-full w-full max-w-2xl overflow-y-auto border-l border-edge bg-surface-raised transition-transform duration-300 ease-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -141,7 +141,7 @@ export function ItemDetailPanel({
               )}
 
               {/* Editable name chip */}
-              <div className="absolute top-5 left-5 border border-line-dark bg-cream px-4 py-2.5">
+              <div className="absolute top-5 left-5 border border-edge bg-surface-raised px-4 py-2.5">
                 <input
                   value={shown.name}
                   onChange={(e) => onUpdate(shown.id, { name: e.target.value })}
@@ -160,7 +160,7 @@ export function ItemDetailPanel({
                 type="button"
                 onClick={onClose}
                 aria-label="Close details"
-                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-line-dark bg-cream text-ink-soft transition-colors hover:border-ink hover:text-ink"
+                className="absolute top-5 right-5 flex h-11 w-11 items-center justify-center border border-edge bg-surface-raised text-ink-secondary transition-colors hover:border-ink hover:text-ink"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -185,7 +185,7 @@ export function ItemDetailPanel({
 
               {/* Source photo thumbnails */}
               {shown.sourcePhotoUrls.length > 0 && (
-              <div className="absolute bottom-6 left-6 flex gap-1.5 border border-line bg-cream/95 p-1.5">
+              <div className="absolute bottom-6 left-6 flex gap-1.5 border border-edge-subtle bg-surface-raised/95 p-1.5">
                 {shown.sourcePhotoUrls.map((url, index) => {
                   const isActive = index === activeSourceIndex;
                   return (
@@ -198,7 +198,7 @@ export function ItemDetailPanel({
                       className={`relative flex h-12 w-16 items-center justify-center border transition-colors ${
                         isActive
                           ? "border-ink"
-                          : "border-line hover:border-line-dark"
+                          : "border-edge-subtle hover:border-edge"
                       }`}
                       style={{
                         background: vibeGradient(
@@ -224,7 +224,7 @@ export function ItemDetailPanel({
               {/* Name / Category */}
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <p className="eyebrow text-muted">Name</p>
+                  <p className="eyebrow text-ink-tertiary">Name</p>
                   <input
                     value={shown.name}
                     onChange={(e) =>
@@ -235,15 +235,15 @@ export function ItemDetailPanel({
                       if (e.key === "Enter") e.currentTarget.blur();
                     }}
                     aria-label="Item name"
-                    className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
                   />
                   {saveError && (
-                    <p className="mt-1.5 text-sm text-danger">{saveError}</p>
+                    <p className="mt-1.5 text-sm text-error">{saveError}</p>
                   )}
                 </div>
                 <div>
-                  <p className="eyebrow text-muted">Category</p>
-                  <p className="mt-2.5 border border-line bg-card/50 px-3.5 py-2.5 text-sm text-ink-soft">
+                  <p className="eyebrow text-ink-tertiary">Category</p>
+                  <p className="mt-2.5 border border-edge-subtle bg-surface-sunken/50 px-3.5 py-2.5 text-sm text-ink-secondary">
                     {categoryLabel(shown.category)}
                   </p>
                 </div>
@@ -251,18 +251,18 @@ export function ItemDetailPanel({
 
               {/* Colors */}
               <div>
-                <p className="eyebrow text-muted">Colors</p>
-                <div className="mt-4 grid grid-cols-2 divide-x divide-line border-t border-line pt-6">
+                <p className="eyebrow text-ink-tertiary">Colors</p>
+                <div className="mt-4 grid grid-cols-2 divide-x divide-edge-subtle border-t border-edge-subtle pt-6">
                   {/* Primary */}
                   <div className="pr-7">
                     <p className="text-sm font-medium">Primary color</p>
                     <div className="mt-4 flex items-center gap-4">
                       <span
-                        className="h-12 w-12 shrink-0 border border-line-dark"
+                        className="h-12 w-12 shrink-0 border border-edge"
                         style={{ backgroundColor: shown.primaryColorHex }}
                       />
                       <div>
-                        <p className="eyebrow text-muted">Detected</p>
+                        <p className="eyebrow text-ink-tertiary">Detected</p>
                         <p className="mt-0.5 text-sm font-medium tracking-[0.06em] uppercase">
                           {shown.primaryColorHex}
                         </p>
@@ -274,27 +274,27 @@ export function ItemDetailPanel({
                   <div className="pl-7">
                     <p className="text-sm font-medium">
                       Secondary color{" "}
-                      <span className="eyebrow ml-1.5 text-muted">
+                      <span className="eyebrow ml-1.5 text-ink-tertiary">
                         Optional
                       </span>
                     </p>
                     {shown.secondaryColorHex ? (
                       <div className="mt-4 flex items-center gap-4">
                         <span
-                          className="h-12 w-12 shrink-0 border border-line-dark"
+                          className="h-12 w-12 shrink-0 border border-edge"
                           style={{
                             backgroundColor: shown.secondaryColorHex,
                           }}
                         />
                         <div>
-                          <p className="eyebrow text-muted">Detected</p>
+                          <p className="eyebrow text-ink-tertiary">Detected</p>
                           <p className="mt-0.5 text-sm font-medium tracking-[0.06em] uppercase">
                             {shown.secondaryColorHex}
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-4 text-sm text-muted">
+                      <p className="mt-4 text-sm text-ink-tertiary">
                         No distinct secondary color detected.
                       </p>
                     )}
@@ -303,8 +303,8 @@ export function ItemDetailPanel({
               </div>
 
               {/* Appears in these outfits */}
-              <div className="border-t border-line pt-6">
-                <p className="eyebrow text-muted">Appears in these outfits</p>
+              <div className="border-t border-edge-subtle pt-6">
+                <p className="eyebrow text-ink-tertiary">Appears in these outfits</p>
                 {outfitsWithItem.length > 0 ? (
                   <div className="mt-4 flex flex-col gap-2.5">
                     {outfitsWithItem.map((outfit) => (
@@ -312,19 +312,19 @@ export function ItemDetailPanel({
                         key={outfit.id}
                         type="button"
                         onClick={() => onSelectOutfit(outfit.id)}
-                        className="group flex items-center justify-between border border-line px-4 py-3 text-left transition-colors hover:border-ink"
+                        className="group flex items-center justify-between border border-edge-subtle px-4 py-3 text-left transition-colors hover:border-ink"
                       >
                         <span>
                           <span className="block font-serif text-base leading-snug">
                             {outfit.name}
                           </span>
-                          <span className="eyebrow mt-0.5 block text-muted">
+                          <span className="eyebrow mt-0.5 block text-ink-tertiary">
                             {vibeLabel(outfit.vibe)}
                           </span>
                         </span>
                         <svg
                           viewBox="0 0 8 12"
-                          className="h-3 w-2 shrink-0 text-ink-soft transition-transform group-hover:translate-x-0.5"
+                          className="h-3 w-2 shrink-0 text-ink-secondary transition-transform group-hover:translate-x-0.5"
                           fill="none"
                           stroke="currentColor"
                           strokeWidth="1.4"
@@ -336,14 +336,14 @@ export function ItemDetailPanel({
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-4 text-sm text-muted">
+                  <p className="mt-4 text-sm text-ink-tertiary">
                     Not part of any outfit yet.
                   </p>
                 )}
               </div>
 
               {/* Helper text */}
-              <p className="mt-auto border-t border-line pt-5 text-xs leading-relaxed text-muted">
+              <p className="mt-auto border-t border-edge-subtle pt-5 text-xs leading-relaxed text-ink-tertiary">
                 Category and colors are detected automatically from the
                 item&rsquo;s photo.
               </p>

@@ -13,22 +13,22 @@ export const metadata: Metadata = {
 export default function OfflinePage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-soft/30 text-accent">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-muted/30 text-accent">
         <CloudOffIcon className="h-8 w-8" />
       </span>
 
-      <p className="eyebrow mt-7 text-muted">No connection</p>
+      <p className="eyebrow mt-7 text-ink-tertiary">No connection</p>
       <h1 className="mt-2 font-serif text-4xl tracking-tight">
         You&rsquo;re offline
       </h1>
-      <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+      <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
         {APP_NAME} needs a connection to load your wardrobe. Everything is safe
         where it is — try again once you&rsquo;re back on.
       </p>
 
       <a
         href="/"
-        className="eyebrow mt-8 cursor-pointer rounded-full border border-line-dark bg-ink px-7 py-3 text-cream transition-colors hover:bg-accent"
+        className="eyebrow mt-8 cursor-pointer rounded-full border border-edge bg-ink px-7 py-3 text-on-accent transition-colors hover:bg-accent"
       >
         Try again
       </a>

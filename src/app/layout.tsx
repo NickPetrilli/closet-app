@@ -35,8 +35,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Matches the manifest's theme_color: --color-ground.
-  themeColor: "#eaf1f8",
+  // Matches the manifest's theme_color: --color-surface.
+  themeColor: "#edf3fa",
   width: "device-width",
   initialScale: 1,
   // Lets the page fill the screen behind the notch and home indicator; the

@@ -101,7 +101,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
         type="button"
         onClick={handleGenerate}
         disabled={isGenerating}
-        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-line-dark bg-ink px-5 py-2.5 text-cream transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:w-auto sm:justify-start"
+        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
@@ -118,7 +118,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
       </button>
 
       {savedMessage && !open && (
-        <span className="eyebrow text-muted">{savedMessage}</span>
+        <span className="eyebrow text-ink-tertiary">{savedMessage}</span>
       )}
 
       <div
@@ -142,7 +142,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 ? "Outfit generation failed"
                 : "Review generated outfits"
           }
-          className={`relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-line-dark bg-cream shadow-xl transition-all duration-300 sm:max-h-[85vh] ${
+          className={`relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-edge bg-surface-raised shadow-xl transition-all duration-300 sm:max-h-[85vh] ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -150,7 +150,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
             <GeneratingState step={loadingStep} />
           ) : candidates === null ? (
             <div className="flex flex-col items-center gap-5 px-5 py-14 text-center sm:px-8 sm:py-16">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush/30 text-blush-deep">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush/30 text-blush-strong">
                 <svg
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
@@ -169,20 +169,20 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 <h2 className="font-serif text-2xl tracking-tight">
                   Couldn&apos;t generate outfits
                 </h2>
-                <p className="mx-auto mt-2 max-w-sm text-sm text-ink-soft">{error}</p>
+                <p className="mx-auto mt-2 max-w-sm text-sm text-ink-secondary">{error}</p>
               </div>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={close}
-                  className="eyebrow cursor-pointer rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:bg-card"
+                  className="eyebrow cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={handleGenerate}
-                  className="eyebrow cursor-pointer rounded-full border border-line-dark bg-ink px-5 py-2.5 text-cream transition-colors hover:bg-accent"
+                  className="eyebrow cursor-pointer rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent"
                 >
                   Try Again
                 </button>
@@ -190,12 +190,12 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
             </div>
           ) : (
             <>
-          <div className="flex items-start justify-between border-b border-line px-5 py-5 sm:px-8 sm:py-6">
+          <div className="flex items-start justify-between border-b border-edge-subtle px-5 py-5 sm:px-8 sm:py-6">
             <div>
               <h2 className="font-serif text-xl tracking-tight sm:text-2xl">
                 Review generated outfits
               </h2>
-              <p className="eyebrow mt-1.5 text-muted">
+              <p className="eyebrow mt-1.5 text-ink-tertiary">
                 Uncheck any you don&apos;t want, then save the rest.
               </p>
             </div>
@@ -204,7 +204,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
               onClick={close}
               aria-label="Close"
               disabled={isSaving}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-card hover:text-ink"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-colors hover:bg-surface-sunken hover:text-ink"
             >
               <svg
                 viewBox="0 0 16 16"
@@ -230,7 +230,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                   type="button"
                   onClick={() => toggle(index)}
                   className={`group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl border text-left transition-colors ${
-                    isSelected ? "border-accent" : "border-line opacity-50"
+                    isSelected ? "border-accent" : "border-edge-subtle opacity-50"
                   }`}
                 >
                   <SceneBackdrop vibe={candidate.vibe} />
@@ -258,8 +258,8 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                     })}
                   </div>
                   <span
-                    className={`absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full border bg-cream ${
-                      isSelected ? "border-accent" : "border-line-dark"
+                    className={`absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full border bg-surface-raised ${
+                      isSelected ? "border-accent" : "border-edge"
                     }`}
                   >
                     {isSelected && (
@@ -274,7 +274,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                       </svg>
                     )}
                   </span>
-                  <span className="eyebrow absolute right-2.5 bottom-2.5 left-2.5 truncate rounded-full border border-line bg-cream/95 px-2.5 py-1 text-ink">
+                  <span className="eyebrow absolute right-2.5 bottom-2.5 left-2.5 truncate rounded-full border border-edge-subtle bg-surface-raised/95 px-2.5 py-1 text-ink">
                     {candidate.name} · {vibeLabel(candidate.vibe)}
                   </span>
                 </button>
@@ -283,13 +283,13 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
           </div>
 
           {error && (
-            <p className="border-t border-line px-5 py-3 text-sm text-blush-deep sm:px-8">
+            <p className="border-t border-edge-subtle px-5 py-3 text-sm text-blush-strong sm:px-8">
               {error}
             </p>
           )}
 
-          <div className="flex flex-col gap-3 border-t border-line-dark px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8 sm:py-5">
-            <p className="eyebrow text-muted">
+          <div className="flex flex-col gap-3 border-t border-edge px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8 sm:py-5">
+            <p className="eyebrow text-ink-tertiary">
               {selected.size} of {candidates?.length ?? 0} selected
             </p>
             <div className="flex gap-2 sm:gap-3">
@@ -297,7 +297,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 type="button"
                 onClick={close}
                 disabled={isSaving}
-                className="eyebrow flex-1 cursor-pointer rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:bg-card disabled:cursor-wait disabled:opacity-70 sm:flex-none"
+                className="eyebrow flex-1 cursor-pointer rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70 sm:flex-none"
               >
                 Discard All
               </button>
@@ -305,7 +305,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || selected.size === 0}
-                className="eyebrow flex-1 cursor-pointer rounded-full border border-line-dark bg-ink px-5 py-2.5 text-cream transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:flex-none"
+                className="eyebrow flex-1 cursor-pointer rounded-full border border-edge bg-ink px-5 py-2.5 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70 sm:flex-none"
               >
                 {isSaving ? "Saving…" : `Save Selected (${selected.size})`}
               </button>
@@ -324,8 +324,8 @@ function GeneratingState({ step }: { step: number }) {
   return (
     <div className="flex flex-col items-center gap-6 px-5 py-12 text-center sm:gap-7 sm:px-8 sm:py-14">
       <span className="relative flex h-16 w-16 items-center justify-center">
-        <span className="absolute inset-0 animate-ping rounded-full bg-accent-soft/40" />
-        <span className="absolute inset-0 rounded-full bg-accent-soft/25" />
+        <span className="absolute inset-0 animate-ping rounded-full bg-accent-muted/40" />
+        <span className="absolute inset-0 rounded-full bg-accent-muted/25" />
         <svg
           viewBox="0 0 16 16"
           className="animate-twinkle relative h-7 w-7 text-accent"
@@ -338,18 +338,18 @@ function GeneratingState({ step }: { step: number }) {
 
       <div className="space-y-2">
         <h2 className="font-serif text-2xl tracking-tight">Putting looks together</h2>
-        <p key={step} className="eyebrow animate-fade-in text-muted">
+        <p key={step} className="eyebrow animate-fade-in text-ink-tertiary">
           {LOADING_STEPS[step]}
         </p>
       </div>
 
       <div className="grid w-full max-w-md grid-cols-3 gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="skeleton aspect-[3/4] rounded-xl border border-line" />
+          <div key={i} className="skeleton aspect-[3/4] rounded-xl border border-edge-subtle" />
         ))}
       </div>
 
-      <p className="text-xs text-muted">This usually takes 20&ndash;40 seconds.</p>
+      <p className="text-xs text-ink-tertiary">This usually takes 20&ndash;40 seconds.</p>
     </div>
   );
 }

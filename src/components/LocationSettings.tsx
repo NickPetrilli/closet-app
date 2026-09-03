@@ -87,7 +87,7 @@ export function LocationSettings({
         onClick={() => onOpenChange(true)}
         aria-label="Location settings"
         title={currentLabel ? `Location: ${currentLabel}` : "Set your location"}
-        className="mb-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line-dark bg-cream/50 text-ink-soft transition-colors hover:border-accent hover:text-accent"
+        className="mb-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-edge bg-surface-raised/50 text-ink-secondary transition-colors hover:border-accent hover:text-accent"
       >
         <GearIcon className="h-4 w-4" />
       </button>
@@ -109,7 +109,7 @@ export function LocationSettings({
           role="dialog"
           aria-modal="true"
           aria-label="Location settings"
-          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-line-dark bg-cream p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
+          className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-edge bg-surface-raised p-5 shadow-xl transition-all duration-300 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -120,7 +120,7 @@ export function LocationSettings({
               onClick={close}
               aria-label="Close"
               disabled={isPending}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-card hover:text-ink"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-secondary transition-colors hover:bg-surface-sunken hover:text-ink"
             >
               <svg
                 viewBox="0 0 16 16"
@@ -134,14 +134,14 @@ export function LocationSettings({
             </button>
           </div>
 
-          <p className="mt-3 text-xs leading-relaxed text-muted">
+          <p className="mt-3 text-xs leading-relaxed text-ink-tertiary">
             Used only to show today&rsquo;s weather on your suggestion card.
             {currentLabel ? ` Currently set to ${currentLabel}.` : ""}
           </p>
 
           <form onSubmit={handleSearch} className="mt-5 flex flex-col gap-5">
             <div>
-              <p className="eyebrow text-muted">Your location</p>
+              <p className="eyebrow text-ink-tertiary">Your location</p>
               <input
                 ref={inputRef}
                 type="text"
@@ -149,10 +149,10 @@ export function LocationSettings({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="e.g. Boston, MA"
                 autoComplete="off"
-                className="mt-2.5 w-full border border-line-dark bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
+                className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink focus:outline-none"
               />
               {!currentLabel && ipGuess && (
-                <p className="mt-2 text-xs text-muted">
+                <p className="mt-2 text-xs text-ink-tertiary">
                   Guessed from your connection — check it before saving.
                 </p>
               )}
@@ -160,7 +160,7 @@ export function LocationSettings({
 
             {matches && matches.length > 0 && (
               <div>
-                <p className="eyebrow text-muted">Did you mean</p>
+                <p className="eyebrow text-ink-tertiary">Did you mean</p>
                 <ul className="mt-2.5 flex flex-col gap-1.5">
                   {matches.map((match) => (
                     <li key={match.index}>
@@ -168,7 +168,7 @@ export function LocationSettings({
                         type="button"
                         onClick={() => commit(match)}
                         disabled={isPending}
-                        className="w-full cursor-pointer rounded-xl border border-line bg-card/40 px-3.5 py-2.5 text-left text-sm transition-colors hover:border-accent hover:bg-card disabled:cursor-wait disabled:opacity-70"
+                        className="w-full cursor-pointer rounded-xl border border-edge-subtle bg-surface-sunken/40 px-3.5 py-2.5 text-left text-sm transition-colors hover:border-accent hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-70"
                       >
                         {match.label}
                       </button>
@@ -178,12 +178,12 @@ export function LocationSettings({
               </div>
             )}
 
-            {error && <p className="text-sm text-blush-deep">{error}</p>}
+            {error && <p className="text-sm text-blush-strong">{error}</p>}
 
             <button
               type="submit"
               disabled={isPending || query.trim().length === 0}
-              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-line-dark bg-ink py-3 text-cream transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
+              className="eyebrow mt-1 w-full cursor-pointer rounded-full border border-edge bg-ink py-3 text-on-accent transition-colors hover:bg-accent disabled:cursor-wait disabled:opacity-70"
             >
               {isPending ? "Looking it up…" : matches ? "Search again" : "Find my location"}
             </button>

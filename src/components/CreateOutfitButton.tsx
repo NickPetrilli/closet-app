@@ -26,7 +26,7 @@ export function CreateOutfitButton({ items }: { items: ClothingItem[] }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-line-dark px-5 py-2.5 text-ink transition-colors hover:border-ink sm:w-auto sm:justify-start"
+        className="eyebrow flex w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-edge px-5 py-2.5 text-ink transition-colors hover:border-ink sm:w-auto sm:justify-start"
       >
         <svg
           viewBox="0 0 16 16"
