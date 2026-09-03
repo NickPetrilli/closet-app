@@ -10,6 +10,15 @@ fresh session doesn't have to rediscover them).
 **Start from a clean branch off `main`** once branch `enhancements-5b-5c` has merged.
 These phases touch nearly every component, so they conflict with anything in flight.
 
+**Status**
+
+| Phase | State |
+|---|---|
+| A - Design foundation | Done on branch `ui-revamp-phase-a`; awaiting the user's review before merge. |
+| B - Phone-first layout | Not started. |
+| C - Large screens | Not started. |
+| Deferred backlog | Not started. |
+
 ---
 
 ## Direction (decided with the user, 2026-09-03)
