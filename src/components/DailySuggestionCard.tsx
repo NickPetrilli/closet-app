@@ -228,13 +228,16 @@ export function DailySuggestionCard({
           {error && <p className="mt-1.5 text-sm text-blush-deep">{error}</p>}
         </div>
 
+        {/* Actions stack on phones: side by side, "Show another" wraps to two
+            lines against its single-line neighbour, with about a pixel to
+            spare at 375px — not a margin worth trusting. */}
         {canAct && (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
             <button
               type="button"
               onClick={showAnother}
               disabled={isPending}
-              className="eyebrow flex-1 cursor-pointer rounded-full border border-line-dark bg-cream/60 px-4 py-2.5 text-ink-soft transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60 sm:flex-none"
+              className="eyebrow w-full cursor-pointer rounded-full border border-line-dark bg-cream/60 px-4 py-2.5 text-ink-soft transition-colors hover:border-accent hover:text-accent disabled:cursor-wait disabled:opacity-60 sm:w-auto"
             >
               Show another
             </button>
@@ -242,7 +245,7 @@ export function DailySuggestionCard({
               type="button"
               onClick={wearThis}
               disabled={isPending || suggestion.loggedToday}
-              className={`eyebrow flex-1 cursor-pointer rounded-full border px-4 py-2.5 transition-colors disabled:cursor-default sm:flex-none ${
+              className={`eyebrow w-full cursor-pointer rounded-full border px-4 py-2.5 transition-colors disabled:cursor-default sm:w-auto ${
                 suggestion.loggedToday
                   ? "border-accent-soft bg-accent-soft/25 text-accent"
                   : "border-line-dark bg-ink text-cream hover:bg-accent disabled:cursor-wait disabled:opacity-70"
