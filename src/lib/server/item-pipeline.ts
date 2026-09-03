@@ -60,7 +60,23 @@ export async function processAndInsertItem({
   contentType,
   productUrl,
 }: ProcessItemInput): Promise<ProcessItemResult> {
-  const removed = await removeBackgroundViaApi(buffer, contentType);
+  // Phones (iOS especially) can hand over HEIC/HEIF — remove.bg only takes
+  // JPEG/PNG/WebP, and browsers can't render HEIC in the wardrobe grid
+  // either, so normalise to JPEG up front. sharp's prebuilt binaries decode
+  // HEIF. The `accept="image/*"` picker usually converts to JPEG already;
+  // this covers the cases it doesn't (e.g. a file chosen from Files).
+  let sourceBuffer = buffer;
+  let sourceType = contentType;
+  if (/hei[cf]/i.test(contentType)) {
+    try {
+      sourceBuffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+      sourceType = "image/jpeg";
+    } catch {
+      return { error: "That photo format isn't supported — try a JPG or PNG." };
+    }
+  }
+
+  const removed = await removeBackgroundViaApi(sourceBuffer, sourceType);
   if (!removed.buffer) return { error: removed.error ?? "Something went wrong." };
 
   try {
@@ -71,12 +87,12 @@ export async function processAndInsertItem({
 
     const id = randomUUID();
     const slug = slugify(name) || id;
-    const ext = contentType === "image/png" ? "png" : "jpg";
+    const ext = sourceType === "image/png" ? "png" : "jpg";
 
     const photoPath = `${id}-${slug}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("item-images")
-      .upload(photoPath, buffer, { contentType, upsert: true });
+      .upload(photoPath, sourceBuffer, { contentType: sourceType, upsert: true });
     if (uploadError) return { error: `Upload failed: ${uploadError.message}` };
     const { data: photoUrl } = supabase.storage
       .from("item-images")
