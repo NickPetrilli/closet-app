@@ -13,12 +13,12 @@ export type SortOrder = "newest" | "name" | "color";
 export const SORT_OPTIONS: { value: SortOrder; label: string }[] = [
   { value: "newest", label: "Newest" },
   { value: "name", label: "Name A–Z" },
-  { value: "color", label: "By colour" },
+  { value: "color", label: "By color" },
 ];
 
 /**
  * Everything a search should match for one item: its name, its category, and
- * the words someone might use for its colour ("navy", "blue", "dark").
+ * the words someone might use for its color ("navy", "blue", "dark").
  */
 function searchHaystack(item: ClothingItem): string {
   return [
@@ -102,7 +102,7 @@ export function WardrobeControls({
           type="search"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Name, category, or colour"
+          placeholder="Name, category, or color"
           aria-label="Search your wardrobe"
           className="w-full rounded-full border border-line-dark bg-cream/50 py-2.5 pr-9 pl-10 text-sm focus:border-ink focus:outline-none"
         />

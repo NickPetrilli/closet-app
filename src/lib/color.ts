@@ -57,12 +57,12 @@ export function hexToHsl(hex: string): Hsl {
   return { h, s, l };
 }
 
-/** Below this saturation a colour reads as a neutral, whatever its hue. */
+/** Below this saturation a color reads as a neutral, whatever its hue. */
 const NEUTRAL_SATURATION = 0.12;
 
 /**
- * Words a person might type when searching for this colour. Returns several
- * per colour on purpose — someone looking for a navy trouser is as likely to
+ * Words a person might type when searching for this color. Returns several
+ * per color on purpose — someone looking for a navy trouser is as likely to
  * type "blue" as "navy", and "beige" and "tan" are the same shelf.
  */
 export function colorTerms(hex: string): string[] {
@@ -117,7 +117,7 @@ export function colorTerms(hex: string): string[] {
 }
 
 /**
- * Sort key that walks the spectrum and then the neutrals, so a "by colour"
+ * Sort key that walks the spectrum and then the neutrals, so a "by color"
  * sort reads red → orange → … → purple, then white → grey → black rather
  * than scattering the greys through the rainbow.
  */

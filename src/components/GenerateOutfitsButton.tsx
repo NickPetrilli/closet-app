@@ -12,7 +12,7 @@ const GENERATE_COUNT = 8;
 /** Cycled through while Gemini works so the wait reads as progress, not a hang. */
 const LOADING_STEPS = [
   "Looking through every piece in the wardrobe…",
-  "Matching colours and balancing silhouettes…",
+  "Matching colors and balancing silhouettes…",
   "Building tops, bottoms, and shoes into looks…",
   "Skipping anything too close to an outfit you have…",
   "Giving each look a name…",

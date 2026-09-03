@@ -86,7 +86,7 @@ function buildPrompt(
     "",
     "Choose exactly one top, one bottom and one pair of shoes. You may also add",
     "one jacket and up to two accessories. Pick pieces that work together in",
-    "colour and formality AND that suit the weather and occasion above — a",
+    "color and formality AND that suit the weather and occasion above — a",
     "jacket when it is cold or wet, nothing heavy when it is hot.",
     "",
     "Return JSON with:",
@@ -245,7 +245,7 @@ export async function chooseSuggestion(
 
   // Text only, no photos: this runs on every occasion change and every "Show
   // another", and a full-wardrobe vision call would be both slow and the
-  // expensive half of the free-tier quota. Names, colours and silhouettes are
+  // expensive half of the free-tier quota. Names, colors and silhouettes are
   // enough to pick a coherent outfit.
   const { text, error } = await generateJson({
     parts: [{ text: buildPrompt(candidates, weather, occasionLabel) }],

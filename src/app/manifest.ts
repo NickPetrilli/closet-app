@@ -7,7 +7,7 @@ import { APP_NAME, APP_TAGLINE } from "@/lib/config";
  *
  * theme_color is --color-ground rather than --color-ink: it tints the phone's
  * status bar in standalone mode, and the ink navy would sit as a dark band
- * above a pale-blue page. Ground makes the app run edge to edge in one colour.
+ * above a pale-blue page. Ground makes the app run edge to edge in one color.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {

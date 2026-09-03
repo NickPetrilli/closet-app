@@ -4,8 +4,8 @@ import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase/client";
 
 /**
- * Edits to an existing item. Only the name for now — category and the colours
- * are shown read-only in ItemDetailPanel by design (the colours are derived
+ * Edits to an existing item. Only the name for now — category and the colors
+ * are shown read-only in ItemDetailPanel by design (the colors are derived
  * from the photo by the add-item pipeline, so hand-editing them would just get
  * overwritten). Shaped with an optional field per column so the next editable
  * one is a small addition rather than a new action.
