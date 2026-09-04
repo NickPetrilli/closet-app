@@ -190,3 +190,23 @@ export function categoryLabel(category: Category): string {
 export function hasPhoto(imageUrl: string): boolean {
   return imageUrl.startsWith("http");
 }
+
+/**
+ * Which image to show for an item, everywhere it appears.
+ *
+ * The cut-out wins when there is one, so a piece looks the same in the grid,
+ * on the daily card and inside a detail panel — a photo shot on a bed should
+ * not carry the bed into one view and not another. Returns null when there is
+ * no usable photo at all, which is the caller's cue to draw a glyph instead.
+ *
+ * `isCutout` matters for layout: a cut-out is transparent and should be
+ * contained with padding so it sits on its tile, where an ordinary photo is
+ * opaque and covers the tile.
+ */
+export function itemImage(
+  item: Pick<ClothingItem, "imageUrl" | "cutoutImageUrl">
+): { src: string; isCutout: boolean } | null {
+  if (item.cutoutImageUrl) return { src: item.cutoutImageUrl, isCutout: true };
+  if (hasPhoto(item.imageUrl)) return { src: item.imageUrl, isCutout: false };
+  return null;
+}

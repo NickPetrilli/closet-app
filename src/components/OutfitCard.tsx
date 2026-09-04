@@ -1,6 +1,6 @@
 "use client";
 
-import { hasPhoto, type Category, type ClothingItem, type Outfit } from "@/lib/types";
+import { itemImage, type Category, type ClothingItem, type Outfit } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
 import { SceneBackdrop } from "./SceneBackdrop";
 
@@ -55,7 +55,7 @@ export function OutfitCard({
 
       {pieces.map((piece) => {
         const photoUrl =
-          piece.cutoutImageUrl ?? (hasPhoto(piece.imageUrl) ? piece.imageUrl : null);
+          itemImage(piece)?.src ?? null;
         return (
           <button
             key={piece.id}

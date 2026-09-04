@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { generateOutfits, saveOutfits, type OutfitCandidate } from "@/lib/actions/outfits";
-import { hasPhoto, type ClothingItem } from "@/lib/types";
+import { itemImage, type ClothingItem } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
 import { SceneBackdrop, vibeLabel } from "./SceneBackdrop";
 
@@ -237,7 +237,7 @@ export function GenerateOutfitsButton({ items }: { items: ClothingItem[] }) {
                   <div className="absolute inset-0 flex flex-wrap content-center items-center justify-center gap-1.5 p-4">
                     {pieces.map((piece) => {
                       const photoUrl =
-                        piece.cutoutImageUrl ?? (hasPhoto(piece.imageUrl) ? piece.imageUrl : null);
+                        itemImage(piece)?.src ?? null;
                       return photoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

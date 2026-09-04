@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import {
-  hasPhoto,
+  itemImage,
   type Category,
   type ClothingItem,
   type OutfitVibe,
@@ -52,7 +52,7 @@ function ItemPicker({
     <div className="flex gap-2.5 overflow-x-auto pb-1">
       {items.map((item) => {
         const photoUrl =
-          item.cutoutImageUrl ?? (hasPhoto(item.imageUrl) ? item.imageUrl : null);
+          itemImage(item)?.src ?? null;
         const isSelected = selectedIds.has(item.id);
         return (
           <button

@@ -8,7 +8,7 @@ import {
 } from "@/lib/actions/suggestion";
 import { NOTABLE_PRECIP } from "@/lib/weather-bands";
 import {
-  hasPhoto,
+  itemImage,
   type ClothingItem,
   type DailySuggestion,
   type OccasionTag,
@@ -178,7 +178,9 @@ export function DailySuggestionCard({
             ? [0, 1, 2].map((i) => (
                 <div key={i} className="skeleton h-14 w-14 rounded-control" />
               ))
-            : suggestedItems.map((item) => (
+            : suggestedItems.map((item) => {
+                const thumb = itemImage(item);
+                return (
                 <button
                   key={item.id}
                   type="button"
@@ -186,12 +188,16 @@ export function DailySuggestionCard({
                   title={item.name}
                   className="flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-control border border-edge-subtle bg-surface-sunken transition-all duration-150 hover:-translate-y-0.5 hover:border-accent hover:shadow-card"
                 >
-                  {hasPhoto(item.imageUrl) ? (
+                  {thumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={item.imageUrl}
+                      src={thumb.src}
                       alt={item.name}
-                      className="h-full w-full object-cover"
+                      className={
+                        thumb.isCutout
+                          ? "h-full w-full object-contain p-1.5"
+                          : "h-full w-full object-cover"
+                      }
                     />
                   ) : (
                     <GarmentGlyph
@@ -202,7 +208,8 @@ export function DailySuggestionCard({
                     />
                   )}
                 </button>
-              ))}
+                );
+              })}
         </div>
       </div>
 

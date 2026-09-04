@@ -6,7 +6,7 @@ import { deleteOutfit, updateOutfit } from "@/lib/actions/outfits";
 import { vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
-  hasPhoto,
+  itemImage,
   type Category,
   type ClothingItem,
   type Outfit,
@@ -145,7 +145,7 @@ export function OutfitDetailPanel({
               <div className="absolute inset-x-0 top-[6%] mx-auto aspect-[120/200] h-[88%]">
                 {pieces.map((piece) => {
                   const photoUrl =
-                    piece.cutoutImageUrl ?? (hasPhoto(piece.imageUrl) ? piece.imageUrl : null);
+                    itemImage(piece)?.src ?? null;
                   return photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -209,7 +209,9 @@ export function OutfitDetailPanel({
               <div>
                 <p className="eyebrow text-ink-tertiary">In this outfit</p>
                 <div className="mt-4 flex flex-col gap-3">
-                  {pieces.map((piece) => (
+                  {pieces.map((piece) => {
+                    const thumb = itemImage(piece);
+                    return (
                     <button
                       key={piece.id}
                       type="button"
@@ -222,12 +224,16 @@ export function OutfitDetailPanel({
                           background: vibeGradient(piece.primaryColorHex),
                         }}
                       >
-                        {hasPhoto(piece.imageUrl) ? (
+                        {thumb ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={piece.imageUrl}
+                            src={thumb.src}
                             alt={piece.name}
-                            className="h-full w-full object-cover"
+                            className={
+                              thumb.isCutout
+                                ? "h-full w-full object-contain p-1.5"
+                                : "h-full w-full object-cover"
+                            }
                           />
                         ) : (
                           <GarmentGlyph
@@ -256,7 +262,8 @@ export function OutfitDetailPanel({
                         />
                       </span>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

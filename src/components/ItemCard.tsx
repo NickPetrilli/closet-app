@@ -1,7 +1,7 @@
 "use client";
 
 import { vibeGradient } from "@/lib/color";
-import { hasPhoto, type ClothingItem } from "@/lib/types";
+import { itemImage, type ClothingItem } from "@/lib/types";
 import { GarmentGlyph } from "./GarmentGlyph";
 
 export function ItemCard({
@@ -12,9 +12,8 @@ export function ItemCard({
   onSelect: (id: string) => void;
 }) {
   // Prefer the background-removed version so a photo taken on a bed or a floor
-  // reads like the flat product shots rather than carrying its surroundings
-  // into the grid. Falls back to the original where no cut-out was generated.
-  const cutoutUrl = item.cutoutImageUrl ?? null;
+  // reads like the flat product shots rather than carrying its surroundings in.
+  const image = itemImage(item);
 
   return (
     <button
@@ -27,22 +26,19 @@ export function ItemCard({
         className="absolute inset-0"
         style={{ background: vibeGradient(item.primaryColorHex) }}
       />
-      {cutoutUrl ? (
-        // A cut-out is transparent, so it is placed on the tile rather than
-        // filling it: contain plus padding, so the garment floats the way the
-        // flat product shots do instead of being cropped by object-cover.
+      {image ? (
+        // A cut-out is transparent, so it sits on the tile rather than filling
+        // it: contain plus padding, the way the flat product shots read. An
+        // ordinary photo is opaque and still covers the tile.
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={cutoutUrl}
+          src={image.src}
           alt={item.name}
-          className="absolute inset-0 h-full w-full object-contain p-5 drop-shadow-cutout transition-transform duration-400 ease-out group-hover:scale-[1.06]"
-        />
-      ) : hasPhoto(item.imageUrl) ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.imageUrl}
-          alt={item.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-400 ease-out group-hover:scale-[1.06]"
+          className={`absolute inset-0 h-full w-full transition-transform duration-400 ease-out group-hover:scale-[1.06] ${
+            image.isCutout
+              ? "object-contain p-5 drop-shadow-cutout"
+              : "object-cover"
+          }`}
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">

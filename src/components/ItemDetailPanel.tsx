@@ -7,6 +7,7 @@ import { tintTowardSurface, vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
   hasPhoto,
+  itemImage,
   type ClothingItem,
   type Outfit,
 } from "@/lib/types";
@@ -34,6 +35,9 @@ export function ItemDetailPanel({
   const lastItemRef = useRef<ClothingItem | null>(null);
   if (item) lastItemRef.current = item;
   const shown = item ?? lastItemRef.current;
+  // Same image the grid tile chose, so tapping a piece never brings its
+  // background back.
+  const heroImage = shown ? itemImage(shown) : null;
 
   const outfitsWithItem = shown
     ? outfits.filter((outfit) => outfit.itemIds.includes(shown.id))
@@ -121,12 +125,16 @@ export function ItemDetailPanel({
               className="relative h-[420px] shrink-0 overflow-hidden transition-[background] duration-400"
               style={{ background: vibeGradient(shown.primaryColorHex) }}
             >
-              {hasPhoto(shown.imageUrl) ? (
+              {heroImage ? (
+                // Matches the grid tile: whatever the card showed, the panel
+                // shows, so a piece does not gain its background back on tap.
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={shown.imageUrl}
+                  src={heroImage.src}
                   alt={shown.name}
-                  className="absolute inset-0 h-full w-full object-contain p-12"
+                  className={`absolute inset-0 h-full w-full object-contain p-12 ${
+                    heroImage.isCutout ? "drop-shadow-cutout-lg" : ""
+                  }`}
                 />
               ) : (
                 <>
