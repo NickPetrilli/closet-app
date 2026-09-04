@@ -11,6 +11,11 @@ export function ItemCard({
   item: ClothingItem;
   onSelect: (id: string) => void;
 }) {
+  // Prefer the background-removed version so a photo taken on a bed or a floor
+  // reads like the flat product shots rather than carrying its surroundings
+  // into the grid. Falls back to the original where no cut-out was generated.
+  const cutoutUrl = item.cutoutImageUrl ?? null;
+
   return (
     <button
       type="button"
@@ -22,7 +27,17 @@ export function ItemCard({
         className="absolute inset-0"
         style={{ background: vibeGradient(item.primaryColorHex) }}
       />
-      {hasPhoto(item.imageUrl) ? (
+      {cutoutUrl ? (
+        // A cut-out is transparent, so it is placed on the tile rather than
+        // filling it: contain plus padding, so the garment floats the way the
+        // flat product shots do instead of being cropped by object-cover.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={cutoutUrl}
+          alt={item.name}
+          className="absolute inset-0 h-full w-full object-contain p-5 drop-shadow-cutout transition-transform duration-400 ease-out group-hover:scale-[1.06]"
+        />
+      ) : hasPhoto(item.imageUrl) ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.imageUrl}
