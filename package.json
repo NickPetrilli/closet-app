@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.20.0",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.112.4",
     "next": "^15.3.4",
     "puppeteer": "^25.9.0",
