@@ -4,9 +4,9 @@ import { useState } from "react";
 import type { OccasionTag } from "@/lib/types";
 
 /**
- * The occasion row on the daily card: the seeded tags, anything Jenna has
+ * The occasion row on the daily card: the seeded tags, anything this person has
  * added before, and an inline "add" affordance. Selecting one re-requests the
- * suggestion; nothing is written to the wear log until she taps "Wore this".
+ * suggestion; nothing is written to the wear log until they tap "Wore this".
  */
 export function OccasionPicker({
   tags,

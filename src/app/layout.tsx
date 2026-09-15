@@ -21,11 +21,12 @@ export const metadata: Metadata = {
   description: `${APP_TAGLINE} — a quiet place for the things you wear.`,
   applicationName: APP_NAME,
   // Installed on iOS: run without Safari's chrome, and label the home-screen
-  // icon "Closet" — "Jenna's Closet" would be truncated there anyway.
+  // icon with the neutral product name. One install can serve more than one
+  // account, so the per-person "<name>'s Closet" lives only in the page heading.
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Closet",
+    title: APP_NAME,
   },
   other: {
     // Next emits only the standardised `mobile-web-app-capable` for

@@ -3,7 +3,7 @@ import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 
 /**
  * Next serves this at /manifest.webmanifest and injects the <link> itself.
- * Colours are the resolved hexes of the palette tokens in globals.css.
+ * Colors are the resolved hexes of the palette tokens in globals.css.
  *
  * theme_color is --color-ground rather than --color-ink: it tints the phone's
  * status bar in standalone mode, and the ink navy would sit as a dark band
@@ -11,8 +11,10 @@ import { APP_NAME, APP_TAGLINE } from "@/lib/config";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    // Neutral, not per-person: the manifest is fetched without a session
+    // (middleware skips it) and one installed app can be shared by accounts.
     name: APP_NAME,
-    short_name: "Closet",
+    short_name: APP_NAME,
     description: `${APP_TAGLINE} — a quiet place for the things you wear.`,
     start_url: "/",
     display: "standalone",

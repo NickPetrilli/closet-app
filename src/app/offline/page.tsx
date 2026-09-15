@@ -22,7 +22,7 @@ export default function OfflinePage() {
         You&rsquo;re offline
       </h1>
       <p className="mt-4 text-sm leading-relaxed text-ink-secondary">
-        {APP_NAME} needs a connection to load your wardrobe. Everything is safe
+        Your closet needs a connection to load. Everything is safe
         where it is — try again once you&rsquo;re back on.
       </p>
 

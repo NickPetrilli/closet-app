@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { APP_NAME, APP_TAGLINE } from "@/lib/config";
+import { APP_TAGLINE } from "@/lib/config";
 import type {
   AppSettings,
   CategoryFilter,
@@ -28,6 +28,8 @@ import { OutfitGrid } from "./OutfitGrid";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function WardrobeView({
+  title,
+  accountEmail,
   initialItems,
   initialOutfits,
   suggestion,
@@ -36,6 +38,10 @@ export function WardrobeView({
   ipLocationGuess,
   canFetchFromLink,
 }: {
+  /** The signed-in person's heading, e.g. "Jenna's Closet" (see closetTitle). */
+  title: string;
+  /** Shown small beside Sign out in the settings modal. */
+  accountEmail: string | null;
   initialItems: ClothingItem[];
   initialOutfits: Outfit[];
   suggestion: DailySuggestion;
@@ -106,7 +112,7 @@ export function WardrobeView({
         <div>
           <p className="eyebrow text-accent">{APP_TAGLINE}</p>
           <h1 className="mt-1.5 font-serif text-4xl tracking-tight sm:text-6xl">
-            {APP_NAME}
+            {title}
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -117,6 +123,7 @@ export function WardrobeView({
           <LocationSettings
             currentLabel={settings.locationLabel}
             ipGuess={ipLocationGuess}
+            accountEmail={accountEmail}
             open={settingsOpen}
             onOpenChange={setSettingsOpen}
           />

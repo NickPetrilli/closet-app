@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 import { WardrobeView } from "@/components/WardrobeView";
+import { firstNameOf, requireUser } from "@/lib/auth";
+import { closetTitle } from "@/lib/config";
 import {
   fetchAppSettings,
   fetchDailySuggestion,
@@ -35,6 +37,11 @@ async function ipLocationGuess(): Promise<string | null> {
 }
 
 export default async function Home() {
+  // Middleware already routes signed-out visitors away, but this page must
+  // never render without a user even if that's bypassed. getSession() is
+  // cached per request, so the repository reads below reuse this same check.
+  const { user } = await requireUser();
+
   const [items, outfits, daily, settings, occasionTags, guess] =
     await Promise.all([
       fetchItems(),
@@ -47,6 +54,8 @@ export default async function Home() {
 
   return (
     <WardrobeView
+      title={closetTitle(firstNameOf(user))}
+      accountEmail={user.email ?? null}
       initialItems={items}
       initialOutfits={outfits}
       suggestion={daily.suggestion}

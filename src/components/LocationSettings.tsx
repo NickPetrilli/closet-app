@@ -7,6 +7,7 @@ import {
   searchLocations,
   type LocationChoice,
 } from "@/lib/actions/settings";
+import { SignOutButton } from "./SignOutButton";
 
 /**
  * The gear button + its modal. Open state lives in WardrobeView so the daily
@@ -14,16 +15,23 @@ import {
  *
  * Coordinates never reach this component: the search action returns labels and
  * an index, and saving sends the index back for the server to resolve.
+ *
+ * It's also the app's only settings surface, so the account line and Sign out
+ * sit at the bottom, below a hairline, kept quiet so they don't compete with
+ * the location form.
  */
 export function LocationSettings({
   currentLabel,
   ipGuess,
+  accountEmail,
   open,
   onOpenChange,
 }: {
   currentLabel: string | null;
   /** First-run prefill from Vercel's IP headers — a guess to confirm, never saved silently. */
   ipGuess: string | null;
+  /** The signed-in account, shown small above Sign out. */
+  accountEmail: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -85,7 +93,7 @@ export function LocationSettings({
       <button
         type="button"
         onClick={() => onOpenChange(true)}
-        aria-label="Location settings"
+        aria-label="Settings"
         title={currentLabel ? `Location: ${currentLabel}` : "Set your location"}
         className="mb-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-edge bg-surface-raised/50 text-ink-secondary transition-colors hover:border-accent hover:text-accent"
       >
@@ -108,7 +116,7 @@ export function LocationSettings({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Location settings"
+          aria-label="Settings"
           className={`relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-sheet border border-edge bg-surface-raised p-5 shadow-modal transition-all duration-250 sm:max-h-[85vh] sm:p-8 ${
             open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
@@ -188,6 +196,21 @@ export function LocationSettings({
               {isPending ? "Looking it up…" : matches ? "Search again" : "Find my location"}
             </button>
           </form>
+
+          <div className="mt-8 flex items-center justify-between gap-4 border-t border-edge-subtle pt-5">
+            <div className="min-w-0">
+              <p className="eyebrow text-ink-tertiary">Signed in</p>
+              {accountEmail && (
+                <p
+                  className="meta mt-1 truncate text-ink-secondary"
+                  title={accountEmail}
+                >
+                  {accountEmail}
+                </p>
+              )}
+            </div>
+            <SignOutButton className="btn-label btn-secondary shrink-0 rounded-full px-5 py-2.5" />
+          </div>
         </div>
       </div>
     </>

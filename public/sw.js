@@ -1,5 +1,5 @@
 /*
- * Jenna's Closet — service worker.
+ * Closet — service worker.
  *
  * Hand-written rather than generated (Serwist/next-pwa): what this app needs
  * is installability plus a branded offline page, and the build-time precache
@@ -11,15 +11,27 @@
  * (Add Item, Generate Outfits, saving a location) are POSTs to the same URLs
  * as the pages, and caching or replaying one of those would be a real bug.
  *
+ * Accounts (multi-user): one device can be signed into different people's
+ * closets over time, so nothing personal may outlive a sign-out here.
+ *   - Navigations (HTML) are NEVER cached — only passed through, with the
+ *     static offline page as the fallback. See navigationWithOfflineFallback.
+ *   - Sign-out posts { type: "clear-caches" } (see the message listener and
+ *     clearServiceWorkerCaches in ServiceWorkerRegistrar.tsx), which drops
+ *     every cache this worker owns, including other people's item photos.
+ *
  * Bump VERSION to retire every old cache on the next activation.
  */
 
-const VERSION = "v1";
+// v2: the accounts release. Retires the single-user era's caches.
+const VERSION = "v2";
 const SHELL_CACHE = `closet-shell-${VERSION}`;
 const ASSET_CACHE = `closet-assets-${VERSION}`;
 const IMAGE_CACHE = `closet-images-${VERSION}`;
 
 const OFFLINE_URL = "/offline";
+
+/** Every cache this worker owns carries this prefix; nothing else is touched. */
+const CACHE_PREFIX = "closet-";
 
 /** The bare minimum needed to render something branded with no network. */
 const PRECACHE_URLS = [
@@ -32,16 +44,24 @@ const PRECACHE_URLS = [
 /** How long a navigation waits for the network before falling back. */
 const NAVIGATION_TIMEOUT_MS = 3500;
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
+/**
+ * /offline and /icons/ are excluded from the middleware matcher, so these
+ * never come back as a redirect to /unlock or /sign-in, and the offline page
+ * is static: it holds nothing about whoever is signed in.
+ */
+function precacheShell() {
+  return (
     caches
       .open(SHELL_CACHE)
       .then((cache) => cache.addAll(PRECACHE_URLS))
       // A failed precache must not leave the app with no service worker at
       // all — the runtime caching below still works without it.
       .catch((err) => console.warn("[sw] precache failed", err))
-      .then(() => self.skipWaiting())
   );
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(precacheShell().then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
@@ -55,6 +75,60 @@ self.addEventListener("activate", (event) => {
       .then(() => self.clients.claim())
   );
 });
+
+/**
+ * Sign-out asks for a clean slate: every cache this worker owns is deleted,
+ * then the static offline shell is fetched again so offline still works for
+ * whoever uses the device next. The reply goes to the MessageChannel port the
+ * page sent (or back to the sending client), and the page never waits on it
+ * for more than a moment — see clearServiceWorkerCaches.
+ */
+self.addEventListener("message", (event) => {
+  if (!event.data || event.data.type !== "clear-caches") return;
+
+  const reply = (message) => {
+    if (event.ports && event.ports[0]) event.ports[0].postMessage(message);
+    else if (event.source) event.source.postMessage(message);
+  };
+
+  event.waitUntil(
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((n) => n.startsWith(CACHE_PREFIX))
+            .map((n) => caches.delete(n))
+        )
+      )
+      // Reply as soon as the personal data is gone; re-precaching the shell
+      // is housekeeping that sign-out shouldn't wait on.
+      .then(() => {
+        reply({ type: "caches-cleared", ok: true });
+        return precacheShell();
+      })
+      .catch((err) => {
+        console.warn("[sw] clearing caches failed", err);
+        reply({ type: "caches-cleared", ok: false });
+      })
+  );
+});
+
+/**
+ * A precached response that followed a redirect (response.redirected) is
+ * refused by Safari when a service worker hands it to a navigation. /offline
+ * shouldn't redirect (see precacheShell), but rebuilding a clean Response
+ * costs nothing and keeps the fallback from ever becoming a network error.
+ */
+async function withoutRedirectFlag(response) {
+  if (!response.redirected) return response;
+  const body = await response.blob();
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  });
+}
 
 /** Only ever store real, complete, same-origin-or-CORS responses. */
 function isCacheable(response) {
@@ -103,6 +177,22 @@ async function staleWhileRevalidate(request, cacheName) {
  * Page loads: prefer the network so the force-dynamic page stays live, but
  * don't let a dead connection hang — fall back to the offline page instead of
  * the browser's error page.
+ *
+ * Verified for accounts (middleware can now answer any page with a 307 to
+ * /unlock, /sign-in or /):
+ *   - A navigation Request has redirect mode "manual", so fetch(request) does
+ *     not follow the 307. It resolves to an "opaqueredirect" response, which
+ *     the spec allows respondWith() to return for exactly this case. The
+ *     browser then follows the Location itself, and that next navigation comes
+ *     back through this handler as a fresh request.
+ *   - Because fetch never follows it, the response returned here never has
+ *     response.redirected === true, which is the flag Safari rejects on
+ *     SW-served navigations. The response is returned untouched (no clone, no
+ *     new Response), so the Set-Cookie on middleware's redirect and on the
+ *     page itself reaches the browser as normal.
+ *   - Nothing here is ever written to a cache. An authenticated page is one
+ *     person's closet, and a cached copy could be shown to the next person
+ *     signed in on the device. The only cached HTML is the static /offline.
  */
 async function navigationWithOfflineFallback(request) {
   try {
@@ -120,7 +210,7 @@ async function navigationWithOfflineFallback(request) {
   const cache = await caches.open(SHELL_CACHE);
   const offline = await cache.match(OFFLINE_URL);
   return (
-    offline ??
+    (offline && (await withoutRedirectFlag(offline))) ??
     new Response("You're offline.", {
       status: 503,
       headers: { "Content-Type": "text/plain; charset=utf-8" },
@@ -137,7 +227,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   // React Server Component payloads for client-side navigation — always live,
-  // or the app would render yesterday's wardrobe from cache.
+  // or the app would render yesterday's wardrobe (or someone else's) from
+  // cache.
   if (url.searchParams.has("_rsc")) return;
 
   if (request.mode === "navigate") {
