@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateItem } from "@/lib/actions/items";
+import { deleteItem, updateItem } from "@/lib/actions/items";
 import { tintTowardSurface, vibeGradient } from "@/lib/color";
 import {
   categoryLabel,
@@ -20,6 +20,7 @@ export function ItemDetailPanel({
   onClose,
   onUpdate,
   onSelectOutfit,
+  onDelete,
 }: {
   /** null when closed; the panel stays mounted so it can slide out. */
   item: ClothingItem | null;
@@ -28,6 +29,8 @@ export function ItemDetailPanel({
   onUpdate: (id: string, patch: Partial<ClothingItem>) => void;
   /** Opens the outfit detail view for one of this item's outfits. */
   onSelectOutfit: (id: string) => void;
+  /** Drops the piece from the wardrobe once the server has deleted it. */
+  onDelete: (id: string) => void;
 }) {
   const open = item !== null;
 
@@ -46,6 +49,26 @@ export function ItemDetailPanel({
   const router = useRouter();
   const [saveError, setSaveError] = useState<string | null>(null);
   const [, startSaving] = useTransition();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleting, startDeleting] = useTransition();
+
+  function handleDelete() {
+    if (!shown) return;
+    startDeleting(async () => {
+      const result = await deleteItem(shown.id);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
+      setDeleteModalOpen(false);
+      onDelete(shown.id);
+      onClose();
+      // Outfits that used the piece are now a piece shorter, so the whole
+      // page's data is refetched rather than patched by hand.
+      router.refresh();
+    });
+  }
 
   // What the database currently holds, so blurring an untouched field doesn't
   // fire a pointless write. Reset whenever a different item is opened.
@@ -55,6 +78,8 @@ export function ItemDetailPanel({
     lastIdRef.current = item.id;
     lastSavedNameRef.current = item.name;
     if (saveError) setSaveError(null);
+    if (deleteError) setDeleteError(null);
+    if (deleteModalOpen) setDeleteModalOpen(false);
   }
 
   /**
@@ -350,15 +375,108 @@ export function ItemDetailPanel({
                 )}
               </div>
 
-              {/* Helper text */}
-              <p className="mt-auto border-t border-edge-subtle pt-5 text-xs leading-relaxed text-ink-tertiary">
-                Category and colors are detected automatically from the
-                item&rsquo;s photo.
-              </p>
+              {/* Helper text + the one destructive action */}
+              <div className="mt-auto flex flex-wrap items-end justify-between gap-4 border-t border-edge-subtle pt-5">
+                <p className="max-w-[24rem] text-xs leading-relaxed text-ink-tertiary">
+                  Category and colors are detected automatically from the
+                  item&rsquo;s photo.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setDeleteModalOpen(true)}
+                  className="btn-label flex shrink-0 cursor-pointer items-center gap-2 rounded-full btn-danger px-4 py-2"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    className="h-3 w-3"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M2.5 4h11M6 4V2.5h4V4m-6 0 .6 9.4a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9L13 4" />
+                    <path d="M6.5 7v4M9.5 7v4" />
+                  </svg>
+                  Delete item
+                </button>
+              </div>
             </div>
           </div>
         )}
       </aside>
+
+      {/* Delete confirmation — same shape as the outfit one, so the two
+          destructive actions in the app behave identically. */}
+      <div
+        aria-hidden={!deleteModalOpen}
+        className={`fixed inset-0 z-[60] flex items-center justify-center p-6 ${
+          deleteModalOpen ? "" : "pointer-events-none"
+        }`}
+      >
+        <div
+          onClick={() => !isDeleting && setDeleteModalOpen(false)}
+          className={`absolute inset-0 bg-backdrop-strong transition-opacity duration-150 ${
+            deleteModalOpen ? "opacity-100" : "opacity-0"
+          }`}
+        />
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-label="Confirm delete item"
+          className={`relative w-full max-w-sm rounded-sheet border border-error/40 bg-surface-raised p-7 shadow-modal transition-all duration-150 ${
+            deleteModalOpen ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+              <svg
+                viewBox="0 0 16 16"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2.5 4h11M6 4V2.5h4V4m-6 0 .6 9.4a1 1 0 0 0 1 .9h4.8a1 1 0 0 0 1-.9L13 4" />
+                <path d="M6.5 7v4M9.5 7v4" />
+              </svg>
+            </span>
+            <h3 className="font-serif text-xl tracking-tight">Delete this piece?</h3>
+          </div>
+          <p className="mt-3.5 text-sm leading-relaxed text-ink-secondary">
+            {shown ? `"${shown.name}" will be removed from your wardrobe` : ""}
+            {outfitsWithItem.length === 0
+              ? ". Its photo is deleted too."
+              : outfitsWithItem.length === 1
+                ? ", and from the 1 outfit that uses it. That outfit stays, one piece shorter."
+                : `, and from the ${outfitsWithItem.length} outfits that use it. Those outfits stay, one piece shorter.`}{" "}
+            This can&apos;t be undone.
+          </p>
+          {deleteError && <p className="mt-3 text-sm text-error">{deleteError}</p>}
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={isDeleting}
+              className="btn-label cursor-pointer rounded-full btn-secondary px-5 py-2.5 disabled:cursor-wait disabled:opacity-70"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="btn-label cursor-pointer rounded-full btn-danger px-5 py-2.5 disabled:cursor-wait disabled:opacity-70"
+            >
+              {isDeleting ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

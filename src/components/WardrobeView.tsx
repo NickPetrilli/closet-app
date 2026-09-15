@@ -90,6 +90,19 @@ export function WardrobeView({
     );
   }
 
+  function removeItem(id: string) {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+    // The piece also vanishes from any outfit that used it; router.refresh()
+    // in the panel refetches those, this just keeps the grid honest until then.
+    setOutfits((prev) =>
+      prev.map((outfit) =>
+        outfit.itemIds.includes(id)
+          ? { ...outfit, itemIds: outfit.itemIds.filter((i) => i !== id) }
+          : outfit
+      )
+    );
+  }
+
   function updateOutfit(id: string, patch: Partial<Outfit>) {
     setOutfits((prev) =>
       prev.map((outfit) =>
@@ -209,6 +222,7 @@ export function WardrobeView({
         outfits={outfits}
         onClose={() => setSelectedItemId(null)}
         onUpdate={updateItem}
+        onDelete={removeItem}
         onSelectOutfit={openOutfit}
       />
       <OutfitDetailPanel
