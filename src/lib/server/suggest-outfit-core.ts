@@ -8,10 +8,10 @@ import type {
 } from "@/lib/types";
 
 /**
- * Scoring for "what should Jenna wear today". Saved outfits are scored first
+ * Scoring for "what should I wear today". Saved outfits are scored first
  * and an AI combination is only generated when none of them fit (see
  * suggest-outfit.ts) — that keeps the common case free and surfaces the
- * outfits she actually curated.
+ * outfits the user actually curated.
  *
  * Pure on purpose: no network and no database, so scripts/check-suggestion.mjs
  * can run this exact code under Node's type stripping (via the resolver in
@@ -30,7 +30,7 @@ export const RECENTLY_WORN_DAYS = 5;
 /**
  * How well each outfit vibe suits each occasion. Unlisted pairs fall back to
  * NEUTRAL_FIT, which is also what a custom occasion gets — with no opinion
- * about a tag she invented, weather should decide.
+ * about a tag the user invented, weather should decide.
  */
 const NEUTRAL_FIT = 0.6;
 

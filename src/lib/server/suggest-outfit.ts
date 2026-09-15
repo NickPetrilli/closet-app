@@ -220,7 +220,7 @@ export async function chooseSuggestion(
   // 2. Nothing saved fits — compose something new.
   const excluded = new Set([...recentlyWorn, ...excludeItemIds]);
   let candidates = items.filter((item) => !excluded.has(item.id));
-  // Excluding recently-worn pieces must never leave her with no outfit at all.
+  // Excluding recently-worn pieces must never leave the user with no outfit at all.
   if (!hasEveryRequiredCategory(candidates)) candidates = items;
 
   if (!hasEveryRequiredCategory(candidates)) {

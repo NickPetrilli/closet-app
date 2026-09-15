@@ -157,7 +157,7 @@ export interface DailySuggestion {
   weather: Weather | null;
   /** Selected occasion tag id, or null before one is picked. */
   occasion: string | null;
-  /** Set when the pick is one of Jenna's saved outfits. */
+  /** Set when the pick is one of the user's saved outfits. */
   outfitId: string | null;
   outfitName: string | null;
   itemIds: string[];

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireUser } from "@/lib/auth";
 import { geocodeLocation, saveStoredLocation } from "@/lib/server/weather";
 
 /**
@@ -8,6 +9,11 @@ import { geocodeLocation, saveStoredLocation } from "@/lib/server/weather";
  * an index, never latitude/longitude. `saveLocation` re-runs the same
  * geocoding query server-side and picks by index, so the coordinates are
  * resolved entirely on the server and can't be tampered with from the client.
+ *
+ * The location is per account (one app_settings row per user). Both actions
+ * check the session up front, outside any try/catch: requireUser redirects by
+ * throwing, and the catches below would otherwise swallow that redirect and
+ * report it as a failed save.
  */
 
 /** A match as the client sees it — display text only, no coordinates. */
@@ -24,6 +30,7 @@ export interface SearchLocationsResult {
 export async function searchLocations(
   query: string
 ): Promise<SearchLocationsResult> {
+  await requireUser();
   const trimmed = query.trim();
   if (!trimmed) return { error: "Type a city to search." };
 
@@ -53,6 +60,7 @@ export async function saveLocation(
   index: number,
   expectedLabel: string
 ): Promise<SaveLocationResult> {
+  await requireUser();
   const trimmed = query.trim();
   if (!trimmed) return { error: "Type a city to search." };
 

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { requireUser } from "@/lib/auth";
 import type { Weather } from "@/lib/types";
 import {
   forecastUrl,
@@ -15,7 +15,7 @@ import {
 /**
  * Weather for the daily suggestion card, via Open-Meteo — no API key, no
  * signup, no card (10k calls/day on the free non-commercial tier). Everything
- * here is server-only: the browser never sees Jenna's coordinates, and the
+ * here is server-only: the browser never sees anyone's coordinates, and the
  * home page is force-dynamic, so an unguarded fetch would run on every load.
  * The `weather_cache` table is what keeps that down to a couple of calls a day.
  * Pure mapping logic lives in weather-core.ts so a script can exercise it.
@@ -64,12 +64,17 @@ export async function geocodeLocation(query: string): Promise<GeocodeMatch[]> {
   return toGeocodeMatches(json.results ?? []);
 }
 
-/** Reads the saved location. Server-only — coordinates never leave this layer. */
+/**
+ * Reads the signed-in user's saved location. Server-only — coordinates never
+ * leave this layer. app_settings holds one row per user (keyed by user_id), so
+ * a user who hasn't picked a location yet simply has no row.
+ */
 export async function readStoredLocation(): Promise<StoredLocation | null> {
+  const { supabase, user } = await requireUser();
   const { data, error } = await supabase
     .from("app_settings")
     .select("location_label, latitude, longitude, timezone")
-    .eq("id", "singleton")
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (error || !data) return null;
@@ -85,15 +90,23 @@ export async function readStoredLocation(): Promise<StoredLocation | null> {
   };
 }
 
+/**
+ * Upserts on user_id, the table's unique key per account. `id` is never sent:
+ * the database defaults it, and sending one would collide with other users.
+ */
 export async function saveStoredLocation(location: StoredLocation): Promise<void> {
-  const { error } = await supabase.from("app_settings").upsert({
-    id: "singleton",
-    location_label: location.label,
-    latitude: location.latitude,
-    longitude: location.longitude,
-    timezone: location.timezone,
-    updated_at: new Date().toISOString(),
-  });
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase.from("app_settings").upsert(
+    {
+      user_id: user.id,
+      location_label: location.label,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timezone: location.timezone,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
   if (error) throw new Error(`saveStoredLocation: ${error.message}`);
 }
 
@@ -112,7 +125,13 @@ interface CacheRow {
   fetched_at: string;
 }
 
+/**
+ * weather_cache has no user_id on purpose: it's a public forecast keyed by
+ * rounded coordinates, so two people in the same town share one API call.
+ * The per-user client is still used so every query goes out authenticated.
+ */
 async function readCache(key: string, day: string): Promise<CacheRow | null> {
+  const { supabase } = await requireUser();
   const { data, error } = await supabase
     .from("weather_cache")
     .select("payload, fetched_at")
@@ -129,6 +148,7 @@ async function writeCache(
   day: string,
   payload: Weather
 ): Promise<void> {
+  const { supabase } = await requireUser();
   const { error } = await supabase.from("weather_cache").upsert({
     location_key: key,
     fetched_for: day,
@@ -140,7 +160,8 @@ async function writeCache(
 }
 
 /**
- * Today's date in Jenna's own timezone, as YYYY-MM-DD. Everything dated — the
+ * Today's date in the signed-in user's own timezone (from their saved
+ * location), as YYYY-MM-DD. Everything dated — the
  * weather cache, the wear log, the day's chosen occasion — keys off this
  * rather than the server's clock, which on Vercel is UTC and rolls over
  * mid-evening for a US location.

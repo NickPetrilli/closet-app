@@ -1,7 +1,7 @@
+import { requireUser } from "@/lib/auth";
 import { chooseSuggestion } from "@/lib/server/suggest-outfit";
 import { RECENTLY_WORN_DAYS } from "@/lib/server/suggest-outfit-core";
 import { getLocalToday, getWeather, readStoredLocation } from "@/lib/server/weather";
-import { supabase } from "@/lib/supabase/client";
 import type {
   AppSettings,
   Category,
@@ -17,6 +17,11 @@ import type {
  * call these functions. Keeping the signatures async/shaped the same as
  * before means the mock → real-database swap required no changes upstream.
  * See supabase/schema.sql for the table definitions this queries.
+ *
+ * Every account has its own closet. Each function resolves the signed-in user
+ * itself (requireUser is React-cached, so the parallel reads on one page load
+ * share a single auth check) and filters on user_id, so callers keep the same
+ * no-argument signatures they had before accounts existed.
  */
 
 interface ItemRow {
@@ -50,11 +55,13 @@ function toClothingItem(row: ItemRow): ClothingItem {
 }
 
 export async function fetchItems(): Promise<ClothingItem[]> {
+  const { supabase, user } = await requireUser();
   const { data, error } = await supabase
     .from("items")
     .select(
       "id, name, category, silhouette, primary_color_hex, secondary_color_hex, image_url, cutout_image_url, source_photo_urls, product_url, created_at"
     )
+    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   if (error) throw new Error(`fetchItems: ${error.message}`);
@@ -69,9 +76,13 @@ interface OutfitRow {
 }
 
 export async function fetchOutfits(): Promise<Outfit[]> {
+  const { supabase, user } = await requireUser();
+  // outfit_items has no user_id of its own; embedding it under the user's
+  // outfits is what scopes it.
   const { data, error } = await supabase
     .from("outfits")
     .select("id, name, vibe, outfit_items(item_id, position)")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   if (error) throw new Error(`fetchOutfits: ${error.message}`);
@@ -101,10 +112,11 @@ export async function fetchAppSettings(): Promise<AppSettings> {
   }
 
   // No coordinates saved — still surface a label if one somehow exists.
+  const { supabase, user } = await requireUser();
   const { data } = await supabase
     .from("app_settings")
     .select("location_label, timezone")
-    .eq("id", "singleton")
+    .eq("user_id", user.id)
     .maybeSingle();
 
   return {
@@ -120,7 +132,8 @@ export async function fetchWeather(): Promise<Weather | null> {
 }
 
 /**
- * Seeded tags plus anything Jenna has added.
+ * Seeded tags (user_id null, visible to everyone) plus any the signed-in user
+ * has added.
  *
  * Degrades to an empty list rather than throwing: migrations here are applied
  * by hand (the anon key can't run DDL), so between deploying this and running
@@ -129,9 +142,11 @@ export async function fetchWeather(): Promise<Weather | null> {
  * picker until the SQL runs.
  */
 export async function fetchOccasionTags(): Promise<OccasionTag[]> {
+  const { supabase, user } = await requireUser();
   const { data, error } = await supabase
     .from("occasion_tags")
     .select("id, label")
+    .or(`user_id.is.null,user_id.eq.${user.id}`)
     .order("label", { ascending: true });
 
   if (error) {
@@ -143,10 +158,12 @@ export async function fetchOccasionTags(): Promise<OccasionTag[]> {
 
 /** The occasion picked for today, if any. Survives a reload; resets each day. */
 export async function fetchTodayOccasion(): Promise<string | null> {
+  const { supabase, user } = await requireUser();
   const today = await getLocalToday();
   const { data } = await supabase
     .from("daily_state")
     .select("occasion_tag")
+    .eq("user_id", user.id)
     .eq("day", today)
     .maybeSingle();
 
@@ -160,6 +177,7 @@ export async function fetchTodayOccasion(): Promise<string | null> {
 export async function fetchRecentlyWornItemIds(
   days = RECENTLY_WORN_DAYS
 ): Promise<Set<string>> {
+  const { supabase, user } = await requireUser();
   const today = await getLocalToday();
   const since = new Date(`${today}T00:00:00Z`);
   since.setUTCDate(since.getUTCDate() - days);
@@ -168,6 +186,7 @@ export async function fetchRecentlyWornItemIds(
   const { data, error } = await supabase
     .from("wear_log")
     .select("outfit_id, item_ids")
+    .eq("user_id", user.id)
     .gte("worn_on", sinceDay);
 
   // Same reasoning as fetchOccasionTags: no wear_log table yet means nothing
@@ -185,11 +204,18 @@ export async function fetchRecentlyWornItemIds(
   }
 
   if (outfitIds.length > 0) {
+    // Resolved through outfits (which carry user_id) rather than querying
+    // outfit_items directly, so only outfits this user owns can contribute.
     const { data: members } = await supabase
-      .from("outfit_items")
-      .select("item_id")
-      .in("outfit_id", outfitIds);
-    for (const row of members ?? []) ids.add(row.item_id as string);
+      .from("outfits")
+      .select("outfit_items(item_id)")
+      .eq("user_id", user.id)
+      .in("id", outfitIds);
+    for (const outfit of (members ?? []) as {
+      outfit_items: { item_id: string }[];
+    }[]) {
+      for (const row of outfit.outfit_items ?? []) ids.add(row.item_id);
+    }
   }
 
   return ids;
@@ -199,10 +225,12 @@ export async function fetchRecentlyWornItemIds(
 async function fetchTodaysWearLog(): Promise<
   { outfitId: string | null; itemIds: string[] }[]
 > {
+  const { supabase, user } = await requireUser();
   const today = await getLocalToday();
   const { data } = await supabase
     .from("wear_log")
     .select("outfit_id, item_ids")
+    .eq("user_id", user.id)
     .eq("worn_on", today);
 
   return (data ?? []).map((row) => ({
@@ -218,7 +246,7 @@ function sameItems(a: string[], b: string[]): boolean {
 }
 
 export interface SuggestionOptions {
-  /** Overrides the stored selection — used when Jenna taps a different occasion. */
+  /** Overrides the stored selection — used when the user taps a different occasion. */
   occasion?: string | null;
   excludeOutfitIds?: string[];
   excludeItemIds?: string[];
