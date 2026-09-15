@@ -2,6 +2,7 @@
 const url = process.env.SUPABASE_URL ?? "";
 const anonKey = process.env.SUPABASE_ANON_KEY ?? "";
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const familyCode = process.env.FAMILY_CODE ?? "";
 
 function report(name, value, expectedPattern) {
   console.log(`\n${name}`);
@@ -15,3 +16,5 @@ function report(name, value, expectedPattern) {
 report("SUPABASE_URL", url, /^https:\/\/[a-z0-9-]+\.supabase\.co$/);
 report("SUPABASE_ANON_KEY", anonKey, /^ey[\w-]+\.[\w-]+\.[\w-]+$/);
 report("SUPABASE_SERVICE_ROLE_KEY", serviceKey, /^ey[\w-]+\.[\w-]+\.[\w-]+$/);
+// Any non-empty code works; with none set, the lock screen lets nobody in.
+report("FAMILY_CODE", familyCode, /^\S(.*\S)?$/);

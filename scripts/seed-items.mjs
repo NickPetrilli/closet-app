@@ -1,11 +1,14 @@
 // Seeds a mixed demo wardrobe sourced from real Aritzia product photos.
 // Placeholder data for testing the real-photo pipeline — not Jenna's actual
-// closet. Run with:
-//   node --env-file=.env scripts/seed-items.mjs
+// closet. Run with (PowerShell):
+//   $env:SEED_USER_EMAIL="someone@example.com"; node --env-file=.env scripts/seed-items.mjs
 //
-// Uses the service_role key (admin-only, bypasses grants) since this is a
-// one-off data-loading script, never something the running app does.
+// Uses the service_role key (admin-only, bypasses grants and RLS) since this
+// is a one-off data-loading script, never something the running app does.
+// Bypassing RLS also means there's no signed-in user to own the new rows, so
+// SEED_USER_EMAIL names the existing account whose closet gets them.
 import { createClient } from "@supabase/supabase-js";
+import { findUserByEmail } from "./find-user.mjs";
 import sharp from "sharp";
 import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -30,6 +33,13 @@ if (!url || !serviceKey) {
   process.exit(1);
 }
 const supabase = createClient(url, serviceKey);
+
+const seedEmail = process.env.SEED_USER_EMAIL;
+if (!seedEmail) {
+  console.error("Missing SEED_USER_EMAIL: the account whose closet gets the demo items.");
+  process.exit(1);
+}
+let userId; // resolved at the start of main()
 
 const ITEMS = [
   // ── Tops ────────────────────────────────────────────────
@@ -251,7 +261,8 @@ async function seedItem(item) {
   const { buffer, contentType } = loadImage(item.key);
   const primaryColorHex = await averageColorHex(buffer);
   const ext = extFromContentType(contentType);
-  const path = `${item.key}-${slugify(item.name)}.${ext}`;
+  // Same `<user_id>/` folder layout the app uses for uploads.
+  const path = `${userId}/${item.key}-${slugify(item.name)}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
     .from("item-images")
@@ -265,6 +276,7 @@ async function seedItem(item) {
   const { data: inserted, error: insertError } = await supabase
     .from("items")
     .insert({
+      user_id: userId,
       name: item.name,
       category: item.category,
       silhouette: item.silhouette,
@@ -283,6 +295,7 @@ async function seedItem(item) {
 }
 
 async function main() {
+  userId = (await findUserByEmail(supabase, seedEmail)).id;
   const idByKey = {};
   for (const item of ITEMS) {
     idByKey[item.key] = await seedItem(item);
@@ -291,7 +304,7 @@ async function main() {
   for (const outfit of OUTFITS) {
     const { data: insertedOutfit, error: outfitError } = await supabase
       .from("outfits")
-      .insert({ name: outfit.name, vibe: outfit.vibe })
+      .insert({ user_id: userId, name: outfit.name, vibe: outfit.vibe })
       .select("id")
       .single();
     if (outfitError) throw new Error(`insert outfit ${outfit.name}: ${outfitError.message}`);

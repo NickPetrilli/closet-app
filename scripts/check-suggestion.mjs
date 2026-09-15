@@ -6,7 +6,13 @@
 // Imports src/lib/server/suggest-outfit-core.ts directly (relative imports and
 // type-only imports throughout, so Node's type stripping can load it) — this
 // exercises the real scoring code, not a copy.
+//
+// Reads with the service_role key: the app tables have RLS on and no anon
+// access, and a script has no signed-in session. service_role bypasses RLS,
+// so it sees every account's rows; set CLOSET_USER_EMAIL=<email> to score one
+// person's closet. Local only — that key never goes on Vercel.
 import { createClient } from "@supabase/supabase-js";
+import { findUserByEmail } from "./find-user.mjs";
 import {
   SAVED_OUTFIT_THRESHOLD,
   bestSavedOutfit,
@@ -15,16 +21,24 @@ import {
 } from "@/lib/server/suggest-outfit-core";
 
 const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_ANON_KEY;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
-  console.error("Missing SUPABASE_URL or SUPABASE_ANON_KEY.");
+  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
   process.exit(1);
 }
 const supabase = createClient(url, key);
 
-const { data: itemRows, error: itemError } = await supabase
+const email = process.env.CLOSET_USER_EMAIL;
+const userId = email ? (await findUserByEmail(supabase, email)).id : null;
+console.log(
+  userId ? `Closet of ${email}.` : "Every account's rows (no CLOSET_USER_EMAIL set)."
+);
+
+let itemQuery = supabase
   .from("items")
   .select("id, name, category, silhouette, primary_color_hex");
+if (userId) itemQuery = itemQuery.eq("user_id", userId);
+const { data: itemRows, error: itemError } = await itemQuery;
 if (itemError) {
   console.error(`items: ${itemError.message}`);
   process.exit(1);
@@ -40,9 +54,11 @@ const items = itemRows.map((r) => ({
   sourcePhotoUrls: [],
 }));
 
-const { data: outfitRows, error: outfitError } = await supabase
+let outfitQuery = supabase
   .from("outfits")
   .select("id, name, vibe, outfit_items(item_id, position)");
+if (userId) outfitQuery = outfitQuery.eq("user_id", userId);
+const { data: outfitRows, error: outfitError } = await outfitQuery;
 if (outfitError) {
   console.error(`outfits: ${outfitError.message}`);
   process.exit(1);

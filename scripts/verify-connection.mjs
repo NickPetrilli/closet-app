@@ -1,6 +1,11 @@
 // One-off check that .env is wired up correctly. Run with:
 //   node --env-file=.env scripts/verify-connection.mjs
 // Never logs the actual key/URL values.
+//
+// Since 004-accounts-rls.sql the anon key has no access to the app tables, so
+// "permission denied" for anon is the EXPECTED result: it proves the lock is
+// on. The app reads as the signed-in user; the service_role key (local scripts
+// only) bypasses RLS and should see every row.
 import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.SUPABASE_URL;
@@ -22,7 +27,12 @@ async function check(label, client) {
   return true;
 }
 
-await check("anon key", createClient(url, anonKey));
+const anonCanRead = await check("anon key", createClient(url, anonKey));
+console.log(
+  anonCanRead
+    ? "  WARNING: anon can read items, so the tables are NOT locked down (expected only before 004-accounts-rls.sql)."
+    : "  (expected once 004-accounts-rls.sql has run: anon is locked out)"
+);
 
 if (serviceKey) {
   await check("service_role key", createClient(url, serviceKey));

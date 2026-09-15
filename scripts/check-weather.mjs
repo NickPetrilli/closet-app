@@ -6,6 +6,10 @@
 // It imports src/lib/server/weather-core.ts directly (that module has no value
 // imports and no "@/" aliases, so Node's type stripping can load it as-is) —
 // so this tests the real mapping code, not a copy of it.
+//
+// Uses the service_role key: the tables have RLS on and no anon access, and a
+// script has no signed-in session (service_role bypasses RLS). Local only —
+// that key never goes on Vercel.
 import { createClient } from "@supabase/supabase-js";
 import {
   forecastUrl,
@@ -21,9 +25,9 @@ const CACHE_MAX_AGE_MS = 30 * 60 * 1000; // must match weather.ts
 const query = process.argv[2] ?? "Boston, MA";
 
 const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_ANON_KEY;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) {
-  console.error("Missing SUPABASE_URL or SUPABASE_ANON_KEY.");
+  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
   process.exit(1);
 }
 const supabase = createClient(url, key);
@@ -95,19 +99,17 @@ if (fresh) {
   console.log("\nCached. Run again to confirm the hit path.");
 }
 
-// 3. app_settings reachability (does not write — the UI owns that).
-const { data: settings, error: settingsError } = await supabase
+// 3. app_settings reachability (does not write — the UI owns that). One row
+// per account, so this lists them all.
+const { data: settingsRows, error: settingsError } = await supabase
   .from("app_settings")
-  .select("location_label, timezone, updated_at")
-  .eq("id", "singleton")
-  .maybeSingle();
+  .select("user_id, location_label, timezone");
 
 if (settingsError) {
   console.error(`\napp_settings read failed: ${settingsError.message}`);
   process.exit(1);
 }
-console.log(
-  `\napp_settings: ${
-    settings ? `${settings.location_label} (${settings.timezone})` : "not set yet"
-  }`
-);
+console.log(`\napp_settings: ${settingsRows.length} account(s) with a location.`);
+for (const row of settingsRows) {
+  console.log(`  · ${row.location_label} (${row.timezone})  user ${row.user_id}`);
+}

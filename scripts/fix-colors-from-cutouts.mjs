@@ -3,6 +3,9 @@
 // average was still diluted by the studio-background padding around the
 // garment. Run after generate-cutouts.mjs, from the project root:
 //   node --env-file=.env scripts/fix-colors-from-cutouts.mjs
+//
+// service_role bypasses RLS, so this recomputes every account's items, not
+// just one person's. Local only — that key never goes on Vercel.
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 

@@ -2,6 +2,10 @@
 // the full source canvas, so garments were floating small in a sea of
 // transparent padding (~30% of the frame). Run from the project root:
 //   node --env-file=.env scripts/trim-cutouts.mjs
+//
+// service_role bypasses RLS and the storage policies, so this trims every
+// account's cutouts, whether at the old flat paths or under `<user_id>/`.
+// Local only — that key never goes on Vercel.
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
