@@ -49,6 +49,18 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
+  // The local-only account switcher has to be reachable while signed out (that
+  // is half its job) and while signed in (to switch away). It guards itself and
+  // 404s anywhere it is not a local dev build — see src/lib/server/dev-accounts.ts.
+  // Checked here too, so the route isn't even routable on a deployed site.
+  if (
+    path.startsWith("/dev/") &&
+    process.env.NODE_ENV === "development" &&
+    !process.env.VERCEL
+  ) {
+    return response;
+  }
+
   const redirectTo = (pathname: string) => {
     const url = request.nextUrl.clone();
     url.pathname = pathname;

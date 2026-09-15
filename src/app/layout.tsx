@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { DevAccountBadge } from "@/components/DevAccountBadge";
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 import { APP_NAME, APP_TAGLINE } from "@/lib/config";
 import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/theme";
@@ -69,6 +70,8 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <ServiceWorkerRegistrar />
+        {/* Renders nothing unless this is a local dev build. */}
+        <DevAccountBadge />
       </body>
     </html>
   );
