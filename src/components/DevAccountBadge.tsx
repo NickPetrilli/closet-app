@@ -3,13 +3,16 @@ import { getSession } from "@/lib/auth";
 import { isDevSwitcherEnabled } from "@/lib/server/dev-accounts";
 
 /**
- * A small corner chip naming the account this dev machine is signed in as,
- * linking to the switcher. Renders nothing unless the local-only switcher is
+ * A corner shortcut to the account switcher for the signed-OUT screens (the
+ * lock screen and sign-in), where there is no header to put it in. Once signed
+ * in, the header's Admin button takes over and this hides itself, so there is
+ * only ever one way in. Renders nothing unless the local-only switcher is
  * enabled, so it never appears on the deployed site.
  */
 export async function DevAccountBadge() {
   if (!isDevSwitcherEnabled()) return null;
   const { user } = await getSession();
+  if (user) return null;
 
   return (
     <Link
@@ -19,7 +22,7 @@ export async function DevAccountBadge() {
       // a development affordance rather than part of the product.
       title="Local development only — switch account"
     >
-      dev · {user?.email ?? "signed out"}
+      dev · switch account
     </Link>
   );
 }

@@ -10,6 +10,7 @@ import type {
   OccasionTag,
   Outfit,
 } from "@/lib/types";
+import { AdminLink } from "./AdminLink";
 import { AddItemButton } from "./AddItemButton";
 import { CategoryTabs } from "./CategoryTabs";
 import { DailySuggestionCard } from "./DailySuggestionCard";
@@ -37,6 +38,7 @@ export function WardrobeView({
   settings,
   ipLocationGuess,
   canFetchFromLink,
+  showAdminLink,
 }: {
   /** The signed-in person's heading, e.g. "Jenna's Closet" (see closetTitle). */
   title: string;
@@ -49,6 +51,8 @@ export function WardrobeView({
   settings: AppSettings;
   ipLocationGuess: string | null;
   canFetchFromLink: boolean;
+  /** Local dev only: shows the account switcher shortcut in the header. */
+  showAdminLink: boolean;
 }) {
   const [items, setItems] = useState(initialItems);
   const [outfits, setOutfits] = useState(initialOutfits);
@@ -119,6 +123,7 @@ export function WardrobeView({
           <p className="meta mb-1 whitespace-nowrap rounded-full border border-edge bg-surface-raised/50 px-3.5 py-1.5 text-ink-secondary">
             {items.length} Pieces
           </p>
+          {showAdminLink && <AdminLink />}
           <ThemeToggle />
           <LocationSettings
             currentLabel={settings.locationLabel}

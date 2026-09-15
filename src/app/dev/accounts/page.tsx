@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { HangerIcon } from "@/components/HangerIcon";
+import { APP_NAME } from "@/lib/config";
 import { switchToAccount } from "@/lib/actions/dev-auth";
 import { getSession } from "@/lib/auth";
 import { listDevAccounts, isDevSwitcherEnabled } from "@/lib/server/dev-accounts";
@@ -24,7 +27,19 @@ export default async function DevAccountsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <p className="eyebrow text-accent">Local development only</p>
+      {/* The mark doubles as the way back to the closet. */}
+      <Link
+        href="/"
+        className="inline-flex items-center gap-2.5 text-ink transition-colors hover:text-accent"
+        aria-label="Back to the closet"
+      >
+        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-edge-subtle bg-surface-raised/70 text-accent shadow-card">
+          <HangerIcon className="h-5 w-5" />
+        </span>
+        <span className="font-serif text-xl tracking-tight">{APP_NAME}</span>
+      </Link>
+
+      <p className="eyebrow mt-8 text-accent">Local development only</p>
       <h1 className="mt-1.5 font-serif text-3xl tracking-tight">
         Switch account
       </h1>
@@ -61,7 +76,9 @@ export default async function DevAccountsPage() {
                     {account.email}
                   </p>
                   <p className="meta mt-1 text-ink-secondary">
-                    {account.itemCount} pieces · {account.outfitCount} outfits
+                    {account.itemCount} {account.itemCount === 1 ? "piece" : "pieces"} ·{" "}
+                    {account.outfitCount}{" "}
+                    {account.outfitCount === 1 ? "outfit" : "outfits"}
                   </p>
                 </div>
                 {isCurrent ? (

@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { WardrobeView } from "@/components/WardrobeView";
 import { firstNameOf, requireUser } from "@/lib/auth";
+import { isDevSwitcherEnabled } from "@/lib/server/dev-accounts";
 import { closetTitle } from "@/lib/config";
 import {
   fetchAppSettings,
@@ -68,6 +69,9 @@ export default async function Home() {
       // background removal now runs via the remove.bg API instead of a
       // local model (see src/lib/server/remove-bg-api.ts).
       canFetchFromLink={!process.env.VERCEL}
+      // Never true on the deployed site; the switcher needs the service-role
+      // key, which is deliberately not a Vercel environment variable.
+      showAdminLink={isDevSwitcherEnabled()}
     />
   );
 }
