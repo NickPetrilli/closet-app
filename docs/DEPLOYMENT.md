@@ -94,11 +94,9 @@ keeps working the old way until the deploy in step 4.
    Providers → Email**:
    - Turn **OFF "Confirm email"**. The app can't send email, so with it on,
      nobody could finish signing up.
-   - Set **Minimum password length** to **4** (the app's own rule,
-     `MIN_PASSWORD_LENGTH` in `src/lib/auth-rules.ts`). Supabase's default is
-     6. If the dashboard won't accept a value below 6, leave it at 6 — the
-     app will still offer 4, but Supabase will reject 4–5 character passwords
-     at sign-up with its own error message.
+   - Leave **Minimum password length** at its default of **6**. The app's
+     own rule (`MIN_PASSWORD_LENGTH` in `src/lib/auth-rules.ts`) matches it;
+     if you ever change one, change the other.
    - Save.
 3. **Add `FAMILY_CODE`** in Vercel (all three environments) and to the local
    `.env`. `node --env-file=.env scripts/check-env-shape.mjs` confirms the
