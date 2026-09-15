@@ -1,5 +1,6 @@
 "use server";
 
+import { requireUser } from "@/lib/auth";
 import { fetchAritziaProduct } from "@/lib/server/aritzia-fetch";
 import { processAndInsertItem } from "@/lib/server/item-pipeline";
 import type { Category } from "@/lib/types";
@@ -17,6 +18,8 @@ export interface AddItemResult {
 }
 
 export async function addItem(formData: FormData): Promise<AddItemResult> {
+  // Before anything else: a signed-out caller must never reach remove.bg.
+  const { supabase, user } = await requireUser();
   const name = (formData.get("name") as string | null)?.trim();
   const category = formData.get("category") as Category | null;
   const file = formData.get("photo") as File | null;
@@ -31,22 +34,29 @@ export async function addItem(formData: FormData): Promise<AddItemResult> {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  return processAndInsertItem({ name, category, buffer, contentType: file.type });
+  return processAndInsertItem(
+    { name, category, buffer, contentType: file.type },
+    { supabase, userId: user.id }
+  );
 }
 
 export async function addItemFromUrl(formData: FormData): Promise<AddItemResult> {
+  const { supabase, user } = await requireUser();
   const url = (formData.get("url") as string | null)?.trim();
   if (!url) return { error: "Paste a product link." };
 
   try {
     const product = await fetchAritziaProduct(url);
-    return processAndInsertItem({
-      name: product.name,
-      category: product.category,
-      buffer: product.buffer,
-      contentType: product.contentType,
-      productUrl: url,
-    });
+    return processAndInsertItem(
+      {
+        name: product.name,
+        category: product.category,
+        buffer: product.buffer,
+        contentType: product.contentType,
+        productUrl: url,
+      },
+      { supabase, userId: user.id }
+    );
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Couldn't fetch that link.",

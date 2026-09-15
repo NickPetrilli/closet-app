@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { removeBackgroundViaApi } from "@/lib/server/remove-bg-api";
-import { supabase } from "@/lib/supabase/client";
+import type { requireUser } from "@/lib/auth";
 import type { Category } from "@/lib/types";
 
 function toHex(n: number) {
@@ -48,18 +48,26 @@ export interface ProcessItemInput {
   productUrl?: string | null;
 }
 
+/**
+ * Who the new item belongs to, handed in by the calling Server Action. The
+ * action has already run requireUser() (it has to, before spending any
+ * remove.bg quota), so this module takes the result rather than repeating the
+ * auth check.
+ */
+export interface ItemOwner {
+  supabase: Awaited<ReturnType<typeof requireUser>>["supabase"];
+  userId: string;
+}
+
 export interface ProcessItemResult {
   error?: string;
 }
 
 /** Shared by both add-item paths: photo upload and Aritzia link fetch. */
-export async function processAndInsertItem({
-  name,
-  category,
-  buffer,
-  contentType,
-  productUrl,
-}: ProcessItemInput): Promise<ProcessItemResult> {
+export async function processAndInsertItem(
+  { name, category, buffer, contentType, productUrl }: ProcessItemInput,
+  { supabase, userId }: ItemOwner
+): Promise<ProcessItemResult> {
   // Phones (iOS especially) can hand over HEIC/HEIF — remove.bg only takes
   // JPEG/PNG/WebP, and browsers can't render HEIC in the wardrobe grid
   // either, so normalise to JPEG up front. sharp's prebuilt binaries decode
@@ -89,7 +97,10 @@ export async function processAndInsertItem({
     const slug = slugify(name) || id;
     const ext = sourceType === "image/png" ? "png" : "jpg";
 
-    const photoPath = `${id}-${slug}.${ext}`;
+    // New uploads live under the owner's id, which is what the storage
+    // policies key on. Objects from before accounts stay at their old flat
+    // paths; their public URLs keep working, so nothing needs moving.
+    const photoPath = `${userId}/${id}-${slug}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("item-images")
       .upload(photoPath, sourceBuffer, { contentType: sourceType, upsert: true });
@@ -98,7 +109,7 @@ export async function processAndInsertItem({
       .from("item-images")
       .getPublicUrl(photoPath);
 
-    const cutoutPath = `cutouts/${id}-${slug}.png`;
+    const cutoutPath = `${userId}/cutouts/${id}-${slug}.png`;
     const { error: cutoutUploadError } = await supabase.storage
       .from("item-images")
       .upload(cutoutPath, cutoutBuffer, {
@@ -121,6 +132,7 @@ export async function processAndInsertItem({
       cutout_image_url: cutoutUrl.publicUrl,
       source_photo_urls: [],
       product_url: productUrl ?? null,
+      user_id: userId,
     });
     if (insertError) return { error: `Save failed: ${insertError.message}` };
 

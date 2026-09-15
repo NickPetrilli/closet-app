@@ -1,16 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireUser } from "@/lib/auth";
 import { fetchItems, fetchOutfits } from "@/lib/data/wardrobe-repository";
 import {
   generateOutfitCandidates,
   type GenerateOutfitsResult,
   type OutfitCandidate,
 } from "@/lib/server/generate-outfits";
-import { supabase } from "@/lib/supabase/client";
 import type { Category, OutfitVibe } from "@/lib/types";
 
 export type { OutfitCandidate };
+
+type SupabaseClient = Awaited<ReturnType<typeof requireUser>>["supabase"];
 
 const REQUIRED_CATEGORIES: Category[] = ["tops", "bottoms", "shoes"];
 const VALID_VIBES: OutfitVibe[] = [
@@ -22,8 +24,29 @@ const VALID_VIBES: OutfitVibe[] = [
   "street",
 ];
 
+/**
+ * The subset of `ids` that belong to this user, with their categories.
+ * outfit_items has no user_id of its own (ownership comes through the outfit),
+ * so every write to it checks here first. Otherwise a hand-crafted request
+ * could pin someone else's item into an outfit.
+ */
+async function fetchOwnedItems(
+  supabase: SupabaseClient,
+  userId: string,
+  ids: string[]
+) {
+  return supabase
+    .from("items")
+    .select("id, category")
+    .in("id", ids)
+    .eq("user_id", userId);
+}
+
 /** Generates candidates only — nothing is written to the database yet. */
 export async function generateOutfits(count: number): Promise<GenerateOutfitsResult> {
+  // Up front so a signed-out caller never reaches Gemini. The repository reads
+  // below are scoped to the same user internally (and share this cached check).
+  await requireUser();
   const [items, outfits] = await Promise.all([fetchItems(), fetchOutfits()]);
   return generateOutfitCandidates(items, outfits, count);
 }
@@ -35,13 +58,29 @@ export interface SaveOutfitsResult {
 
 /** Shared persistence path for both the AI-review flow and manual creation. */
 export async function saveOutfits(candidates: OutfitCandidate[]): Promise<SaveOutfitsResult> {
+  const { supabase, user } = await requireUser();
   if (candidates.length === 0) return { error: "Nothing selected to save." };
+
+  // One ownership lookup for every piece across the batch, rather than one
+  // query per candidate.
+  const allIds = [...new Set(candidates.flatMap((c) => c.itemIds))];
+  const { data: owned, error: ownedError } = await fetchOwnedItems(
+    supabase,
+    user.id,
+    allIds
+  );
+  if (ownedError) return { error: "Couldn't save any outfits — try again." };
+  const ownedIds = new Set((owned ?? []).map((row) => row.id as string));
 
   let savedCount = 0;
   for (const candidate of candidates) {
+    // A candidate naming a piece that isn't theirs is skipped like any other
+    // failed save, not half-saved.
+    if (!candidate.itemIds.every((id) => ownedIds.has(id))) continue;
+
     const { data: outfitRow, error: outfitError } = await supabase
       .from("outfits")
-      .insert({ name: candidate.name, vibe: candidate.vibe })
+      .insert({ name: candidate.name, vibe: candidate.vibe, user_id: user.id })
       .select("id")
       .single();
     if (outfitError || !outfitRow) continue;
@@ -54,7 +93,11 @@ export async function saveOutfits(candidates: OutfitCandidate[]): Promise<SaveOu
     const { error: itemsError } = await supabase.from("outfit_items").insert(rows);
     if (itemsError) {
       // Roll back the now-orphaned outfit row rather than leave a headless one.
-      await supabase.from("outfits").delete().eq("id", outfitRow.id);
+      await supabase
+        .from("outfits")
+        .delete()
+        .eq("id", outfitRow.id)
+        .eq("user_id", user.id);
       continue;
     }
     savedCount++;
@@ -76,6 +119,7 @@ export interface CreateOutfitResult {
 }
 
 export async function createOutfit(input: CreateOutfitInput): Promise<CreateOutfitResult> {
+  const { supabase, user } = await requireUser();
   const name = input.name.trim();
   if (!name) return { error: "Name is required." };
   if (!VALID_VIBES.includes(input.vibe)) return { error: "Choose a vibe." };
@@ -83,11 +127,16 @@ export async function createOutfit(input: CreateOutfitInput): Promise<CreateOutf
     return { error: "Pick at least a top, bottom, and pair of shoes." };
   }
 
-  const { data: rows, error: fetchError } = await supabase
-    .from("items")
-    .select("id, category")
-    .in("id", input.itemIds);
+  const itemIds = [...new Set(input.itemIds)];
+  const { data: rows, error: fetchError } = await fetchOwnedItems(
+    supabase,
+    user.id,
+    itemIds
+  );
   if (fetchError) return { error: `Couldn't validate items: ${fetchError.message}` };
+  if ((rows ?? []).length !== itemIds.length) {
+    return { error: "Some of those pieces couldn't be found — try refreshing." };
+  }
 
   const categoriesPresent = new Set((rows ?? []).map((r) => r.category as Category));
   const missing = REQUIRED_CATEGORIES.filter((c) => !categoriesPresent.has(c));
@@ -95,7 +144,7 @@ export async function createOutfit(input: CreateOutfitInput): Promise<CreateOutf
     return { error: `Missing a ${missing.join(" and a ")}.` };
   }
 
-  const result = await saveOutfits([{ name, vibe: input.vibe, itemIds: input.itemIds }]);
+  const result = await saveOutfits([{ name, vibe: input.vibe, itemIds }]);
   return result.error ? { error: result.error } : {};
 }
 
@@ -114,6 +163,7 @@ export interface UpdateOutfitInput {
 export async function updateOutfit(
   input: UpdateOutfitInput
 ): Promise<{ error?: string }> {
+  const { supabase, user } = await requireUser();
   const patch: { name?: string; vibe?: OutfitVibe } = {};
 
   if (input.name !== undefined) {
@@ -127,11 +177,24 @@ export async function updateOutfit(
     patch.vibe = input.vibe;
   }
 
+  // Confirm the outfit is theirs before touching anything. The outfits update
+  // below is scoped by user_id on its own, but outfit_items has no user_id, so
+  // a pieces-only edit would otherwise rewrite any outfit whose id was sent.
+  const { data: owned, error: ownedError } = await supabase
+    .from("outfits")
+    .select("id")
+    .eq("id", input.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (ownedError) return { error: `Couldn't save that: ${ownedError.message}` };
+  if (!owned) return { error: "Couldn't find that outfit — try refreshing." };
+
   if (Object.keys(patch).length > 0) {
     const { error } = await supabase
       .from("outfits")
       .update(patch)
-      .eq("id", input.id);
+      .eq("id", input.id)
+      .eq("user_id", user.id);
     if (error) return { error: `Couldn't save that: ${error.message}` };
   }
 
@@ -141,12 +204,16 @@ export async function updateOutfit(
       return { error: "Pick at least a top, bottom, and pair of shoes." };
     }
 
-    const { data: rows, error: fetchError } = await supabase
-      .from("items")
-      .select("id, category")
-      .in("id", itemIds);
+    const { data: rows, error: fetchError } = await fetchOwnedItems(
+      supabase,
+      user.id,
+      itemIds
+    );
     if (fetchError) {
       return { error: `Couldn't validate items: ${fetchError.message}` };
+    }
+    if ((rows ?? []).length !== itemIds.length) {
+      return { error: "Some of those pieces couldn't be found — try refreshing." };
     }
 
     const categoriesPresent = new Set((rows ?? []).map((r) => r.category as Category));
@@ -199,8 +266,18 @@ export async function updateOutfit(
 }
 
 export async function deleteOutfit(id: string): Promise<{ error?: string }> {
-  const { error } = await supabase.from("outfits").delete().eq("id", id);
+  const { supabase, user } = await requireUser();
+  // outfit_items rows go with it via the foreign key's on delete cascade.
+  const { data, error } = await supabase
+    .from("outfits")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id");
   if (error) return { error: error.message };
+  if (!data || data.length === 0) {
+    return { error: "Couldn't find that outfit — try refreshing." };
+  }
   revalidatePath("/");
   return {};
 }

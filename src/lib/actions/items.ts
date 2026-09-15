@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase/client";
+import { requireUser } from "@/lib/auth";
 
 /**
  * Edits to an existing item. Only the name for now — category and the colors
@@ -19,6 +19,7 @@ export interface UpdateItemInput {
 export async function updateItem(
   input: UpdateItemInput
 ): Promise<{ error?: string }> {
+  const { supabase, user } = await requireUser();
   const patch: { name?: string } = {};
 
   if (input.name !== undefined) {
@@ -29,10 +30,21 @@ export async function updateItem(
 
   if (Object.keys(patch).length === 0) return {};
 
-  const { error } = await supabase.from("items").update(patch).eq("id", input.id);
+  // Scoped to the owner, and selecting the row back so an id that isn't
+  // theirs (or no longer exists) reads as "not found" rather than a silent
+  // no-op success.
+  const { data, error } = await supabase
+    .from("items")
+    .update(patch)
+    .eq("id", input.id)
+    .eq("user_id", user.id)
+    .select("id");
   if (error) {
     console.error("updateItem failed:", error);
     return { error: "Couldn't save that — try again." };
+  }
+  if (!data || data.length === 0) {
+    return { error: "Couldn't find that item — try refreshing." };
   }
 
   revalidatePath("/");
