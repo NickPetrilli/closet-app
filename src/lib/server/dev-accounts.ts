@@ -87,14 +87,38 @@ export async function listDevAccounts(): Promise<DevAccount[]> {
  * A one-time token that can be exchanged for a session, without the password
  * and without sending any email. `generateLink` only RETURNS the link — mail
  * delivery is what the app can't do at all (see the accounts decisions).
+ *
+ * Takes an account ID, and deliberately does NOT take an email from the
+ * caller: generateLink with type "magiclink" CREATES an account when that
+ * email has none (verified against this project — it issued a token for a
+ * nonsense address and a new user appeared). Looking the account up by id and
+ * using ITS stored email means the address handed to Supabase always belongs
+ * to a real account, so switching can never quietly conjure a duplicate of a
+ * deleted one. The id check afterwards closes the remaining sliver, where the
+ * account is deleted between the lookup and the link.
  */
-export async function devSessionToken(email: string): Promise<string> {
+export async function devSessionToken(id: string): Promise<string> {
   const admin = adminClient();
+
+  const { data: existing, error: lookupError } =
+    await admin.auth.admin.getUserById(id);
+  const email = existing?.user?.email;
+  if (lookupError || !email) {
+    throw new Error("That account no longer exists — reload the list.");
+  }
+
   const { data, error } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email,
   });
   if (error) throw new Error(error.message);
+
+  if (data.user?.id !== id) {
+    throw new Error(
+      "That email now belongs to a different account — reload the list."
+    );
+  }
+
   const token = data.properties?.hashed_token;
   if (!token) throw new Error("Supabase returned no token for that account.");
   return token;

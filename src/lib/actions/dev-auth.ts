@@ -13,15 +13,17 @@ export async function switchToAccount(formData: FormData): Promise<void> {
     throw new Error("The dev account switcher is disabled.");
   }
 
-  const email = formData.get("email");
-  if (typeof email !== "string" || !email) {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) {
     throw new Error("No account was chosen.");
   }
 
   // The admin API mints a one-time token; verifying it here (on the client
   // bound to this request's cookies) is what actually writes the session
-  // cookies, exactly as a real sign-in would.
-  const tokenHash = await devSessionToken(email);
+  // cookies, exactly as a real sign-in would. Only the id crosses the wire —
+  // the helper resolves the email itself, so a stale page can't name an
+  // address that would create an account instead of finding one.
+  const tokenHash = await devSessionToken(id);
   const supabase = await getSupabase();
   const { error } = await supabase.auth.verifyOtp({
     type: "magiclink",

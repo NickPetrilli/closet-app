@@ -81,14 +81,18 @@ export default async function DevAccountsPage() {
                     {account.outfitCount === 1 ? "outfit" : "outfits"}
                   </p>
                 </div>
+                {/* The marker keeps the switch button's pill size, so rows line up. */}
                 {isCurrent ? (
-                  <span className="btn-label rounded-full border border-edge px-4 py-2 text-ink-tertiary">
+                  <span className="btn-label shrink-0 rounded-full border border-edge px-5 py-2.5 text-ink-tertiary">
                     Signed in
                   </span>
                 ) : (
                   <form action={switchToAccount}>
-                    <input type="hidden" name="email" value={account.email} />
-                    <button type="submit" className="btn-secondary">
+                    <input type="hidden" name="id" value={account.id} />
+                    <button
+                      type="submit"
+                      className="btn-label btn-secondary shrink-0 cursor-pointer rounded-full px-5 py-2.5"
+                    >
                       Switch to {account.firstName ?? account.email}
                     </button>
                   </form>
