@@ -256,7 +256,7 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
             ) : (
               <>
                 <div>
-                  <p className="eyebrow text-ink-tertiary">Aritzia Product Link</p>
+                  <p className="eyebrow text-ink-tertiary">Product Link</p>
                   <input
                     type="url"
                     name="url"
@@ -266,9 +266,31 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                   />
                 </div>
 
+                {/* Aritzia's pages say what kind of garment it is; most shops
+                    don't, so the category can be set here. Left on Detect,
+                    the fetch guesses from the product name and says so if it
+                    can't. */}
+                <div>
+                  <p className="eyebrow text-ink-tertiary">Category</p>
+                  <select
+                    name="category"
+                    defaultValue=""
+                    className="mt-2.5 w-full cursor-pointer border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
+                  >
+                    <option value="">Detect automatically</option>
+                    <option value="tops">Tops</option>
+                    <option value="jackets">Jackets</option>
+                    <option value="bottoms">Bottoms</option>
+                    <option value="accessories">Accessories</option>
+                    <option value="shoes">Shoes</option>
+                  </select>
+                </div>
+
                 <p className="text-xs leading-relaxed text-ink-tertiary">
-                  We&apos;ll pull the name, category, and a flat product photo
-                  automatically, then remove the background — no photo needed.
+                  Works with most shops — Aritzia, Nike, Skims and the like.
+                  We&apos;ll pull the name and product photo, then remove the
+                  background. If a shop blocks us, save the photo and use
+                  Upload a Photo instead.
                 </p>
               </>
             )}

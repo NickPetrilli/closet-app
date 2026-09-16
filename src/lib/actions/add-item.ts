@@ -1,7 +1,7 @@
 "use server";
 
 import { requireUser } from "@/lib/auth";
-import { fetchAritziaProduct } from "@/lib/server/aritzia-fetch";
+import { fetchProductFromUrl } from "@/lib/server/product-fetch";
 import { processAndInsertItem } from "@/lib/server/item-pipeline";
 import type { Category } from "@/lib/types";
 
@@ -45,15 +45,28 @@ export async function addItemFromUrl(formData: FormData): Promise<AddItemResult>
   const url = (formData.get("url") as string | null)?.trim();
   if (!url) return { error: "Paste a product link." };
 
+  // Optional overrides from the form. Category is only needed when the shop's
+  // own page doesn't say — see fetchProductFromUrl.
+  const chosenCategory = formData.get("category") as Category | null;
+  if (chosenCategory && !VALID_CATEGORIES.includes(chosenCategory)) {
+    return { error: "Choose a category." };
+  }
+
   try {
-    const product = await fetchAritziaProduct(url);
+    const product = await fetchProductFromUrl(url);
+    const category = chosenCategory || product.category;
+    if (!category) {
+      return {
+        error: `Got "${product.name}", but that shop doesn't say what kind of item it is — pick a category and try again.`,
+      };
+    }
+
     return processAndInsertItem(
       {
         name: product.name,
-        category: product.category,
+        category,
         buffer: product.buffer,
         contentType: product.contentType,
-        productUrl: url,
       },
       { supabase, userId: user.id }
     );

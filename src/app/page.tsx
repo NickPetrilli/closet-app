@@ -63,7 +63,7 @@ export default async function Home() {
       occasionTags={occasionTags}
       settings={settings}
       ipLocationGuess={guess}
-      // The Aritzia link-fetch mode needs a real local browser (Puppeteer),
+      // The product-link mode needs a real local browser (Puppeteer),
       // which can't run on Vercel (no display) — so only that mode is
       // hidden on the deployed site. Photo upload works everywhere, since
       // background removal now runs via the remove.bg API instead of a

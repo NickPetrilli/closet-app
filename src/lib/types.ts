@@ -71,7 +71,7 @@ export interface ClothingItem {
   cutoutImageUrl?: string | null;
   /** Original photos the item was captured from (1–2 mock entries for now). */
   sourcePhotoUrls: string[];
-  /** Retailer listing URL (e.g. the Aritzia product page), for reordering. */
+  /** Retailer listing URL (the shop's product page), for reordering. */
   productUrl?: string | null;
   /**
    * When the item was added, ISO 8601. Optional because the legacy mock set

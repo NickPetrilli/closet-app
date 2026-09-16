@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
  * Local-only account switching, for managing everyone's closets from one dev
  * machine.
  *
- * Why this exists: the Aritzia link-fetch mode needs a real local browser and
+ * Why this exists: the product-link mode needs a real local browser and
  * so only runs on this machine (see docs/DEPLOYMENT.md), but it writes to the
  * SAME Supabase project the live site uses. Loading clothes into someone's
  * closet therefore means being signed in as them locally, and their password

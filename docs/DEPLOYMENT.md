@@ -2,7 +2,7 @@
 
 The app is a standard Next.js 15 App Router project and deploys to Vercel
 **zero-config** — no `vercel.json` is needed. The two deployment constraints
-this project has (Puppeteer can't run on Vercel; the Aritzia link-fetch mode
+this project has (Puppeteer can't run on Vercel; the product-link mode
 needs a real local browser) are already handled in code:
 
 - `next.config.ts` → `outputFileTracingExcludes` keeps Puppeteer out of the

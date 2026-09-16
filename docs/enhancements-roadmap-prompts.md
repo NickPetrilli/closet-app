@@ -139,7 +139,7 @@ ENV VARS (Vercel → Settings → Environment Variables — all three environmen
   scripts/check-weather.mjs and scripts/check-suggestion.mjs.
 
 CONSTRAINTS
-- Puppeteer / the Aritzia link-fetch mode cannot run on Vercel (see docs/DEPLOYMENT.md
+- Puppeteer / the product-link mode cannot run on Vercel (see docs/DEPLOYMENT.md
   and the closet-app-deployment-constraints memory) — don't build on it for anything
   server-side. Photo upload works everywhere.
 - Prefer no-card, free-tier external services. Weather = Open-Meteo (no key, no signup).
@@ -208,7 +208,7 @@ the upload flow already exists in AddItemButton.tsx + item-pipeline.ts.)
      piece. If yes, attach the new source photo to the existing item's
      source_photo_urls instead of inserting.
 
-5. Do NOT: change the link-fetch (Aritzia) mode, the background-removal step, or the
+5. Do NOT: change the product-link mode, the background-removal step, or the
    storage layout. Do NOT switch providers to Claude.
 
 VERIFY

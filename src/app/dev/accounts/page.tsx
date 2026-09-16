@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Local-only: sign in as any account with one click, for loading clothes into
- * someone's closet from this machine (the Aritzia link mode only runs here).
+ * someone's closet from this machine (the product-link mode only runs here).
  * Returns a 404 anywhere the switcher is disabled.
  */
 export default async function DevAccountsPage() {

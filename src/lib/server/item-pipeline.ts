@@ -63,7 +63,7 @@ export interface ProcessItemResult {
   error?: string;
 }
 
-/** Shared by both add-item paths: photo upload and Aritzia link fetch. */
+/** Shared by both add-item paths: photo upload and the product-link fetch. */
 export async function processAndInsertItem(
   { name, category, buffer, contentType, productUrl }: ProcessItemInput,
   { supabase, userId }: ItemOwner
