@@ -261,15 +261,14 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                     type="url"
                     name="url"
                     required
-                    placeholder="https://www.aritzia.com/us/en/product/..."
+                    placeholder="Paste a product page link"
                     className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
                   />
                 </div>
 
-                {/* Aritzia's pages say what kind of garment it is; most shops
-                    don't, so the category can be set here. Left on Detect,
-                    the fetch guesses from the product name and says so if it
-                    can't. */}
+                {/* Few shops say what kind of garment a product is, so the
+                    category can be set here. Left on Detect, the fetch works
+                    it out where it can and says so when it can't. */}
                 <div>
                   <p className="eyebrow text-ink-tertiary">Category</p>
                   <select
@@ -287,9 +286,9 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                 </div>
 
                 <p className="text-xs leading-relaxed text-ink-tertiary">
-                  Works with most shops — Aritzia, Nike, Skims and the like.
+                  Works with most shops — Aritzia, Skims and the like.
                   We&apos;ll pull the name and product photo, then remove the
-                  background. If a shop blocks us, save the photo and use
+                  background. If a shop turns us away, save the photo and use
                   Upload a Photo instead.
                 </p>
               </>
