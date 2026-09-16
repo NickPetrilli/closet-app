@@ -1,9 +1,9 @@
 /**
- * The family-code lock screen that sits in front of sign-in and sign-up.
+ * The shared-password lock screen that sits in front of sign-in and sign-up.
  *
- * Entering the code sets a cookie holding an HMAC of the code, not the code
- * itself. The cookie therefore proves its holder knew the code, can't be
- * forged without the code, and stops working the moment FAMILY_CODE is
+ * Entering it sets a cookie holding an HMAC of the password, not the password
+ * itself. The cookie therefore proves its holder knew the password, can't be
+ * forged without it, and stops working the moment SITE_PASSWORD is
  * changed. Signed-in users skip the gate entirely (see middleware.ts).
  *
  * This is a door, not the lock on anyone's data: the database's RLS policies
@@ -48,16 +48,16 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export function isGateConfigured(): boolean {
-  return Boolean(process.env.FAMILY_CODE);
+  return Boolean(process.env.SITE_PASSWORD);
 }
 
-/** The cookie value for the current FAMILY_CODE, or null if it isn't set. */
+/** The cookie value for the current SITE_PASSWORD, or null if it isn't set. */
 export async function currentGateToken(): Promise<string | null> {
-  const code = process.env.FAMILY_CODE;
+  const code = process.env.SITE_PASSWORD;
   return code ? hmacHex(code, "closet-gate-v1") : null;
 }
 
-/** Fails closed: with no FAMILY_CODE configured, nothing gets through. */
+/** Fails closed: with no SITE_PASSWORD configured, nothing gets through. */
 export async function isGateCookieValid(
   value: string | undefined
 ): Promise<boolean> {
@@ -67,12 +67,12 @@ export async function isGateCookieValid(
 }
 
 /**
- * Whether the typed code is right. Codes are compared case-insensitively with
+ * Whether the typed password is right. Compared case-insensitively with
  * surrounding spaces ignored, because it will be typed on a phone keyboard
  * that likes to capitalize the first letter.
  */
-export async function isFamilyCode(input: string): Promise<boolean> {
-  const code = process.env.FAMILY_CODE;
+export async function isSitePassword(input: string): Promise<boolean> {
+  const code = process.env.SITE_PASSWORD;
   if (!code) return false;
   const normalize = (s: string) => s.trim().toLowerCase();
   // Compare HMACs of equal length rather than the raw strings.

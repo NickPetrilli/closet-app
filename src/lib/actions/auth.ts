@@ -7,7 +7,7 @@ import {
   GATE_COOKIE,
   GATE_MAX_AGE_SECONDS,
   currentGateToken,
-  isFamilyCode,
+  isSitePassword,
   isGateConfigured,
   isGateCookieValid,
 } from "@/lib/gate";
@@ -28,16 +28,16 @@ export async function unlock(
   formData: FormData
 ): Promise<AuthFormState> {
   if (!isGateConfigured()) {
-    return { error: "The family code hasn't been set up yet." };
+    return { error: "The password for this closet hasn't been set up yet." };
   }
 
-  const code = field(formData, "code");
-  if (!code.trim()) return { error: "Enter the family code." };
+  const password = field(formData, "password");
+  if (!password.trim()) return { error: "Enter the password." };
 
-  if (!(await isFamilyCode(code))) {
-    // A small, fixed delay makes guessing the code by script slow.
+  if (!(await isSitePassword(password))) {
+    // A small, fixed delay makes guessing the password by script slow.
     await new Promise((resolve) => setTimeout(resolve, 700));
-    return { error: "That code isn't right." };
+    return { error: "That password isn't right." };
   }
 
   const token = await currentGateToken();
@@ -77,7 +77,7 @@ export async function signUp(
   // without ever loading the page it lives on.
   const gate = (await cookies()).get(GATE_COOKIE)?.value;
   if (!(await isGateCookieValid(gate))) {
-    return { error: "Enter the family code first." };
+    return { error: "Enter the closet password first." };
   }
 
   const firstName = field(formData, "firstName").trim();

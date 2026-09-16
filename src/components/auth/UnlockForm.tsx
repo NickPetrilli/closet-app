@@ -15,20 +15,20 @@ export function UnlockForm() {
   // Controlled on purpose: React 19 resets an uncontrolled form after every
   // action completes, errors included, which would wipe a mistyped code she
   // only needs to fix one letter of.
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <form action={formAction} className="mt-8 flex flex-col gap-5">
       <div>
-        <label htmlFor="family-code" className="sr-only">
-          Family code
+        <label htmlFor="closet-password" className="sr-only">
+          Closet password
         </label>
         <input
-          id="family-code"
-          name="code"
+          id="closet-password"
+          name="password"
           type="text"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           required
           // A single-purpose screen: putting the cursor in the only field is
           // the expected thing, and iOS won't force the keyboard open for it.
@@ -38,7 +38,7 @@ export function UnlockForm() {
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="go"
-          placeholder="Family code"
+          placeholder="Password"
           aria-invalid={Boolean(state.error) && !isPending}
           className={`${INPUT_BASE_CLASS} h-14 text-center font-serif text-2xl tracking-[0.12em] placeholder:font-sans placeholder:text-base placeholder:tracking-normal`}
         />

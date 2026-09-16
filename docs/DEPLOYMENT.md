@@ -14,7 +14,7 @@ needs a real local browser) are already handled in code:
   server action enough time (remove.bg round-trip + image processing + two
   Supabase uploads) instead of the default 10s cap.
 
-Access model: a family-code lock screen comes first, then Supabase Auth
+Access model: a shared-password lock screen comes first, then Supabase Auth
 (email + password). Every account has its own closet, enforced by Row Level
 Security in the database (see `supabase/schema.sql`), not just by the app.
 
@@ -27,7 +27,7 @@ three environments (Production, Preview, Development) unless noted.
 |---|---|---|
 | `SUPABASE_URL` | `https://ydxbpgaycpvebsxiolww.supabase.co` | Bare URL — no trailing slash, no `/rest/v1`. |
 | `SUPABASE_ANON_KEY` | the anon/public key | Supabase → Project Settings → API. The app pairs it with the signed-in user's session; on its own it can't read any table. Not `NEXT_PUBLIC_`-prefixed: it's only read server-side. |
-| `FAMILY_CODE` | a phrase you choose | The code typed on the lock screen before anyone can sign in or create an account. Matched ignoring case and surrounding spaces. It keeps strangers from making accounts (and using up the shared remove.bg/Gemini quotas); RLS is what keeps closets private. **Changing it** re-locks every device that isn't signed in, and **never** signs anyone out. If it's missing, the lock screen lets nobody in. |
+| `SITE_PASSWORD` | a phrase you choose | The shared password typed on the lock screen before anyone can sign in or create an account. Matched ignoring case and surrounding spaces. It keeps strangers from making accounts (and using up the shared remove.bg/Gemini quotas); RLS is what keeps closets private. **Changing it** re-locks every device that isn't signed in, and **never** signs anyone out. If it's missing, the lock screen lets nobody in. |
 | `REMOVE_BG_API_KEY` | the remove.bg API key | remove.bg → Dashboard → API Key. Free tier = 50 images/month total (shared across local + prod on the same key, and across every account). |
 | `GEMINI_API_KEY` | the Gemini API key | Google AI Studio → API keys. Powers Generate Outfits (`src/lib/server/generate-outfits.ts`). Free tier; quota is per-model per-day and resets at midnight Pacific. |
 | `PUPPETEER_SKIP_DOWNLOAD` | `true` | Stops `npm install` from downloading ~200MB of Chromium during the Vercel build. Puppeteer is excluded from the bundle anyway, so the download is pure waste. |
@@ -98,13 +98,13 @@ keeps working the old way until the deploy in step 4.
      own rule (`MIN_PASSWORD_LENGTH` in `src/lib/auth-rules.ts`) matches it;
      if you ever change one, change the other.
    - Save.
-3. **Add `FAMILY_CODE`** in Vercel (all three environments) and to the local
+3. **Add `SITE_PASSWORD`** in Vercel (all three environments) and to the local
    `.env`. `node --env-file=.env scripts/check-env-shape.mjs` confirms the
    local one is set, without printing it.
 4. **Merge and push** the accounts branch to `main` (or deploy it) — this is
    the moment the lock screen and sign-in appear.
 5. **Wait for the deploy to go live**, then have **Jenna create her account**
-   on the live site: family code → Create account → first name, email,
+   on the live site: password → Create account → first name, email,
    password. Her closet will look empty at first; that's expected, because
    the existing rows don't belong to anyone yet. Ask her not to add or change
    anything until step 6 is done.
@@ -170,7 +170,7 @@ vercel login
 vercel link          # link this folder to a Vercel project
 vercel env add SUPABASE_URL production
 vercel env add SUPABASE_ANON_KEY production
-vercel env add FAMILY_CODE production
+vercel env add SITE_PASSWORD production
 vercel env add REMOVE_BG_API_KEY production
 vercel env add GEMINI_API_KEY production
 vercel env add PUPPETEER_SKIP_DOWNLOAD production
@@ -180,7 +180,7 @@ vercel --prod
 ## 5. Post-deploy check
 
 - [ ] Opening the site in a private window shows the **lock screen**; the right
-      family code leads to sign-in (confirms `FAMILY_CODE`).
+      password leads to sign-in (confirms `SITE_PASSWORD`).
 - [ ] Signed in, the home page shows that account's items and outfits
       (confirms the Supabase env vars and RLS policies — a blank closet for
       an account that has items usually means a bad URL/key, or that

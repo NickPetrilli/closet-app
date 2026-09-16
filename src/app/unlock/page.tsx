@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Unlock · Closet",
 };
 
-// FAMILY_CODE is read per request. Prerendered at build time, this page would
+// SITE_PASSWORD is read per request. Prerendered at build time, this page would
 // keep showing "not set up yet" after the variable is added until a redeploy.
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export default function UnlockPage() {
     return (
       <AuthShell>
         <AuthHeading eyebrow="Almost ready" title="Not open just yet">
-          The family code for this closet hasn&rsquo;t been set up. Once it
+          The password for this closet hasn&rsquo;t been set up. Once it
           has, you&rsquo;ll be able to come in from here.
         </AuthHeading>
       </AuthShell>
@@ -29,9 +29,9 @@ export default function UnlockPage() {
   }
 
   return (
-    <AuthShell footer="Don't have the code? Ask whoever shared the closet with you.">
+    <AuthShell footer="Don't have the password? Ask whoever shared the closet with you.">
       <AuthHeading eyebrow="Welcome" title="A private closet">
-        Enter the family code to continue.
+        Enter the password to continue.
       </AuthHeading>
       <UnlockForm />
     </AuthShell>

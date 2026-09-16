@@ -9,7 +9,7 @@ change that gets harder with every row added, and Phases 4, 6 and 7 all create
 rows that would then need retrofitting with an owner. Then Phase 4 (garment
 identification), once the remove.bg question below is settled. Then 6 (wear
 history) → 7 (suggestion feedback), both of which want a few weeks of real wear
-data behind them first. Phases 5a–5f are small and unordered — pick up any time;
+data behind them first. Phases 5d–5f are small and unordered — pick up any time;
 5e (next/image) is the quickest win of them. Phase 8 (notifications) is the
 largest infrastructure lift and can wait.
 
@@ -225,42 +225,8 @@ VERIFY
 ## Phase 5+ — smaller enhancements (unordered, pick up any time)
 
 Lighter prompts — each is a session or less. No strict order. (5b and 5c have
-shipped; see the table at the top.)
-
-### 5a. Item availability (laundry + out of season)
-```
-Add an availability state to items in Jenna's Closet. (Read the "Shared context"
-section of docs/enhancements-roadmap-prompts.md first.)
-
-Originally scoped as a laundry toggle; widened because "in the wash" and "packed
-away for the season" are the same field, the same UI and the same exclusion rule —
-doing them separately would mean two passes over the same code.
-
-1. SCHEMA (schema.sql + supabase/migrations/00N-availability.sql + SQL for the user)
-   - items: add `availability text not null default 'available'`
-     check (availability in ('available', 'laundry', 'stored')).
-   - Read it as a plain string in the repository; add `Availability` to types.ts.
-
-2. UI
-   - ItemDetailPanel: a three-way control (Available / In the wash / Stored away)
-     in the existing read-only facts area, styled like the other controls there.
-   - ItemGrid: unavailable items dim to ~55% opacity with a small corner badge
-     ("WASH" / "STORED") in the .eyebrow style. Do NOT hide them.
-
-3. BEHAVIOUR
-   - Excluded from Generate Outfits candidates (src/lib/server/generate-outfits.ts)
-     and from the daily suggestion — for the latter, filter in the repository before
-     calling chooseSuggestion, and also skip any SAVED outfit containing an
-     unavailable item, otherwise the card will suggest an outfit she can't wear.
-   - Manual outfit creation may still include them, with an inline hint.
-   - If filtering leaves too few items to dress her, fall back to the unfiltered set
-     rather than showing nothing (suggest-outfit.ts already does this for
-     recently-worn — follow that pattern).
-
-VERIFY: script that marks a couple of items unavailable and confirms both the
-suggestion and Generate Outfits skip them, and that a saved outfit containing one
-is skipped too. Browser at 375px + desktop. tsc clean, small commits.
-```
+shipped; see the table at the top. 5a, item availability, was dropped on
+2026-09-15 — the user decided it will not be built.)
 
 ### 5d. Shareable outfit card
 ```
