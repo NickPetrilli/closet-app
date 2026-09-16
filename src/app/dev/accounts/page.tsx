@@ -45,8 +45,7 @@ export default async function DevAccountsPage() {
       </h1>
       <p className="meta mt-3 text-ink-secondary">
         Signs this machine in as any account, no password needed. Disabled on
-        the deployed site. Whoever is signed in here owns the items an Aritzia
-        link adds.
+        the deployed site.
       </p>
 
       <p className="meta mt-6 rounded-control border border-edge bg-surface-sunken px-4 py-3 text-ink-secondary">
