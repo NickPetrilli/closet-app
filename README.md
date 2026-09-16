@@ -98,18 +98,34 @@ node --experimental-strip-types --import ./scripts/ts-resolve.mjs --env-file=.en
 
 ## Security model
 
-There is no authentication yet — this is a single-user app, and its entire
-security boundary is that **the Supabase key is server-only and never reaches
-the browser**. That's why no environment variable is `NEXT_PUBLIC_`-prefixed and
-why `src/lib/supabase/client.ts` must only ever be imported from server code.
+Each person has their own account and sees only their own closet. Three things
+enforce that, deliberately overlapping:
 
-Row Level Security is correspondingly off. Adding accounts (so more than one
-person can use it) means turning RLS on and reworking that boundary — it's
-specced as Phase 9 in the roadmap below.
+1. **A shared password** (`SITE_PASSWORD`) on a lock screen in front of sign-in,
+   so a stranger who finds the URL cannot create an account and spend the
+   project's free API allowances. It is re-checked on the server at sign-up, not
+   just on the page.
+2. **Supabase Auth** (email + password), with every read and write going through
+   `requireUser()` and filtering on `user_id`.
+3. **Row Level Security** on every table, so the database refuses cross-account
+   access even if application code forgot to filter. `node --env-file=.env
+   scripts/check-isolation.mjs` proves it: two throwaway accounts, 23 checks,
+   cleaned up afterwards.
+
+Still true, and still deliberate: **no environment variable is `NEXT_PUBLIC_`-
+prefixed**, because sign-in, sign-up and every query run server-side, so the
+Supabase key never reaches the browser. `SUPABASE_SERVICE_ROLE_KEY` is local
+only and must never be added to Vercel — it bypasses RLS, and the local account
+switcher refuses to run without it, which is what keeps that tool off the
+deployed site.
+
+No email is ever sent (Supabase's default sender only reaches project team
+members), so email confirmation is off and a forgotten password is reset with
+`scripts/set-password.mjs`.
 
 ## Known constraints
 
-- **Adding items by Aritzia link only works locally.** It drives a real,
+- **Adding items by product link only works locally.** It drives a real,
   non-headless browser via Puppeteer, because the site blocks both plain server
   fetches and headless browsers. That tab is hidden on the deployed site; photo
   upload works everywhere.

@@ -4,14 +4,14 @@ What's left to build, written so each phase can be handed to a fresh Claude Code
 session (Opus) on its own. Each prompt is self-contained; start by reading
 **Shared context**, which describes the app as it stands today.
 
-**Suggested order from here:** **Phase 9 (accounts)** next — it is the one
-change that gets harder with every row added, and Phases 4, 6 and 7 all create
-rows that would then need retrofitting with an owner. Then Phase 4 (garment
-identification), once the remove.bg question below is settled. Then 6 (wear
-history) → 7 (suggestion feedback), both of which want a few weeks of real wear
-data behind them first. Phases 5d–5f are small and unordered — pick up any time;
-5e (next/image) is the quickest win of them. Phase 8 (notifications) is the
-largest infrastructure lift and can wait.
+**Suggested order from here:** **Phase 4 (garment identification)** is the next
+real feature, once the remove.bg question below is settled — the Add Item flow
+it builds on now has a preview step, so a batch review fits naturally. Then
+**5e (next/image)**, the quickest win left and the biggest saving on a phone.
+Then 6 (wear history) → 7 (suggestion feedback), both of which want a few weeks
+of real wear data first. Phase 8 (notifications) is the largest lift and can
+wait. UI Phase B was **deprioritized on 2026-09-15** — the phone layout is good
+enough for now (see `docs/ui-revamp-prompts.md`).
 
 ## Shipped
 
@@ -27,29 +27,35 @@ rather than hunting for the old prompts.
 | 3 — Occasion, wear log, suggestion | 2026-09-03 | `wear_log` / `occasion_tags` / `daily_state`, `src/lib/server/suggest-outfit*.ts`, `OccasionPicker.tsx` |
 | 5b — Wardrobe search + sort | 2026-09-03 | `WardrobeControls.tsx`, `colorTerms` / `colorSortKey` in `src/lib/color.ts` |
 | 5c — Outfit editing | 2026-09-03 | `OutfitFormModal.tsx`, `updateOutfit` in `actions/outfits.ts` |
+| UI Phase A + light/dark | 2026-09-03 | `src/app/globals.css` token layers, `src/lib/theme.ts`, `ThemeToggle.tsx` |
+| **9 — Accounts** | 2026-09-15 | `src/lib/auth.ts`, `src/lib/gate.ts`, `middleware.ts`, `src/app/unlock`, `src/app/sign-in`, migrations `003`/`004` |
+| Delete an item | 2026-09-15 | `deleteItem` in `actions/items.ts`, confirm dialog in `ItemDetailPanel.tsx` |
+| Product links from any shop | 2026-09-15 | `src/lib/server/product-fetch.ts` (was `aritzia-fetch.ts`), `SITE_RULES` |
+| Link preview before saving | 2026-09-15 | `previewItemFromUrl` / `addPreviewedItem`, `src/lib/server/product-preview-cache.ts` |
+| Category guessing | 2026-09-15 | `src/lib/server/category-guess.ts`, `scripts/check-category-guess.mjs` |
+| Local account switcher | 2026-09-15 | `src/app/dev/accounts`, `src/lib/server/dev-accounts.ts` |
+| Closet transfer | 2026-09-15 | `scripts/transfer-closet.mjs` |
 
-All of the above is merged, deployed and live. Migrations `001-weather.sql` and
-`002-wear-log.sql` are applied to the Supabase project.
+All of the above is merged and live. Migrations `001`–`004` are applied to the
+Supabase project, so **RLS is ON and the anon key is denied** — see Shared
+context.
 
 ## Open, and not code
 
-These three are worth clearing before picking up another phase — none of them
-need a session.
+- **Decide the remove.bg question.** 40 free calls left this month, 50/month for
+  the whole project, now shared by every account. A real wardrobe would exhaust
+  it. Options: add a skip-removal fallback, buy credits, or proceed and watch the
+  counter. **Phase 4 is blocked on this.**
+- **Hand the demo closet to Jenna** when her account exists. It currently belongs
+  to the development account; `scripts/transfer-closet.mjs --from <email> --to
+  <email>` moves rows and photos in one command (dry run without `--apply`).
+- **Old photos sit outside any account's folder.** Items added before accounts
+  still display (public URLs), but the app can't overwrite or delete those files,
+  so deleting such an item leaves its photo behind.
 
-- **Decide the remove.bg question.** ~42 free calls left this month, 50/month
-  for the whole project. A real wardrobe would exhaust it, and Phase 9 makes
-  that sharper since three people would share the same allowance. Options: add
-  a skip-removal fallback, buy credits, or proceed and watch the counter.
-  **Phase 4 is blocked on this.**
-- **Delete the junk outfits.** ~28 rows, most of them leftovers from earlier
-  AI-generation testing, plus one unexplained "Test" outfit. Phase 3 now *ranks*
-  saved outfits, so these actively degrade the daily suggestion — and because
-  the test outfits share many of the same garments, logging one wear can exclude
-  several others at once.
-- **Do the phone install test.** Phase 2 shipped but has never been checked on a
-  real device: add to home screen, confirm it launches fullscreen with the right
-  icon, and that airplane mode shows the offline page rather than the browser's
-  error.
+Settled and NOT to be raised again: the junk outfits stay (deliberate test data),
+the phone install test passed, and the "J" app icon is fine — every intended
+account holder's name starts with J.
 
 > Companion docs: `docs/PROJECT_PLAN.md` (original vision), `docs/wardrobe-app-build-prompts.md`
 > (Prompts 1–6, already built), `docs/DEPLOYMENT.md` (Vercel setup). This file
@@ -60,100 +66,106 @@ need a session.
 ## Shared context — read before any phase
 
 Paste this block (or point the session at this section) at the top of every phase
-prompt. It is current as of 2026-09-02.
+prompt. It is current as of 2026-09-15.
 
 ```
 PROJECT
-- "Jenna's Closet" — a personal wardrobe/outfit app for one user (Jenna). Next.js 15
-  App Router, TypeScript, Tailwind CSS v4 (no UI kit — custom components), deployed
-  to Vercel, auto-deploys from `main`.
-- App name/tagline: src/lib/config.ts. Aesthetic: soft blue editorial — pale-blue
-  ground, blush accents, Playfair Display headings + Inter body, `.eyebrow` small-caps
-  labels, hairline borders, gentle shadows. Palette tokens + keyframes in
-  src/app/globals.css (--color-ground, -cream, -card, -ink, -accent, -blush, etc.).
-  Match this; do not introduce a new visual language.
+- "Closet" — a personal wardrobe/outfit app, one closet per account (Jenna, and in
+  time her mum and sister). Next.js 15 App Router, TypeScript, Tailwind CSS v4 (no UI
+  kit — custom components), deployed to Vercel, auto-deploys from `main`.
+- Product name + heading helper: src/lib/config.ts (APP_NAME is the neutral "Closet";
+  closetTitle(firstName) makes "Jenna's Closet"). Aesthetic: soft blue editorial —
+  Playfair Display headings + Inter body, `.eyebrow` small-caps labels, hairline
+  borders, gentle shadows. Match it; do not introduce a new visual language.
+- COLOR: src/app/globals.css is a two-layer token system — a raw palette ramp, then
+  SEMANTIC tokens which are the only ones components may use: surface/-raised/-sunken,
+  ink/-secondary/-tertiary, edge/-subtle/-strong, accent, error, plus radius, elevation
+  and motion scales. Light and dark both ship (src/lib/theme.ts + ThemeToggle).
+  Never write a hex literal in a component. Each :root block also sets `color-scheme`,
+  which is what makes native <select> lists readable in dark mode.
+  Run `node scripts/check-contrast.mjs [--theme=dark]` after touching tokens.
 
-BACKEND — Supabase, NO AUTH
-- Single trusted server-side client: src/lib/supabase/client.ts (`supabase`). Reads
-  SUPABASE_URL / SUPABASE_ANON_KEY (deliberately NOT NEXT_PUBLIC_ — the key must never
-  reach the browser). NEVER import this module from a "use client" component.
-- RLS is OFF on the app's own tables. Schema: supabase/schema.sql (items, outfits,
-  outfit_items). IMPORTANT: this Supabase project does NOT auto-grant table access,
-  so every new table needs, in schema.sql:
-      alter table <t> disable row level security;
-      grant all on <t> to anon, authenticated, service_role;
-  Migrations are applied by hand in the Supabase SQL editor — put new DDL in
-  schema.sql AND give the user the exact SQL to run.
+BACKEND — Supabase WITH AUTH AND RLS (this changed in Phase 9 — older prompts lie)
+- Per-request client: `getSupabase()` in src/lib/supabase/server.ts (@supabase/ssr,
+  request cookies). NEVER a module-level client — with a session attached it would leak
+  between users on a warm serverless instance. Never import it from a "use client" file.
+- ALWAYS enter through `requireUser()` (src/lib/auth.ts) → { supabase, user }. It
+  redirects to /sign-in when signed out, and it REDIRECTS BY THROWING, so call it at
+  the top of an action, outside any try/catch, or the redirect is swallowed.
+- Every read and write filters on `user_id`; RLS enforces the same thing in the
+  database (migration 004). The anon key is REVOKED on app tables — a script that needs
+  data uses SUPABASE_SERVICE_ROLE_KEY, local only.
+- Access gate: a shared SITE_PASSWORD lock screen (/unlock) sits in front of sign-in;
+  middleware.ts routes unlock → sign-in → app and refreshes the session.
+- New tables still need explicit grants, RLS enabled and owner-only policies — copy the
+  shape in supabase/migrations/004-accounts-rls.sql. Put DDL in schema.sql AND a
+  numbered migration, and give the user the exact SQL to paste.
+- weather_cache deliberately has NO user_id (public forecast data, shared on purpose).
+  occasion_tags with a null user_id are the seeded ones everyone sees.
 
 DATA SEAM — do not break it
-- UI components never touch Supabase directly. They call functions in
-  src/lib/data/wardrobe-repository.ts (fetchItems/fetchOutfits/fetchDailySuggestion),
-  which return the camelCase types in src/lib/types.ts (ClothingItem, Outfit,
-  DailySuggestion, Category, OutfitVibe). Add new reads there or in a sibling module.
+- UI components never touch Supabase directly. They call src/lib/data/wardrobe-repository.ts
+  (fetchItems/fetchOutfits/fetchDailySuggestion/…), which returns the camelCase types in
+  src/lib/types.ts. Those functions call requireUser() themselves.
 - Mutations are Server Actions in src/lib/actions/* ("use server"), called from client
-  components via useActionState/useTransition. See src/lib/actions/outfits.ts and
-  src/lib/actions/add-item.ts for the established shape (return { error?: string }).
+  components via useActionState/useTransition, returning { error?: string }.
 
 KEY FILES
-- src/app/page.tsx — server component, `export const dynamic = "force-dynamic"`
-  (page always reflects the live DB), `export const maxDuration = 60`, passes
-  `canFetchFromLink={!process.env.VERCEL}`. Composes <WardrobeView>.
-- src/components/WardrobeView.tsx — top-level client component, holds all view state
-  (filter, selected item/outfit), renders header + DailySuggestionCard + CategoryTabs +
-  grids + detail panels.
-- src/components/DailySuggestionCard.tsx — real weather, the occasion picker, the
-  suggested outfit with its rationale, and the "Wore this" / "Show another" actions.
-- src/lib/data/wardrobe-repository.ts — `fetchDailySuggestion(options)` composes real
-  weather + the chosen occasion + a scored outfit. Also `fetchAppSettings`,
-  `fetchWeather`, `fetchOccasionTags`, `fetchTodayOccasion`, `fetchRecentlyWornItemIds`.
-- src/lib/server/weather.ts + weather-core.ts — Open-Meteo geocoding and forecast,
-  cached per (location, local date). `getLocalToday()` is the one source of truth for
-  "today" — always use it for anything dated, never the server clock (Vercel is UTC).
-- src/lib/server/suggest-outfit.ts + suggest-outfit-core.ts — scores saved outfits on
-  vibe↔occasion and vibe↔weather fit plus garment adjustments, excludes anything more
-  than half recently-worn, and only asks Gemini when nothing saved clears the bar.
-- src/lib/weather-bands.ts — `temperatureBand()` / `isWet()` / `NOTABLE_PRECIP`, shared
-  so UI copy and scoring can never disagree about what "cold" means.
-- src/lib/server/gemini.ts — `generateJson({ parts, config, label })` and
-  `isGeminiConfigured()`. ALL Gemini calls go through this; it owns the model fallback
-  chain and the friendly quota/overload errors.
-- src/lib/server/generate-outfits.ts — the Generate Outfits vision call. Builds its own
-  prompt/schema/validation, then hands off to src/lib/server/gemini.ts for the call.
-- src/lib/server/item-pipeline.ts — shared add-item pipeline: HEIC→JPEG normalise →
-  remove.bg background removal → sharp trim → average-opaque-pixel color → upload to
-  the `item-images` bucket → insert `items` row.
+- src/app/page.tsx — server component; requireUser(), `dynamic = "force-dynamic"`,
+  `maxDuration = 60`; passes the per-person title, the account email, canFetchFromLink
+  and showAdminLink into <WardrobeView>.
+- src/components/WardrobeView.tsx — top-level client component, holds view state,
+  renders header + DailySuggestionCard + CategoryTabs + grids + detail panels.
+- src/components/AddItemButton.tsx — two modes. Photo upload (works everywhere), and
+  a product link which is TWO steps: previewItemFromUrl (fetch + show) then
+  addPreviewedItem (save). Background removal runs only on confirmation.
+- src/lib/server/product-fetch.ts — opens a shop's page in a real browser window and
+  reads schema.org JSON-LD + Open Graph for name and photo. Works on any shop that
+  lets a browser in (Aritzia, Nike, Skims, Uniqlo, J.Crew, Gap, Everlane verified);
+  SITE_RULES holds optional per-shop refinements. LOCAL ONLY (see CONSTRAINTS).
+- src/lib/server/category-guess.ts — pure: schema.org category → breadcrumbs → name,
+  last garment word wins. Never guesses dresses/jumpsuits (no drawer for them).
+- src/lib/server/item-pipeline.ts — shared add pipeline: HEIC→JPEG → remove.bg →
+  sharp trim → average-opaque-pixel color → upload under `<user_id>/` → insert row.
+- src/lib/server/weather.ts + weather-core.ts — Open-Meteo, cached per (location,
+  local date). `getLocalToday()` is the one source of truth for "today" — never the
+  server clock (Vercel is UTC).
+- src/lib/server/suggest-outfit.ts + -core.ts — scores saved outfits on vibe↔occasion
+  and vibe↔weather plus garment adjustments, excludes recently-worn, asks Gemini only
+  when nothing saved clears the bar.
+- src/lib/server/gemini.ts — `generateJson(...)`, `isGeminiConfigured()`. ALL Gemini
+  calls go through it; it owns the model fallback chain and friendly quota errors.
+- src/lib/server/dev-accounts.ts + src/app/dev/accounts — local-only account switcher
+  (sign in as any account without a password, for loading someone's closet by link).
 
-ENV VARS (Vercel → Settings → Environment Variables — all three environments)
-- SUPABASE_URL, SUPABASE_ANON_KEY, REMOVE_BG_API_KEY, GEMINI_API_KEY,
-  PUPPETEER_SKIP_DOWNLOAD=true. Any NEW env var a phase needs must be added here and
-  documented in docs/DEPLOYMENT.md's env table. Weather needs none (Open-Meteo).
-- MIGRATIONS: the anon key cannot run DDL, so new tables are applied by hand. Put the
-  DDL in supabase/schema.sql AND a numbered file in supabase/migrations/, and give the
-  user the exact SQL to paste. Make new reads degrade (empty list / null) rather than
-  throw — the site is live, and it must not break in the window between the deploy and
-  the migration being run.
+ENV VARS (Vercel → Settings → Environment Variables — all environments)
+- SUPABASE_URL, SUPABASE_ANON_KEY, REMOVE_BG_API_KEY, GEMINI_API_KEY, SITE_PASSWORD,
+  PUPPETEER_SKIP_DOWNLOAD=true. SUPABASE_SERVICE_ROLE_KEY is LOCAL ONLY and must not be
+  added to Vercel — the dev switcher's safety depends on its absence there.
+  Document any new var in docs/DEPLOYMENT.md's env table. Weather needs none.
 - SCRIPTS: `node --experimental-strip-types --import ./scripts/ts-resolve.mjs
-  --env-file=.env scripts/<name>.mjs` lets a script import real app modules (the
-  resolver teaches Node the `@/` alias and extensionless imports). Keep new logic in a
-  pure "-core" module with no network or database so it can be tested this way. See
-  scripts/check-weather.mjs and scripts/check-suggestion.mjs.
+  --env-file=.env scripts/<name>.mjs` lets a script import real app modules. Keep new
+  logic in a pure module with no network or database so it can be tested that way.
+  Existing checks: check-weather, check-suggestion, check-contrast, check-isolation
+  (RLS proof), check-product-link, check-category-guess, check-env-shape.
 
 CONSTRAINTS
-- Puppeteer / the product-link mode cannot run on Vercel (see docs/DEPLOYMENT.md
-  and the closet-app-deployment-constraints memory) — don't build on it for anything
-  server-side. Photo upload works everywhere.
-- Prefer no-card, free-tier external services. Weather = Open-Meteo (no key, no signup).
-  AI = Gemini free tier.
-- Free Gemini quota is per-model per-day (resets midnight Pacific). Full-wardrobe
-  vision calls are the expensive ones — don't loop them in tests.
+- Puppeteer / the product-link mode cannot run on Vercel (no display, and bot
+  detection targets headless) — local development only. Photo upload works everywhere.
+- NO EMAIL CAN BE SENT: Supabase's default sender only reaches project team members,
+  and there is no custom SMTP. So: email confirmation is off, and password resets are
+  done by hand with scripts/set-password.mjs. Do not design a flow that needs email.
+- Prefer no-card, free-tier services. Weather = Open-Meteo. AI = Gemini free tier.
+- SHARED ALLOWANCES across all accounts: remove.bg 50 images/month, Gemini per-model
+  per-day. Full-wardrobe vision calls are the expensive ones — never loop them in tests.
 
 WORKING STYLE (from the closet-app-working-style memory)
-- One thing at a time; verify before moving on. Frontend polish is priority #1 — this
-  is for the user's girlfriend and must look pretty on phone and desktop.
-- Test new pipeline/data logic with a standalone script against real data (see
-  scripts/*.mjs) before wiring it into the UI.
-- Verify UI via the browser preview: read_page / computed styles / JS measurement
-  (screenshots need the pane visible). Test at 375px (phone) and desktop.
+- One thing at a time; verify before moving on. Frontend polish is priority #1.
+- Test new pipeline/data logic with a standalone script against real data before
+  wiring it into the UI.
+- Verify UI in the browser preview: read_page / computed styles / JS measurement
+  (screenshots need the pane visible). Test at 375px and desktop.
+- US spelling ("color"). No Co-Authored-By trailers in commits here.
 - Commit in small logical commits; only commit/push when the user asks.
 ```
 
@@ -164,6 +176,13 @@ WORKING STYLE (from the closet-app-working-style memory)
 **Goal:** when Jenna uploads her own photos, auto-detect name / category / silhouette
 / color so she isn't typing metadata for every piece. This is what turns the app
 from demo data into her real closet.
+
+**Since this prompt was written:** the link mode already fetches, previews and
+lets the name and category be corrected before saving (`previewItemFromUrl` →
+`addPreviewedItem`), and `src/lib/server/category-guess.ts` guesses a category
+from text. Reuse both — the photo flow needs the same preview shape, with Gemini
+supplying the name/category instead of a shop's page. Background removal must
+stay on the confirm step so a rejected batch spends no remove.bg credits.
 
 ```
 Build automatic garment identification for the Add Item photo flow in Jenna's Closet.
@@ -468,164 +487,15 @@ it is unverified if you cannot test it. tsc clean, small commits.
 
 ---
 
-## Phase 9 — Accounts
+## Phase 9 — Accounts — SHIPPED 2026-09-15
 
-**Goal:** Jenna's mom and sister want closets of their own. One app, three
-accounts, each person seeing only their own wardrobe — rather than three
-deployments to keep in sync.
-
-**Do this before Phases 4, 6 and 7.** Each of those adds rows to tables that
-would then need retrofitting with an owner, and Phase 4 in particular is about
-bulk-adding a real wardrobe — far better that it lands in the right account
-from the first upload.
-
-```
-Add multi-user accounts to Jenna's Closet. (Read the "Shared context" section of
-docs/enhancements-roadmap-prompts.md first.)
-
-Today the app is single-user with NO auth. RLS is disabled on every table and
-the entire security model is one sentence: the anon key is server-only and never
-reaches the browser. Three people sharing one deployment invalidates that. This
-phase touches every table, every Server Action, and the Supabase client itself —
-read the whole prompt before writing any code.
-
-CONFIRM WITH THE USER FIRST — both answers change the shape of the work:
-  a. SIGN-UP POLICY. The site is on a public URL, so open sign-up means any
-     stranger can create an account in this Supabase project. Recommended: an
-     email allowlist (three addresses in an env var or a small `allowed_emails`
-     table), checked in the sign-up action. Alternatives: an invite code, or
-     disabling sign-up entirely and creating the three users by hand in the
-     Supabase dashboard.
-  b. PHOTO PRIVACY. The `item-images` bucket is currently PUBLIC — anyone with
-     a URL can view a garment photo, and the paths are the only secret. With
-     one user that was fine. Options: (i) keep it public and namespace paths by
-     user id — simplest, and the URLs stay usable by the service worker's image
-     cache; (ii) make the bucket private and serve signed URLs — properly
-     private, but every image URL then expires, which the SW cache and the
-     shareable-outfit card (5d) both have to cope with. Recommend (i) unless
-     the user says otherwise, and say plainly in your summary that photos
-     remain fetchable by URL.
-
-1. AUTH — Supabase Auth, email + password
-   - Use `@supabase/ssr` (`createServerClient` with the Next cookie store).
-     Do NOT use `@supabase/auth-helpers-nextjs`; it is deprecated.
-   - Sign in, sign up and sign out are all SERVER ACTIONS. Doing auth
-     server-side means the anon key can stay out of the browser exactly as it
-     is today — do not introduce NEXT_PUBLIC_SUPABASE_ANON_KEY. Preserving that
-     invariant is a deliberate goal of this phase, not an accident.
-   - Add `middleware.ts` for session refresh, per Supabase's App Router guide.
-   - Email confirmation adds friction for three known people; suggest turning
-     it off in the Supabase dashboard and say so in docs/DEPLOYMENT.md.
-
-2. THE SUPABASE CLIENT — the most dangerous part of this phase
-   - `src/lib/supabase/client.ts` exports a MODULE-SCOPED client created once at
-     import. With a per-user session attached, a module singleton can leak one
-     user's session into another user's request on a warm serverless instance.
-     It MUST become a per-request factory, e.g. `getSupabase()` returning a
-     client built from the current request's cookies.
-   - Update every caller. There are many: the repository, all of
-     src/lib/actions/*, and the server modules under src/lib/server/.
-   - If any admin/script path needs to bypass RLS, give it a SEPARATE
-     service-role client in its own module, never importable from app code.
-
-3. SCHEMA (schema.sql + supabase/migrations/00N-accounts.sql + SQL for the user)
-   - Add `user_id uuid not null references auth.users (id) on delete cascade` to
-     `items`, `outfits`, `wear_log`, `daily_state`.
-   - `outfit_items` gets no user_id — it inherits ownership through outfit_id.
-     Its policies go through a subquery on `outfits`.
-   - `app_settings` STOPS BEING A SINGLETON. Drop the `id = 'singleton'` check
-     and the id column; the primary key becomes user_id. Every read of it in
-     src/lib/server/weather.ts assumes one row — all of that changes.
-   - `occasion_tags` gets a NULLABLE user_id: null means a seeded tag everyone
-     sees, non-null means one someone added. Reads allow `user_id is null or
-     user_id = auth.uid()`; inserts force user_id = auth.uid().
-   - `weather_cache` deliberately gets NO user_id. It caches public forecast
-     data by rounded coordinates and date, so two users in the same town
-     sharing a cache entry is a feature, not a leak. Note the one caveat in a
-     comment: `location_key` is approximate coordinates, so restrict reads to
-     authenticated users, and if that is still too much, hash the key.
-   - Index every new user_id column — every query in the app will filter on it.
-
-4. BACKFILL — do not skip, and do not guess
-   - Every existing row belongs to Jenna. The migration cannot know her user id
-     until she has signed up, so this is a two-step deploy: create the columns
-     as NULLABLE, have her sign up, then run a second statement setting user_id
-     on all existing rows to her uuid and adding the NOT NULL constraint.
-   - Give the user both SQL blocks and say explicitly which to run when.
-
-5. RLS — this is what actually enforces separation
-   - `alter table ... enable row level security` on items, outfits,
-     outfit_items, wear_log, daily_state, app_settings, occasion_tags. This
-     REVERSES the `disable row level security` lines currently in schema.sql —
-     update those lines rather than leaving contradictory DDL in the file.
-   - Policies for select/insert/update/delete keyed on `user_id = auth.uid()`.
-   - Revoke the blanket write grants to `anon`; `authenticated` keeps them.
-     An unauthenticated request should see nothing at all.
-
-6. STORAGE
-   - Namespace uploads as `<user_id>/<item_id>.<ext>` in item-pipeline.ts.
-   - Replace the permissive "item-images full access" policy with one scoped to
-     the uploader's own prefix.
-   - Existing objects are at the old flat paths and are still referenced by
-     `items.image_url` — either move them and update the URLs, or leave them and
-     have the policy tolerate both. Whichever you choose, say which.
-
-7. DATA LAYER AND ACTIONS
-   - Add a `requireUser()` helper that returns the current user or redirects to
-     sign-in, and use it at the top of every Server Action and every repository
-     read. Do not rely on RLS alone to scope reads — belt and braces, and it
-     gives a real error instead of a silently empty page.
-   - src/app/page.tsx redirects to /sign-in when there is no session.
-
-8. UI
-   - A sign-in / sign-up page in the app's visual language (see the modals in
-     AddItemButton and LocationSettings for the established form styling), and
-     a sign-out control in the settings modal.
-   - APP_NAME in src/lib/config.ts is the literal string "Jenna's Closet" and is
-     rendered as the page heading. With three accounts it has to become
-     per-user: keep a neutral product name and derive the heading from the
-     signed-in user's display name, collected at sign-up.
-   - NOTE THE PWA CONSEQUENCE: src/app/manifest.ts hardcodes name "Jenna's
-     Closet" / short_name "Closet". The manifest is static and shared, so an
-     installed app on the sister's phone would say Jenna's name. Rename the
-     installed app to something neutral. Anyone who already installed it keeps
-     the old icon label until they reinstall — iOS snapshots that at install
-     time (see Phase 2).
-
-9. SERVICE WORKER
-   - public/sw.js caches item photos in `closet-images-v1`. On a shared laptop
-     that cache would outlive a sign-out. Clear the image and shell caches on
-     sign-out (postMessage to the SW, or `caches.delete` from the sign-out
-     handler), and bump the SW VERSION so old caches are dropped on upgrade.
-
-10. SHARED RESOURCES — flag these to the user, do not silently absorb them
-   - remove.bg is 50 images/month for the whole PROJECT, not per user. Three
-     people building real wardrobes will blow through that immediately. This
-     interacts directly with the open Phase 4 decision.
-   - The Gemini free tier is per API key per day, also now shared three ways.
-   - Supabase free tier: 500MB database, 1GB storage. Three photo wardrobes is
-     the first time storage is worth watching.
-
-DO NOT: build sharing, following, or any way to view another person's closet;
-add roles or an admin view; implement social login; or write a custom password
-reset — use Supabase's built-in flow if one is needed at all.
-
-VERIFY
-- Create TWO accounts and prove isolation properly: sign in as A, note an item
-  id, then as B attempt to read that row directly through the data layer and
-  confirm it comes back empty rather than merely hidden in the UI. Do the same
-  for outfits, wear_log and app_settings. A UI that looks right is not evidence.
-- Confirm a signed-out request to "/" redirects and returns no data.
-- Confirm each account gets its own location and its own daily suggestion.
-- Confirm the Phase 3 wear log and occasion tags stay per-user, and that seeded
-  occasion tags are visible to everyone.
-- Re-run scripts/check-weather.mjs and scripts/check-suggestion.mjs; both use
-  the anon key directly and WILL need updating for RLS — decide whether they
-  move to the service-role client or take a user session.
-- `tsc` clean, `next build` passes. Small commits.
-```
-
----
+The prompt has been removed; the architecture it produced is described in
+**Shared context** above, and the decisions behind it (email + password, the
+shared-password lock screen, no email delivery, photos left in a public bucket
+namespaced per user) are recorded in the `closet-app-accounts-decisions` memory.
+Migrations `003-accounts.sql` and `004-accounts-rls.sql` are applied;
+`node --env-file=.env scripts/check-isolation.mjs` re-proves the separation at
+the database level (23 checks) any time it is worth re-checking.
 
 ## Future / bigger integrations (not yet spec'd — sketches only)
 

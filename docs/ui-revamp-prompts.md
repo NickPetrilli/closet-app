@@ -14,11 +14,15 @@ These phases touch nearly every component, so they conflict with anything in fli
 
 | Phase | State |
 |---|---|
-| A - Design foundation | Done on branch `ui-revamp-phase-a`; awaiting the user's review before merge. |
-| Light/dark switch | Done, pulled forward at the user's request (2026-09-03) and included in the same branch. |
-| B - Phone-first layout | Not started. |
+| A - Design foundation | **Shipped** 2026-09-03 — merged and deployed. |
+| Light/dark switch | **Shipped** 2026-09-03, pulled forward at the user's request. |
+| B - Phone-first layout | **Deprioritized 2026-09-15** — the user judged the phone layout good enough for now. The audit findings below still stand if it is picked up later; the most real of them is that item and outfit names are hover-only, so they cannot be read on a touchscreen. |
 | C - Large screens | Not started. |
 | Deferred backlog | Not started. |
+
+**Also landed since this doc was written (2026-09-15):** every `:root` block now
+sets `color-scheme`, which is what makes native `<select>` option lists readable
+in dark mode — they were white-on-white before.
 
 ---
 
