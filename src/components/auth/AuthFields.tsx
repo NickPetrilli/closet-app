@@ -52,6 +52,7 @@ export function Field({
  */
 export function PasswordInput({
   id,
+  className,
   ...props
 }: { id: string } & Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id">) {
   const [visible, setVisible] = useState(false);
@@ -64,7 +65,9 @@ export function PasswordInput({
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}
-        className={`${INPUT_CLASS} pr-[4.5rem]`}
+        // The right padding is always added, whatever styling the caller
+        // passes, so text can never run under the Show button.
+        className={`${className ?? INPUT_CLASS} pr-[4.5rem]`}
         {...props}
       />
       <button
