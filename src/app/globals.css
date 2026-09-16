@@ -10,6 +10,13 @@
    `node scripts/check-contrast.mjs` — run it after touching any of these.
    --------------------------------------------------------------------------- */
 :root {
+  /* Tells the browser which way round its OWN widgets should be painted: the
+     <select> option list, form controls, scrollbars and the caret. Without it
+     the dropdown list stayed light while our text went pale in dark mode, so
+     the options were white on white. This is the fix; the `option` rule below
+     is belt and braces for browsers that ignore it. */
+  color-scheme: light;
+
   /* Blue ramp, hue ~210. Anchors the whole app. */
   --palette-blue-25: #f8fafd;
   --palette-blue-50: #edf3fa;
@@ -125,6 +132,8 @@
    refine them without touching a component.
    --------------------------------------------------------------------------- */
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   /* Ramp inverts: 25 becomes the raised surface, 900 becomes the text. */
   --palette-blue-25: #1a2836;
   --palette-blue-50: #111c27;
@@ -282,6 +291,14 @@
   --text-display-md--line-height: 1.12;
   --text-display-lg: 3.5rem;
   --text-display-lg--line-height: 1.04;
+}
+
+/* The dropdown list a native <select> opens is the browser's own surface, so
+   it needs telling explicitly — otherwise it follows the OS theme while the
+   page follows ours, and the two can disagree. */
+option {
+  background-color: var(--color-surface-raised);
+  color: var(--color-ink);
 }
 
 body {
