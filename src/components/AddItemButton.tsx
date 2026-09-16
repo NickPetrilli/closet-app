@@ -2,7 +2,13 @@
 
 import { useActionState, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addItem, addItemFromUrl, type AddItemResult } from "@/lib/actions/add-item";
+import {
+  addItem,
+  addPreviewedItem,
+  previewItemFromUrl,
+  type AddItemResult,
+  type ProductPreview,
+} from "@/lib/actions/add-item";
 import { CATEGORY_OPTIONS } from "@/lib/types";
 import {
   formatBytes,
@@ -21,6 +27,13 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("photo");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // What a link fetch found, held until it is confirmed or discarded. Nothing
+  // is saved and no background-removal credit is spent while this is on screen.
+  const [fetched, setFetched] = useState<ProductPreview["preview"] | null>(null);
+  // Controlled so the link stays visible in the confirm step and still posts
+  // with it: addPreviewedItem falls back to re-fetching by URL if the held
+  // photo has expired.
+  const [linkUrl, setLinkUrl] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const [state, formAction, isPending] = useActionState(
@@ -43,9 +56,21 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
           }
         }
 
+        // Adding from a link is two steps: fetch and show, then save what was
+        // shown. Photo uploads stay one step.
+        if (mode === "link" && !fetched) {
+          const looked = await previewItemFromUrl(formData);
+          if (looked.preview) setFetched(looked.preview);
+          return { error: looked.error };
+        }
+
         const result =
-          mode === "photo" ? await addItem(formData) : await addItemFromUrl(formData);
+          mode === "photo"
+            ? await addItem(formData)
+            : await addPreviewedItem(formData);
         if (!result.error) {
+          setFetched(null);
+          setLinkUrl("");
           setOpen(false);
           setPreviewUrl(null);
           formRef.current?.reset();
@@ -75,6 +100,8 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
     if (isPending) return;
     setOpen(false);
     setPreviewUrl(null);
+    setFetched(null);
+    setLinkUrl("");
     formRef.current?.reset();
   }
 
@@ -82,6 +109,8 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
     if (isPending || next === mode) return;
     setMode(next);
     setPreviewUrl(null);
+    setFetched(null);
+    setLinkUrl("");
   }
 
   return (
@@ -261,36 +290,91 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
                     type="url"
                     name="url"
                     required
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    readOnly={Boolean(fetched)}
                     placeholder="Paste a product page link"
-                    className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
+                    className={`mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink ${
+                      fetched ? "text-ink-tertiary" : ""
+                    }`}
                   />
                 </div>
 
-                {/* Few shops say what kind of garment a product is, so the
-                    category can be set here. Left on Detect, the fetch works
-                    it out where it can and says so when it can't. */}
-                <div>
-                  <p className="eyebrow text-ink-tertiary">Category</p>
-                  <select
-                    name="category"
-                    defaultValue=""
-                    className="mt-2.5 w-full cursor-pointer border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
-                  >
-                    <option value="">Detect automatically</option>
-                    <option value="tops">Tops</option>
-                    <option value="jackets">Jackets</option>
-                    <option value="bottoms">Bottoms</option>
-                    <option value="accessories">Accessories</option>
-                    <option value="shoes">Shoes</option>
-                  </select>
-                </div>
+                {fetched ? (
+                  <>
+                    {/* What the shop actually gave us. Shown before anything is
+                        saved, so a wrong photo or a banner image is caught here
+                        rather than in the wardrobe — and before a background
+                        removal credit is spent on it. */}
+                    <div className="flex gap-4 rounded-card border border-edge-subtle bg-surface-sunken/50 p-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={fetched.imageDataUrl}
+                        alt="The photo found on that page"
+                        className="h-28 w-28 shrink-0 rounded-control bg-surface-raised object-contain"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="eyebrow text-ink-tertiary">Found</p>
+                        <p className="mt-1 text-sm leading-snug text-ink">
+                          {fetched.name}
+                        </p>
+                        <p className="meta mt-2 text-ink-tertiary">
+                          {fetched.category
+                            ? `Detected as ${fetched.category}`
+                            : "Category not detected — choose one below"}
+                        </p>
+                      </div>
+                    </div>
 
-                <p className="text-xs leading-relaxed text-ink-tertiary">
-                  Works with most shops — Aritzia, Skims and the like.
-                  We&apos;ll pull the name and product photo, then remove the
-                  background. If a shop turns us away, save the photo and use
-                  Upload a Photo instead.
-                </p>
+                    <div>
+                      <p className="eyebrow text-ink-tertiary">Name</p>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        defaultValue={fetched.name}
+                        className="mt-2.5 w-full border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
+                      />
+                    </div>
+
+                    <div>
+                      <p className="eyebrow text-ink-tertiary">Category</p>
+                      <select
+                        name="category"
+                        required
+                        defaultValue={fetched.category ?? ""}
+                        className="mt-2.5 w-full cursor-pointer border border-edge bg-transparent px-3.5 py-2.5 text-sm focus:border-ink"
+                      >
+                        <option value="" disabled>
+                          Choose a category
+                        </option>
+                        {ITEM_CATEGORIES.map((c) => (
+                          <option key={c.value} value={c.value}>
+                            {c.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <input type="hidden" name="token" value={fetched.token} />
+
+                    <button
+                      type="button"
+                      onClick={() => setFetched(null)}
+                      disabled={isPending}
+                      className="btn-label cursor-pointer self-start rounded-full btn-quiet px-4 py-2 disabled:cursor-wait disabled:opacity-70"
+                    >
+                      Try a different link
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-xs leading-relaxed text-ink-tertiary">
+                    Works with most shops — Aritzia, Skims and the like.
+                    We&apos;ll show you the name and photo we find before
+                    anything is added. If a shop turns us away, save the photo
+                    and use Upload a Photo instead.
+                  </p>
+                )}
               </>
             )}
 
@@ -303,11 +387,14 @@ export function AddItemButton({ canFetchFromLink }: { canFetchFromLink: boolean 
               disabled={isPending}
               className="btn-label mt-1 w-full cursor-pointer rounded-full btn-primary py-3 disabled:cursor-wait disabled:opacity-70"
             >
-              {isPending
-                ? mode === "photo"
+              {/* Three jobs, so the button says which one it is about to do. */}
+              {mode === "link" && !fetched
+                ? isPending
+                  ? "Looking it up…"
+                  : "Fetch details"
+                : isPending
                   ? "Adding to your closet…"
-                  : "Fetching and adding…"
-                : "Add to Closet"}
+                  : "Add to Closet"}
             </button>
           </form>
         </div>
