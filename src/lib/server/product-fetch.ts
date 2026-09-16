@@ -1,3 +1,4 @@
+import { guessCategory } from "@/lib/server/category-guess";
 import type { Category } from "@/lib/types";
 
 // Imported lazily inside fetchProductFromUrl(), not at module scope: this
@@ -67,38 +68,6 @@ const SITE_RULES: SiteRule[] = [
     },
   },
 ];
-
-/**
- * A last-resort guess from the words in the product's name. Deliberately
- * conservative: a wrong guess silently files a coat under shoes, so anything
- * ambiguous returns null and the form asks instead.
- */
-const CATEGORY_KEYWORDS: [RegExp, Category][] = [
-  [/\b(sneaker|shoe|boot|loafer|heel|sandal|flat|trainer|clog|mule)s?\b/i, "shoes"],
-  [
-    /\b(jacket|coat|blazer|parka|puffer|trench|windbreaker|anorak|bomber)s?\b/i,
-    "jackets",
-  ],
-  [
-    /\b(jean|trouser|pant|legging|short|skirt|chino|jogger|sweatpant)s?\b/i,
-    "bottoms",
-  ],
-  [
-    /\b(tee|t-shirt|shirt|top|tank|cami|blouse|sweater|hoodie|sweatshirt|cardigan|jumper|bodysuit|polo)s?\b/i,
-    "tops",
-  ],
-  [
-    /\b(bag|tote|belt|scarf|hat|cap|beanie|sunglasses|necklace|earring|glove|sock)s?\b/i,
-    "accessories",
-  ],
-];
-
-function guessCategoryFromName(name: string): Category | null {
-  for (const [pattern, category] of CATEGORY_KEYWORDS) {
-    if (pattern.test(name)) return category;
-  }
-  return null;
-}
 
 /**
  * Retailers put variant noise in the JSON-LD name because each size and color
@@ -368,9 +337,35 @@ export async function fetchProductFromUrl(url: string): Promise<FetchedProduct> 
     const ldCategory = products.find((p) => typeof p.category === "string")
       ?.category as string | undefined;
 
+    // A shop's breadcrumb trail names the section the garment sits in, which
+    // is a better signal than its name when the name is a style ("Rollneck").
+    const breadcrumbs = await page.$$eval(
+      'script[type="application/ld+json"]',
+      (els) => {
+        for (const el of els) {
+          try {
+            const data = JSON.parse(el.textContent ?? "");
+            for (const entry of Array.isArray(data) ? data : [data]) {
+              if (entry?.["@type"] === "BreadcrumbList") {
+                return (entry.itemListElement ?? [])
+                  .map(
+                    (item: { name?: string; item?: { name?: string } }) =>
+                      item?.name ?? item?.item?.name ?? ""
+                  )
+                  .filter(Boolean);
+              }
+            }
+          } catch {
+            // not valid JSON — skip
+          }
+        }
+        return [] as string[];
+      }
+    );
+
     const category =
       rule?.category?.(rawImage, ldCategory ?? null) ??
-      guessCategoryFromName(name);
+      guessCategory({ name, ldCategory, breadcrumbs });
 
     // Shops disagree about which of their image URLs actually serves a full
     // photo: lululemon's JSON-LD one returns a 1 KB placeholder while its
