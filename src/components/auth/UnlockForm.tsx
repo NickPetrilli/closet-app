@@ -2,7 +2,12 @@
 
 import { useActionState, useState } from "react";
 import { unlock, type AuthFormState } from "@/lib/actions/auth";
-import { FormError, INPUT_BASE_CLASS, SubmitButton } from "./AuthFields";
+import {
+  FormError,
+  INPUT_BASE_CLASS,
+  PasswordInput,
+  SubmitButton,
+} from "./AuthFields";
 
 const initialState: AuthFormState = {};
 
@@ -23,10 +28,11 @@ export function UnlockForm() {
         <label htmlFor="closet-password" className="sr-only">
           Closet password
         </label>
-        <input
+        {/* Masked as it is typed, and revealable, the same as the password
+            field on the sign-in screen — one behavior for both. */}
+        <PasswordInput
           id="closet-password"
           name="password"
-          type="text"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -34,13 +40,12 @@ export function UnlockForm() {
           // the expected thing, and iOS won't force the keyboard open for it.
           autoFocus
           autoComplete="off"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
           enterKeyHint="go"
           placeholder="Password"
           aria-invalid={Boolean(state.error) && !isPending}
-          className={`${INPUT_BASE_CLASS} h-14 text-center font-serif text-2xl tracking-[0.12em] placeholder:font-sans placeholder:text-base placeholder:tracking-normal`}
+          // Padded on the left by as much as the Show button takes on the
+          // right, so the dots stay optically centered rather than drifting.
+          className={`${INPUT_BASE_CLASS} h-14 pl-[4.5rem] text-center font-serif text-2xl tracking-[0.12em] placeholder:font-sans placeholder:text-base placeholder:tracking-normal`}
         />
       </div>
 
